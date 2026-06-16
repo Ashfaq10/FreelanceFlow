@@ -1,0 +1,271 @@
+{% load invoice_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice {{ invoice.invoice_number }}</title>
+  <style>
+    @page { size: A4; margin: 14mm 16mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Inter, Roboto, Arial, sans-serif;
+      font-size: 10pt;
+      color: #000;
+      line-height: 1.40;
+      background: #fff;
+    }
+    .page { max-width: 100%; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .brand { display: flex; gap: 14px; align-items: center; max-width: 55%; }
+    .logo { height: 64px; width: auto; max-width: 80px; object-fit: contain; }
+    .brand-name { font-size: 16pt; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+    .brand-tagline { font-size: 9pt; color: #6B7280; margin-top: 2px; }
+    .invoice-title-block { text-align: right; }
+    .invoice-title { font-size: 28pt; font-weight: 800; letter-spacing: 0.02em; line-height: 1; }
+    .invoice-number {
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 8.5pt;
+      color: #374151;
+      margin-top: 8px;
+    }
+    .rule { border: none; border-top: 1px solid #D1D5DB; margin: 14px 0; }
+    .meta-bar { display: table; width: 100%; margin-bottom: 6px; }
+    .meta-col { display: table-cell; vertical-align: top; padding-right: 12px; width: 20%; }
+    .meta-label {
+      font-size: 7.5pt; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #6B7280; margin-bottom: 4px;
+    }
+    .meta-value { font-size: 9pt; color: #374151; }
+    .meta-value strong { color: #000; font-weight: 700; }
+    .status-unpaid { color: #F97316; font-weight: 800; }
+    .status-paid { color: #059669; font-weight: 800; }
+    .status-overdue { color: #DC2626; font-weight: 800; }
+    .txn-row { font-size: 8.5pt; color: #6B7280; margin-top: 10px; }
+    .txn-row span { color: #000; font-family: Consolas, monospace; font-size: 8pt; }
+    .addresses { display: table; width: 100%; margin: 18px 0 22px; }
+    .addr-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 24px; }
+    .addr-heading {
+      font-size: 8pt; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #6B7280; margin-bottom: 8px;
+    }
+    .addr-name { font-weight: 700; font-size: 11pt; margin-bottom: 4px; }
+    .addr-line { font-size: 9pt; color: #374151; line-height: 1.5; }
+    table.items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    table.items thead th {
+      background: #374151; color: #fff; font-size: 7.5pt; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 10px 8px; text-align: center; border: 1px solid #4B5563;
+    }
+    table.items thead th.desc { text-align: left; }
+    table.items thead th.amt { text-align: right; }
+    table.items tbody td {
+      padding: 10px 8px; border: 1px solid #E5E7EB; font-size: 9pt; vertical-align: middle;
+    }
+    table.items tbody tr { background: #F9FAFB; }
+    table.items tbody td.num, table.items tbody td.qty { text-align: center; color: #374151; }
+    table.items tbody td.desc { font-weight: 600; text-align: left; }
+    table.items tbody td.install { text-align: center; color: #06B6D4; font-weight: 600; }
+    table.items tbody td.assets { text-align: center; color: #9CA3AF; }
+    table.items tbody td.amt { text-align: right; font-weight: 700; }
+    .totals-wrap { width: 100%; margin-bottom: 24px; }
+    .totals { width: 280px; margin-left: auto; }
+    .total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 9.5pt; }
+    .total-row .label { color: #374151; }
+    .total-row .value { font-weight: 600; }
+    .total-row.discount .value { color: #10B981; }
+    .total-divider { border-top: 2px solid #000; margin: 8px 0 6px; }
+    .total-due { display: flex; justify-content: space-between; font-size: 13pt; font-weight: 800; }
+    .box {
+      background: #F3F4F6; border-left: 4px solid #000;
+      padding: 14px 16px; margin-bottom: 14px;
+    }
+    .box-title {
+      font-size: 8pt; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .bank-line { font-size: 9pt; margin-bottom: 4px; color: #374151; }
+    .bank-line strong { color: #000; }
+    .box-notes { font-size: 9pt; color: #374151; line-height: 1.55; }
+    .terms { margin: 10px 0 12px; page-break-inside: avoid; }
+    .terms-title {
+      font-size: 8pt; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .terms ul { padding-left: 18px; }
+    .terms li { font-size: 8.5pt; color: #374151; margin-bottom: 3px; line-height: 1.25; }
+    .doc-footer {
+      border-top: 1px solid #E5E7EB; padding-top: 8px;
+      text-align: center; font-size: 7pt; color: #9CA3AF; line-height: 1.35;
+    }
+    .doc-footer .brand-line {
+      color: #6B7280;
+      margin-top: 3px;
+      font-size: 7pt;
+      white-space: nowrap;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="brand">
+      {% if logo_uri %}
+        <img src="{{ logo_uri }}" alt="Logo" class="logo">
+      {% endif %}
+      <div>
+        <div class="brand-name">{{ business_name }}</div>
+        {% if user.business_tagline %}
+          <div class="brand-tagline">{{ user.business_tagline }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="invoice-title-block">
+      <div class="invoice-title">INVOICE</div>
+      <div class="invoice-number">INVOICE # {{ invoice.invoice_number }}</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="meta-bar">
+    <div class="meta-col">
+      <div class="meta-label">Invoice Date</div>
+      <div class="meta-value">{{ issue_date_formatted }}</div>
+    </div>
+    <div class="meta-col">
+      <div class="meta-label">Payment Date</div>
+      <div class="meta-value">{{ due_date_formatted }}</div>
+    </div>
+    {% if invoice.reference_number %}
+    <div class="meta-col">
+      <div class="meta-label">Reference</div>
+      <div class="meta-value">{{ invoice.reference_number }}</div>
+    </div>
+    {% endif %}
+  </div>
+  
+
+  <hr class="rule">
+
+  <div class="addresses">
+    <div class="addr-col">
+      <div class="addr-heading">From</div>
+      <div class="addr-name">{{ from_name }}</div>
+      {% if user.address %}<div class="addr-line">{{ user.address|format_address|linebreaksbr }}</div>{% endif %}
+      {% if user.business_phone or user.phone %}<div class="addr-line">Phone: {{ user.business_phone|default:user.phone }}</div>{% endif %}
+      {% if user.business_email or user.email %}<div class="addr-line">Email: {{ user.business_email|default:user.email }}</div>{% endif %}
+      {% if user.tax_number %}<div class="addr-line">VAT: {{ user.tax_number }}</div>{% endif %}
+    </div>
+    <div class="addr-col">
+      <div class="addr-heading">Bill To</div>
+      <div class="addr-name">{{ client.name }}</div>
+      {% if client.company and client.company != client.name %}
+        <div class="addr-line">{{ client.company }}</div>
+      {% endif %}
+      {% if client.full_address %}
+        <div class="addr-line">{{ client.full_address|format_address|linebreaksbr }}</div>
+      {% endif %}
+      {% if client.phone %}<div class="addr-line">Phone: {{ client.phone }}</div>{% endif %}
+      {% if client.email %}<div class="addr-line">Email: {{ client.email }}</div>{% endif %}
+    </div>
+  </div>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th style="width:4%">#</th>
+        <th class="desc" style="width:46%">Description</th>
+        <th style="width:8%">Qty</th>
+        <th style="width:14%">Unit Price</th>
+        <th class="amt" style="width:18%">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td class="num">{{ forloop.counter }}</td>
+        <td class="desc">{{ item.description }}</td>
+        <td class="qty">{{ item.quantity }}</td>
+        <td class="num">{{ item.unit_price|currency:currency_symbol }}</td>
+        <td class="amt">{{ item.line_total|currency:currency_symbol }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align:center;color:#9CA3AF;padding:16px;">No line items</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totals-wrap">
+    <div class="totals">
+      <div class="total-row">
+        <span class="label">Subtotal</span>
+        <span class="value">{{ invoice.subtotal|currency:currency_symbol }}</span>
+      </div>
+      {% if discount > 0 %}
+      <div class="total-row discount">
+        <span class="label">Discount</span>
+        <span class="value">{{ discount|currency:currency_symbol }}</span>
+      </div>
+      {% endif %}
+      {% if invoice.tax_rate > 0 %}
+      <div class="total-row">
+        <span class="label">VAT ({{ invoice.tax_rate }}%)</span>
+        <span class="value">{{ invoice.tax_amount|currency:currency_symbol }}</span>
+      </div>
+      {% endif %}
+      <div class="total-divider"></div>
+      <div class="total-due">
+        <span>Total Due</span>
+        <span>{{ invoice.total|currency:currency_symbol }}</span>
+      </div>
+    </div>
+  </div>
+
+  {% if bank_lines %}
+  <div class="box">
+    <div class="box-title">Bank Details</div>
+    {% for row in bank_lines %}
+      <div class="bank-line">
+        {% if row.label %}
+          <strong>{{ row.label }}:</strong> {{ row.value }}
+        {% else %}
+          {{ row.value }}
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="box">
+    <div class="box-title">Notes</div>
+    <div class="box-notes">{{ notes_text|linebreaksbr }}</div>
+  </div>
+
+  <div class="terms">
+    <div class="terms-title">Terms &amp; Conditions</div>
+    <ul>
+      {% for term in terms_list %}
+      <li>{{ term }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="doc-footer">
+    <div>This is a computer-generated document and does not require any signature or stamp.</div>
+    <div class="brand-line">
+      {{ business_name }}{% if user.website %} | {{ user.website }}{% endif %}{% if user.business_tagline %} | {{ user.business_tagline }}{% endif %}
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

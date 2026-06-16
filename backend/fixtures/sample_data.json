@@ -1,0 +1,20 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": "11111111-1111-1111-1111-111111111111",
+    "fields": {
+      "email": "demo@freelanceflow.com",
+      "password": "pbkdf2_sha256$600000$demo$hashed_password_here",
+      "full_name": "Alex Johnson",
+      "business_name": "AJ Web Solutions",
+      "currency": "USD",
+      "bank_details": "Bank: First National\nAccount: 1234567890\nRouting: 987654321",
+      "tax_number": "12-3456789",
+      "address": "123 Developer Lane\nSan Francisco, CA 94102",
+      "phone": "+1 (555) 123-4567",
+      "website": "https://ajwebsolutions.com",
+      "is_staff": false,
+      "is_active": true
+    }
+  }
+]
