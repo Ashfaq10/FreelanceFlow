@@ -15,7 +15,7 @@ import {
   Legend
 } from 'recharts'
 import { DollarSign, TrendingUp, Users, FileText } from 'lucide-react'
-import { Card, StatsCard, Skeleton } from '../../components/ui'
+import { Card, StatsCard, Skeleton, ErrorState } from '../../components/ui'
 import { dashboard as dashboardApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -26,6 +26,7 @@ function Reports() {
   const [loading, setLoading] = useState(true)
   const [monthlyData, setMonthlyData] = useState([])
   const [stats, setStats] = useState(null)
+  const [error, setError] = useState(false)
   // The API sends decimals as strings; "0.00" is truthy, so a plain `&&` guard produced Infinity%.
   const billed = Number(stats?.total_billed) || 0
   const collectedPercent = billed > 0 ? Math.round((Number(stats?.total_revenue) / billed) * 100) : 0
@@ -35,16 +36,19 @@ function Reports() {
   }, [])
 
   const fetchReportData = async () => {
+    setLoading(true)
+    setError(false)
     try {
       const [summaryRes, revenueRes] = await Promise.all([
         dashboardApi.getSummary(),
         dashboardApi.getMonthlyRevenue(12)
       ])
-      
+
       setStats(summaryRes.data)
       setMonthlyData(revenueRes.data || [])
-    } catch (error) {
-      console.error('Failed to fetch report data:', error)
+    } catch (err) {
+      console.error('Failed to fetch report data:', err)
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -75,6 +79,10 @@ function Reports() {
         </div>
       </div>
     )
+  }
+
+  if (error) {
+    return <ErrorState title="Could not load your reports" onRetry={fetchReportData} />
   }
 
   return (

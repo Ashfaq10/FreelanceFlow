@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Plus, Search, FileText, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Table, Badge, Button, EmptyState, Skeleton, Pagination } from '../../components/ui'
+import { Card, Table, Badge, Button, EmptyState, ErrorState, Skeleton, Pagination } from '../../components/ui'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -17,10 +17,13 @@ function InvoiceList() {
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
   const page = Number(searchParams.get('page')) || 1
+  const [error, setError] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     const fetchInvoices = async () => {
       setLoading(true)
+      setError(false)
       try {
         const params = {
           search: searchParams.get('search'),
@@ -30,14 +33,15 @@ function InvoiceList() {
         const response = await invoiceApi.list(params)
         setInvoices(response.data.results || response.data || [])
         setCount(response.data.count ?? (response.data.results || response.data || []).length)
-      } catch (error) {
-        console.error('Failed to fetch invoices:', error)
+      } catch (err) {
+        console.error('Failed to fetch invoices:', err)
+        setError(true)
       } finally {
         setLoading(false)
       }
     }
     fetchInvoices()
-  }, [searchParams])
+  }, [searchParams, reloadKey])
 
   const goToPage = (next) => {
     const params = new URLSearchParams(searchParams)
@@ -237,6 +241,8 @@ function InvoiceList() {
               ))}
             </Table.Body>
           </Table>
+        ) : error ? (
+          <ErrorState title="Could not load your invoices" onRetry={() => setReloadKey(k => k + 1)} />
         ) : (
           <EmptyState
             icon={FileText}

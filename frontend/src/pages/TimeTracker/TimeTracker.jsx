@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Plus, Clock, Trash2, Play, Pause, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Button, Input, Select, Table, EmptyState, Modal } from '../../components/ui'
+import { Card, Button, Input, Select, Table, EmptyState, ErrorState, Modal } from '../../components/ui'
 import { timeLogs as timeLogApi, clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -11,6 +11,7 @@ import { parseDateOnly, todayISO } from '../../utils/dates'
 
 function TimeTracker() {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [timeLogs, setTimeLogs] = useState([])
   const [clientList, setClients] = useState([])
   const [showModal, setShowModal] = useState(false)
@@ -47,11 +48,13 @@ function TimeTracker() {
   }, [isTracking])
 
   const fetchTimeLogs = async () => {
+    setError(false)
     try {
       // Totals below sum these rows, so they must be all of them, not page one (BUG-7).
       setTimeLogs(await fetchAllPages(timeLogApi.list))
-    } catch (error) {
-      console.error('Failed to fetch time logs:', error)
+    } catch (err) {
+      console.error('Failed to fetch time logs:', err)
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -333,6 +336,8 @@ function TimeTracker() {
               ))}
             </Table.Body>
           </Table>
+        ) : error ? (
+          <ErrorState title="Could not load your time logs" onRetry={() => { setLoading(true); fetchTimeLogs() }} />
         ) : (
           <EmptyState
             icon={Clock}

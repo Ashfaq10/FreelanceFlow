@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { DollarSign, Clock, AlertTriangle, TrendingUp, ArrowRight, FileText, Users, Plus } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { Card, Badge, StatsCard, Skeleton } from '../components/ui'
+import { Card, Badge, StatsCard, Skeleton, ErrorState } from '../components/ui'
 import { dashboard, invoices } from '../api/endpoints'
 import { formatCurrency as formatMoney } from '../utils/formatters'
 import { useCurrency } from '../hooks/useCurrency'
@@ -12,27 +12,29 @@ function Dashboard() {
   const [stats, setStats] = useState(null)
   const [recentInvoices, setRecentInvoices] = useState([])
   const [chartData, setChartData] = useState([])
+  const [failedCount, setFailedCount] = useState(0)
 
   useEffect(() => {
     fetchDashboardData()
   }, [])
 
   const fetchDashboardData = async () => {
-    try {
-      const [summaryRes, invoicesRes, revenueRes] = await Promise.all([
-        dashboard.getSummary(),
-        invoices.list({ page_size: 5 }),
-        dashboard.getMonthlyRevenue(12)
-      ])
+    setLoading(true)
+    // One failing endpoint used to blank the whole dashboard (BUG-15).
+    const [summaryRes, invoicesRes, revenueRes] = await Promise.allSettled([
+      dashboard.getSummary(),
+      invoices.list({ page_size: 5 }),
+      dashboard.getMonthlyRevenue(12)
+    ])
 
-      setStats(summaryRes.data)
-      setRecentInvoices(invoicesRes.data.results || [])
-      setChartData(revenueRes.data || [])
-    } catch (error) {
-      console.error('Failed to fetch dashboard data:', error)
-    } finally {
-      setLoading(false)
-    }
+    if (summaryRes.status === 'fulfilled') setStats(summaryRes.value.data)
+    if (invoicesRes.status === 'fulfilled') setRecentInvoices(invoicesRes.value.data.results || [])
+    if (revenueRes.status === 'fulfilled') setChartData(revenueRes.value.data || [])
+
+    const failures = [summaryRes, invoicesRes, revenueRes].filter(r => r.status === 'rejected')
+    failures.forEach(r => console.error('Dashboard request failed:', r.reason))
+    setFailedCount(failures.length)
+    setLoading(false)
   }
 
   const currency = useCurrency()
@@ -66,8 +68,23 @@ function Dashboard() {
     )
   }
 
+  if (failedCount === 3) {
+    return <ErrorState title="Could not load your dashboard" onRetry={fetchDashboardData} />
+  }
+
   return (
     <div className="space-y-6 animate-fade-up">
+      {failedCount > 0 && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200">
+          <span className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            Some of this page could not be loaded.
+          </span>
+          <button onClick={fetchDashboardData} className="font-semibold underline underline-offset-2">
+            Try again
+          </button>
+        </div>
+      )}
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>

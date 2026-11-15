@@ -30,7 +30,9 @@ function PrivateRoute({ children }) {
     )
   }
 
-  return user ? children : <Navigate to="/login" />
+  // A failed profile load (500, offline) leaves `user` null while the token is still good:
+  // let the page render and show its own error instead of bouncing to the login screen (BUG-15).
+  return user || localStorage.getItem('token') ? children : <Navigate to="/login" />
 }
 
 function PublicRoute({ children }) {

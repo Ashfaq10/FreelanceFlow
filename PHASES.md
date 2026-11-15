@@ -16,7 +16,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 |---|---|---|---|
 | 0 | Baseline: green tests, working CI, honest docs | ✅ Done (CI green on `main`, run 43703445329) | 11 / 11 |
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
-| 2 | Fix broken user flows | 🟡 In progress | 14 / 17 |
+| 2 | Fix broken user flows | 🟡 In progress | 15 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ⚪ Not started | 0 / 8 |
 | 4 | Code health, performance, UX & a11y | ⚪ Not started | 0 / 16 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
@@ -94,7 +94,7 @@ flowchart LR
 - [x] `?client=` preselects the client on new invoices ([BUG-12](docs/AUDIT.md#bug-12)) — **S**
 - [x] Date-only values parsed as local dates ([BUG-13](docs/AUDIT.md#bug-13)) — **S**
 - [x] Reports: no `NaN%` ([BUG-14](docs/AUDIT.md#bug-14)) — **S**
-- [ ] Error + retry states; `Promise.allSettled` on the Dashboard ([BUG-15](docs/AUDIT.md#bug-15)) — **M**
+- [x] Error + retry states; `Promise.allSettled` on the Dashboard ([BUG-15](docs/AUDIT.md#bug-15)) — **M**
 - [ ] PDF: "Due Date" label, receipt text only when paid, template/colour implemented or removed ([BUG-16](docs/AUDIT.md#bug-16)) — **M**
 - [ ] Invalid query params return 400 ([BUG-17](docs/AUDIT.md#bug-17)) — **S**
 

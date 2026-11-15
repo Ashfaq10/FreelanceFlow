@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Users, Mail, Phone } from 'lucide-react'
-import { Card, Button, EmptyState, Skeleton, Pagination } from '../../components/ui'
+import { Card, Button, EmptyState, ErrorState, Skeleton, Pagination } from '../../components/ui'
 import { clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -13,10 +13,13 @@ function ClientList() {
   const [count, setCount] = useState(0)
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const page = Number(searchParams.get('page')) || 1
+  const [error, setError] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     const fetchClients = async () => {
       setLoading(true)
+      setError(false)
       try {
         const params = {
           search: searchParams.get('search'),
@@ -25,14 +28,15 @@ function ClientList() {
         const response = await clientApi.list(params)
         setClients(response.data.results || response.data || [])
         setCount(response.data.count ?? (response.data.results || response.data || []).length)
-      } catch (error) {
-        console.error('Failed to fetch clients:', error)
+      } catch (err) {
+        console.error('Failed to fetch clients:', err)
+        setError(true)
       } finally {
         setLoading(false)
       }
     }
     fetchClients()
-  }, [searchParams])
+  }, [searchParams, reloadKey])
 
   const goToPage = (next) => {
     const params = new URLSearchParams(searchParams)
@@ -146,6 +150,8 @@ function ClientList() {
               </Link>
             ))}
           </div>
+        ) : error ? (
+          <ErrorState title="Could not load your clients" onRetry={() => setReloadKey(k => k + 1)} />
         ) : (
           <EmptyState
             icon={Users}

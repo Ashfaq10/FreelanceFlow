@@ -10,7 +10,6 @@ Rules:
 
 ## Now
 
-- [ ] Error + retry states; `Promise.allSettled` on the Dashboard — [BUG-15](docs/AUDIT.md#bug-15)
 - [ ] PDF labels: "Due Date", receipt text only when paid — [BUG-16](docs/AUDIT.md#bug-16)
 - [ ] Invalid query params return 400 — [BUG-17](docs/AUDIT.md#bug-17)
 

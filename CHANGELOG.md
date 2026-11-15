@@ -54,6 +54,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - "Create invoice" from a client page preselects that client (BUG-12).
 - Time-log dates keep the day you picked west of UTC, and the date field defaults to your local today, not UTC's (BUG-13).
 - Reports no longer shows `NaN%`/`Infinity%` before the first invoice is billed (BUG-14).
+- A failed load shows an error with a Try again button instead of "No invoices yet"; the Dashboard keeps the parts that loaded and an unreachable API no longer bounces you to the login screen (BUG-15).
 - A failed profile load no longer logs you out: only a 401 clears the stored token (BUG-8).
 - Editing a draft keeps its saved issue and due dates instead of resetting them to today and today + 30 days (DATA-6).
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).

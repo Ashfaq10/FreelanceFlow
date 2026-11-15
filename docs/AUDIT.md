@@ -199,7 +199,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `Number(stats.total_billed) > 0 ? … : 0`.
 
 ### <a id="bug-15"></a>BUG-15 — Load failures render the empty state; Dashboard is all-or-nothing
-`Should` · Phase 2 · `InvoiceList.jsx`, `ClientList.jsx`, `TimeTracker.jsx`, `Dashboard.jsx`, `Reports.jsx`
+`Should` · Phase 2 · `InvoiceList.jsx`, `ClientList.jsx`, `TimeTracker.jsx`, `Dashboard.jsx`, `Reports.jsx` · **Done 2026-11-15**: shared `ui/ErrorState` (retry) on all five pages; the Dashboard uses `Promise.allSettled`, so a single failing endpoint leaves the rest of the page intact behind a "Some of this page could not be loaded" banner. `PrivateRoute` also keeps you on the page when the profile request fails for anything other than a 401 — before, an unreachable API bounced you to the login screen.
 **Fix:** Error state with retry; `Promise.allSettled` on the Dashboard.
 
 ### <a id="bug-16"></a>BUG-16 — PDF labels and options are wrong
