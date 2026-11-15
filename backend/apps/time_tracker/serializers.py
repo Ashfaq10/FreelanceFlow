@@ -25,6 +25,14 @@ class TimeLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'is_billed', 'created_at']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Related objects must belong to the caller — SEC-1.
+        request = self.context.get('request')
+        if request is not None:
+            self.fields['client'].queryset = request.user.clients.all()
+            self.fields['invoice'].queryset = request.user.invoices.all()
+
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)

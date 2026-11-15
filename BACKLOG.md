@@ -10,7 +10,7 @@ Rules:
 
 ## Now
 
-- [ ] Scope serializer querysets to the user — [SEC-1](docs/AUDIT.md#sec-1)
+- [ ] Production settings require `SECRET_KEY` and `ALLOWED_HOSTS` — [SEC-2](docs/AUDIT.md#sec-2)
 - [ ] Quantize money on the backend — [DATA-3](docs/AUDIT.md#data-3)
 - [ ] Lock invoice status transitions — [DATA-2](docs/AUDIT.md#data-2)
 
@@ -35,4 +35,6 @@ Rules:
 ## Done
 
 - [x] 2026-11-15 — Phase 0 baseline: test settings, green pytest, CI paths + frontend job, lint green both sides, Celery local default, `lib/` ignore, Vitest + MSW (TEST-2, TEST-1, OPS-1, OPS-2, OPS-12, OPS-13, TEST-4)
+- [x] 2026-11-15 — Dev tooling: `scripts/check.sh`, pre-commit hooks, Dependabot
+- [x] 2026-11-15 — Cross-tenant related fields scoped to the caller (SEC-1)
 - [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)

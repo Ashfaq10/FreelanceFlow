@@ -29,7 +29,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Security
 
 ### <a id="sec-1"></a>SEC-1 — Cross-tenant foreign keys on invoice and time-log writes
-`Must` · Phase 1 · `apps/invoices/serializers.py` (`InvoiceWriteSerializer.client`), `apps/time_tracker/serializers.py` (`client`, `invoice`)
+`Must` · Phase 1 · `apps/invoices/serializers.py` (`InvoiceWriteSerializer.client`), `apps/time_tracker/serializers.py` (`client`, `invoice`) · **Done 2026-11-15**: both serializers scope their querysets in `__init__`; `tests/test_scoping.py` covers create, update and read.
 **Problem:** `client`/`invoice` are default `PrimaryKeyRelatedField`s over `.objects.all()`. User A can POST an invoice with user B's client UUID; the response then returns B's client email/phone/address and "Send" would email B's client.
 **Fix:** In the serializer `__init__`, restrict `fields['client'].queryset` to `request.user.clients.all()` and `fields['invoice'].queryset` to `request.user.invoices.all()`. Test: cross-user POST returns 400.
 

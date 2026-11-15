@@ -14,11 +14,15 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Project tracking docs: [PHASES.md](PHASES.md) roadmap, [docs/AUDIT.md](docs/AUDIT.md) findings, [docs/API.md](docs/API.md), [docs/DESIGN.md](docs/DESIGN.md), [ADRs](docs/adr/), [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), PR template.
 - `backend/static/.gitkeep` so fresh clones pass Django's `staticfiles.W004` check.
 
+### Security
+- Invoice and time-log writes only accept clients and invoices owned by the caller; a cross-user id now returns 400 instead of attaching (and emailing) someone else's client (SEC-1).
+
 ### Changed
 - CI runs backend jobs from `backend/`, tests against the Postgres service, builds the image from `./backend`, and pins flake8/black/isort (OPS-1, OPS-2).
 - Backend formatted with black and isort; flake8 clean. `logout_view` catches `Token.DoesNotExist` instead of a bare `except` (OPS-2).
 - Frontend lint clean: fetch-on-mount effects declare their dependencies; unused code removed (OPS-2).
 - Celery defaults to `config.settings.local`, like `manage.py` (OPS-12).
+- Dev tooling: `scripts/check.sh` runs every CI check locally (`--pg` for Postgres), pre-commit hooks for black/isort/flake8/eslint, Dependabot for pip/npm/actions/docker.
 - `.gitignore` anchors `lib/`/`lib64/` to `/backend/` (OPS-13).
 - README rewritten to match the code: correct ports and commands, honest project status, links to the roadmap (OPS-10).
 - Single root `.env.example` covering SQLite/Postgres, SMTP/SendGrid, Stripe and S3 (OPS-6).

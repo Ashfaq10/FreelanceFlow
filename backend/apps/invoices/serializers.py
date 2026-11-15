@@ -79,6 +79,13 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Without this, any user could attach (and then email) another user's client — SEC-1.
+        request = self.context.get('request')
+        if request is not None:
+            self.fields['client'].queryset = request.user.clients.all()
+
     def validate_items(self, value):
         if not value:
             raise serializers.ValidationError('At least one line item is required.')
