@@ -20,7 +20,7 @@
 </p>
 
 > [!WARNING]
-> **Status: feature-complete, not yet deployable.** Phases 0–3 of the 2026-11-15 audit roadmap are done: security and money integrity, broken flows, payments, per-invoice currency, time billing and a public invoice page. What remains is code health, accessibility and the production setup (Docker/TLS, monitoring, backups, session auth). Stripe has only been tested against mocks. Progress is tracked in **[PHASES.md](PHASES.md)**; findings are in **[docs/AUDIT.md](docs/AUDIT.md)**.
+> **Status: feature-complete, not yet deployable.** Phases 0–4 of the 2026-11-15 audit roadmap are done: security and money integrity, broken flows, payments, per-invoice currency, time billing, a public invoice page, and the code-health/accessibility pass (Django 5.2, OpenAPI schema, six real PDF layouts, axe-clean screens in light and dark). What remains is the production setup (Docker/TLS, monitoring, backups, session auth). Stripe has only been tested against mocks. Progress is tracked in **[PHASES.md](PHASES.md)**; findings are in **[docs/AUDIT.md](docs/AUDIT.md)**.
 
 ## Contents
 
@@ -39,7 +39,7 @@
 | **Invoices** | Line items, fractional quantities, tax and discount rounded to the cent, auto numbers (`INV-2026-001`), statuses Draft → Sent → Overdue → Paid / Cancelled enforced in the model, duplicate, send again, reminders, one currency per invoice | The six templates change the on-screen preview only; the PDF uses one layout and your accent colour ([BUG-16](docs/AUDIT.md#bug-16)) |
 | **Clients** | Profiles, archive instead of delete, server-side search, per-client billed / paid / outstanding totals | |
 | **Time tracking** | Timer and manual entries, optional hourly rate, bill selected entries onto a new draft invoice | Fixed-price work has to be invoiced by hand (no rate to bill) |
-| **PDF** | WeasyPrint PDF with logo, business and bank details, status, due date and your chosen accent colour | Logo breaks PDFs on S3 ([BUG-18](docs/AUDIT.md#bug-18), Phase 5) |
+| **PDF** | WeasyPrint PDF with logo, business and bank details, status, due date, your chosen layout (six templates) and accent colour | Logo breaks PDFs on S3 ([BUG-18](docs/AUDIT.md#bug-18), Phase 5) |
 | **Email & reminders** | One send pipeline (mark sent, render PDF, email), manual and scheduled reminders, retries with backoff, emails link to the client page | With Redis down, "Send" hangs instead of failing ([OPS-9](docs/AUDIT.md#ops-9)) |
 | **Payments** | Stripe Checkout from the app and from the client page, deposits and instalments, refunds mirrored, replay-safe webhook | Only tested against mocks; no live Stripe run yet |
 | **Client page** | `/pay/<token>`: no account, shows one invoice, downloads the PDF, pays | The link is permanent and cannot be revoked |
@@ -179,7 +179,7 @@ The 2026-11-15 audit produced **72 findings**: 8 security, 7 data/money, 4 payme
 | **1 · Security & money** ✅ | No cross-user access; every amount correct to the cent | Scope serializers to the user, require `SECRET_KEY`, validate uploads, throttle auth, protect invoices from cascade delete, lock status transitions, quantize money, atomic writes, idempotent Stripe webhook |
 | **2 · Broken flows** ✅ | Every screen does what its label says | Login errors, client totals, currency everywhere, real password reset, pagination, send pipeline, date handling |
 | **3 · Core product** ✅ | Bill time, pay online, partial payments | Stripe checkout from the app, pay link in emails, per-invoice currency, time → invoice, public invoice page |
-| **4 · Code health** | Less code, current deps, accessible | Delete dead server-rendered UI (~1,000 lines), Django 5.2 LTS, N+1 fixes, code splitting, accessible modal/forms, one brand name |
+| **4 · Code health** ✅ | Less code, current deps, accessible | Delete dead server-rendered UI (~1,000 lines), Django 5.2 LTS, N+1 fixes, code splitting, accessible modal/forms, one brand name |
 | **5 · Production** | Secure, observable deploy | Working prod compose + TLS, session-cookie auth, signed S3 URLs, Sentry, backups, Playwright smoke test |
 | **6 · Growth** | Features users ask for | Recurring invoices, quotes, credit notes, CSV export, multi-tax |
 

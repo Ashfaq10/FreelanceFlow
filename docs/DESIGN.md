@@ -10,7 +10,7 @@
 |---|---|---|---|
 | Product name | **Decided 2026-11-15: the product is FreelanceFlow, made by Penough.** One `Wordmark` component (`components/ui/Wordmark.jsx`) is the only brand mark in the SPA | — | [UX-6](AUDIT.md#ux-6) |
 | Dark mode | **Decided 2026-11-15:** `ThemeProvider` (`context/ThemeContext.jsx`) owns light / dark / system; header, auth pages and Settings → Appearance use `useTheme()`. Saved per browser in `localStorage.theme`, applied by a tiny script in `index.html` before first paint | Per-account sync would need a backend field; not planned | [UX-5](AUDIT.md#ux-5) |
-| Invoice templates | 6 templates in `InvoicePreview.jsx` change the on-screen preview only. The PDF has one layout and uses the invoice's accent colour (`pdf_color`); the picker says so | Build the six layouts for the PDF | [BUG-16](AUDIT.md#bug-16) |
+| Invoice templates | Six layouts (professional, classic, modern, minimal, bold, compact) × seven accent colours. Saved on the invoice (`pdf_template`, `pdf_color`); the SPA preview (`components/invoice/`) and the PDF (`layout-<id>` blocks in `invoice_pdf.html`) share the choice. The preview sits on white paper in both themes | Decided 2026-11-15 | [BUG-16](AUDIT.md#bug-16) |
 
 ## Auth pages (sign in, sign up, forgot and reset password)
 
