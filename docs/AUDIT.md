@@ -239,7 +239,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `annotate(Count(...), Sum(..., filter=Q(...)))` in `get_queryset`.
 
 ### <a id="perf-2"></a>PERF-2 — Single 812 KB JS bundle
-`Should` · Phase 4 · `frontend/src/App.jsx` (every page eagerly imported, incl. recharts)
+`Should` · Phase 4 · `frontend/src/App.jsx` (every page eagerly imported, incl. recharts) · **Done 2026-11-15**: every page is `React.lazy` behind one `Suspense` loader (the three auth pages too). The entry chunk is 267 KB minified (89 KB gzip), down from 860 KB; recharts (377 KB) loads only when the Dashboard or Reports opens.
 **Fix:** `React.lazy` per route; recharts only on Dashboard/Reports.
 
 ---

@@ -1,35 +1,39 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Layout from './components/layout/Layout'
-import Login from './pages/Auth/Login'
-import Signup from './pages/Auth/Signup'
-import ForgotPassword from './pages/Auth/ForgotPassword'
-import ResetPassword from './pages/Auth/ResetPassword'
-import Dashboard from './pages/Dashboard'
-import InvoiceList from './pages/Invoices/InvoiceList'
-import InvoiceCreate from './pages/Invoices/InvoiceCreate'
-import InvoiceDetail from './pages/Invoices/InvoiceDetail'
-import ClientList from './pages/Clients/ClientList'
-import ClientDetail from './pages/Clients/ClientDetail'
-import ClientCreate from './pages/Clients/ClientCreate'
-import TimeTracker from './pages/TimeTracker/TimeTracker'
-import Reports from './pages/Reports/Reports'
-import Settings from './pages/Settings/Settings'
-import PublicInvoice from './pages/Public/PublicInvoice'
+
+const Login = lazy(() => import('./pages/Auth/Login'))
+const Signup = lazy(() => import('./pages/Auth/Signup'))
+const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const InvoiceList = lazy(() => import('./pages/Invoices/InvoiceList'))
+const InvoiceCreate = lazy(() => import('./pages/Invoices/InvoiceCreate'))
+const InvoiceDetail = lazy(() => import('./pages/Invoices/InvoiceDetail'))
+const ClientList = lazy(() => import('./pages/Clients/ClientList'))
+const ClientDetail = lazy(() => import('./pages/Clients/ClientDetail'))
+const ClientCreate = lazy(() => import('./pages/Clients/ClientCreate'))
+const TimeTracker = lazy(() => import('./pages/TimeTracker/TimeTracker'))
+const Reports = lazy(() => import('./pages/Reports/Reports'))
+const Settings = lazy(() => import('./pages/Settings/Settings'))
+const PublicInvoice = lazy(() => import('./pages/Public/PublicInvoice'))
+
+function PageLoader() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center" role="status" aria-live="polite">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin" />
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading...</p>
+      </div>
+    </div>
+  )
+}
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-light dark:bg-surface-dark">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin" />
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return <PageLoader />
 
   // A failed profile load (500, offline) leaves `user` null while the token is still good:
   // let the page render and show its own error instead of bouncing to the login screen (BUG-15).
@@ -39,22 +43,14 @@ function PrivateRoute({ children }) {
 function PublicRoute({ children }) {
   const { user, loading } = useAuth()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-light dark:bg-surface-dark">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin" />
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return <PageLoader />
 
   return user ? <Navigate to="/" /> : children
 }
 
 function App() {
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -80,6 +76,7 @@ function App() {
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
+    </Suspense>
   )
 }
 

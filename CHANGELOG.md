@@ -38,6 +38,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- The app loads 267 KB of JavaScript up front instead of 860 KB: every page loads on demand, and the chart library only when you open the Dashboard or Reports (PERF-2).
 - The client list runs a fixed number of queries instead of three per client (14 clients: 58 queries down to 10) (PERF-1).
 - Line quantities accept fractions (0.5 h is valid; `0` is not). Discounts must be between zero and the subtotal, tax between 0 and 100%, and the SPA sends decimal strings with `step="0.01"` instead of `parseInt`-ing quantities down (DATA-5).
 - The SPA previews unsaved drafts in integer cents (`utils/money.js`) and displays the server's `line_total` for saved items, so the live total and the saved invoice agree to the cent (DATA-3, frontend half).
