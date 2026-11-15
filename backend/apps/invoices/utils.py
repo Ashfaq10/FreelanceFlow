@@ -54,15 +54,6 @@ def get_currency_symbol(currency_code):
     return symbols.get(currency_code, f'{currency_code} ')
 
 
-def format_currency(amount, currency_code):
-    symbol = get_currency_symbol(currency_code)
-    try:
-        value = float(amount)
-    except (TypeError, ValueError):
-        value = 0
-    return f'{symbol}{value:,.2f}'
-
-
 def _logo_file_uri(user):
     if not user.logo:
         return None

@@ -144,13 +144,6 @@ class Invoice(models.Model):
     def amount_due(self):
         return to_cents(self.total - self.amount_paid)
 
-    @property
-    def days_until_due(self):
-        if self.status == 'paid':
-            return None
-        delta = self.due_date - timezone.now()
-        return delta.days
-
     def _require_status(self, new_status, allowed_from):
         if self.status not in allowed_from:
             raise ValidationError(f'An invoice that is {self.status} cannot become {new_status}.')
