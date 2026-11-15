@@ -137,6 +137,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    # Brute-force budget for the unauthenticated auth endpoints (SEC-4).
+    'DEFAULT_THROTTLE_RATES': {
+        'login': '10/min',
+        'signup': '5/hour',
+        'password_reset': '5/hour',
+    },
 }
 
 CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')

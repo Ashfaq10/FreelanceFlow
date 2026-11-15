@@ -15,7 +15,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | Phase | Theme | Status | Done |
 |---|---|---|---|
 | 0 | Baseline: green tests, working CI, honest docs | ✅ Done (CI green on `main`, run 43703445329) | 11 / 11 |
-| 1 | Security & money integrity | ⚪ Not started | 0 / 14 |
+| 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ⚪ Not started | 0 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ⚪ Not started | 0 / 8 |
 | 4 | Code health, performance, UX & a11y | ⚪ Not started | 0 / 16 |
@@ -61,10 +61,10 @@ flowchart LR
 
 - [x] Scope `client`/`invoice` querysets to `request.user` on every write serializer ([SEC-1](docs/AUDIT.md#sec-1)) — **S**
 - [x] Production settings require `SECRET_KEY` and `ALLOWED_HOSTS`; add `SECURE_PROXY_SSL_HEADER` ([SEC-2](docs/AUDIT.md#sec-2)) — **S**
-- [ ] Validate logo uploads with Pillow; PNG/JPEG/WebP only; delete the old file ([SEC-3](docs/AUDIT.md#sec-3)) — **S**
-- [ ] Throttle auth endpoints; run password validators; lower-case emails; 400 on signup race ([SEC-4](docs/AUDIT.md#sec-4)) — **M**
-- [ ] Remove `django-debug-toolbar` from production requirements ([SEC-7](docs/AUDIT.md#sec-7)) — **S**
-- [ ] `default_currency` → `ChoiceField` ([SEC-8](docs/AUDIT.md#sec-8)) — **S**
+- [x] Validate logo uploads with Pillow; PNG/JPEG/WebP only; delete the old file ([SEC-3](docs/AUDIT.md#sec-3)) — **S**
+- [x] Throttle auth endpoints; run password validators; lower-case emails; 400 on signup race ([SEC-4](docs/AUDIT.md#sec-4)) — **M**
+- [x] Remove `django-debug-toolbar` from production requirements ([SEC-7](docs/AUDIT.md#sec-7)) — **S**
+- [x] `default_currency` → `ChoiceField` ([SEC-8](docs/AUDIT.md#sec-8)) — **S**
 - [x] `Invoice.client` → `PROTECT`; client delete returns 409 when invoices exist; UI archives instead ([DATA-1](docs/AUDIT.md#data-1)) — **M**
 - [x] Make `status` read-only; enforce transitions in model methods; add a cancel endpoint ([DATA-2](docs/AUDIT.md#data-2)) — **M**
 - [x] Quantize `line_total`, `tax_amount`, `total` (`ROUND_HALF_UP`) ([DATA-3](docs/AUDIT.md#data-3), backend half) — **S**
@@ -72,7 +72,7 @@ flowchart LR
 - [x] Atomic invoice create/update; `bulk_create` items; one totals calculation; drop the per-item signal ([DATA-4](docs/AUDIT.md#data-4)) — **M**
 - [x] Fractional quantities end-to-end; non-negative discount/tax; tax ≤ 100 ([DATA-5](docs/AUDIT.md#data-5)) — **S**
 - [x] Editing a draft keeps its saved dates ([DATA-6](docs/AUDIT.md#data-6)) — **S**
-- [ ] Idempotent Stripe webhook with amount/status checks and `Decimal` amounts ([PAY-1](docs/AUDIT.md#pay-1)) — **M**
+- [x] Idempotent Stripe webhook with amount/status checks and `Decimal` amounts ([PAY-1](docs/AUDIT.md#pay-1)) — **M**
 
 ## Phase 2 — Fix broken user flows
 

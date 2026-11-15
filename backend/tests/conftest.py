@@ -1,7 +1,16 @@
 import pytest
+from django.core.cache import cache
 from django.test import Client
 
 from .factories import UserFactory, ClientFactory, InvoiceFactory
+
+
+@pytest.fixture(autouse=True)
+def clear_throttle_cache():
+    """DRF counts throttled requests in the cache; leaking them across tests makes order matter."""
+    cache.clear()
+    yield
+    cache.clear()
 
 
 @pytest.fixture

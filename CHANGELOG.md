@@ -19,6 +19,11 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Invoice `status` is read-only over the API: `POST {"status": "paid"}` no longer creates revenue without a payment. Transitions are enforced in the model (`draft→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`) and illegal ones return 400 (DATA-2).
 - `config.settings.production` refuses to start without `SECRET_KEY` and `ALLOWED_HOSTS` (no more published-default fallback) and trusts `X-Forwarded-Proto`, so `SECURE_SSL_REDIRECT` cannot loop behind a TLS proxy (SEC-2).
 - Deleting a client no longer cascades to its invoices, payments and revenue: `Invoice.client` is `PROTECT`, the API answers 409 when invoices exist, and the SPA offers "Archive Client" instead (DATA-1).
+- The Stripe webhook is replay-safe: it verifies `payment_status` and the amount against the invoice total, records at most one payment per invoice (`update_or_create` inside a locked transaction) and stores `Decimal` cents. A redelivered event used to raise `IntegrityError` → 500, so Stripe retried for days (PAY-1).
+- Logo uploads are decoded with Pillow and must be PNG, JPEG or WebP; an SVG with a script or HTML named `.png` is rejected instead of being served from `/media/`. The previous logo file is deleted (SEC-3).
+- Auth endpoints are throttled (login 10/min, signup 5/hour), signup runs Django's password validators, emails are stored lower-case, and a signup race returns 400 instead of 500 (SEC-4).
+- `default_currency` is a `ChoiceField`: `PATCH {"default_currency": "ZZZ"}` is rejected instead of stored and rendered on every invoice (SEC-8).
+- `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
 - Line quantities accept fractions (0.5 h is valid; `0` is not). Discounts must be between zero and the subtotal, tax between 0 and 100%, and the SPA sends decimal strings with `step="0.01"` instead of `parseInt`-ing quantities down (DATA-5).

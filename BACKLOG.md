@@ -10,17 +10,17 @@ Rules:
 
 ## Now
 
-- [ ] Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
-- [ ] Validate logo uploads with Pillow — [SEC-3](docs/AUDIT.md#sec-3)
-- [ ] Throttle auth endpoints; password validators; lower-case emails — [SEC-4](docs/AUDIT.md#sec-4)
+- [ ] Login errors show instead of reloading the page — [BUG-1](docs/AUDIT.md#bug-1)
+- [ ] Client totals use the API's field names — [BUG-2](docs/AUDIT.md#bug-2)
+- [ ] Time logs save without an explicit rate — [BUG-3](docs/AUDIT.md#bug-3)
 
 ## Next
 
-1. Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
-2. Validate logo uploads with Pillow — [SEC-3](docs/AUDIT.md#sec-3)
-3. Throttle auth endpoints; password validators; lower-case emails — [SEC-4](docs/AUDIT.md#sec-4)
-4. Fractional quantities; non-negative discount/tax — [DATA-5](docs/AUDIT.md#data-5)
-5. Editing a draft keeps its saved dates — [DATA-6](docs/AUDIT.md#data-6)
+1. "Mark Paid" available on overdue invoices — [BUG-4](docs/AUDIT.md#bug-4)
+2. One `formatCurrency` everywhere, including emails — [BUG-5](docs/AUDIT.md#bug-5)
+3. Real password reset — [BUG-6](docs/AUDIT.md#bug-6)
+4. Pagination controls and server-side totals — [BUG-7](docs/AUDIT.md#bug-7)
+5. Only a 401 clears the session on page load — [BUG-8](docs/AUDIT.md#bug-8)
 
 ## Later
 
@@ -43,4 +43,5 @@ Rules:
 - [x] 2026-11-15 — Invoice writes are one transaction; totals computed once (DATA-4)
 - [x] 2026-11-15 — Fractional quantities and bounded discount/tax end to end (DATA-5); editing a draft keeps its dates (DATA-6)
 - [x] 2026-11-15 — Clients with invoices can no longer be deleted; the UI archives them (DATA-1)
+- [x] 2026-11-15 — Phase 1 closed: idempotent Stripe webhook (PAY-1), logo upload validation (SEC-3), auth throttling and password rules (SEC-4), debug toolbar out of prod (SEC-7), currency `ChoiceField` (SEC-8)
 - [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)

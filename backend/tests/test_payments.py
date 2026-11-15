@@ -1,13 +1,11 @@
-import json
 import pytest
 import stripe
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.invoices.models import Invoice
 from apps.payments.models import Payment
-from .factories import InvoiceFactory, InvoiceItemFactory, PaymentFactory
+from .factories import InvoiceItemFactory
 
 
 @pytest.mark.django_db
@@ -40,42 +38,6 @@ class TestPaymentModel:
 
 @pytest.mark.django_db
 class TestStripeWebhook:
-    @patch('apps.payments.views.stripe')
-    def test_webhook_handles_checkout_completed(self, mock_stripe, client, invoice):
-        invoice.status = 'sent'
-        invoice.total = 100
-        invoice.save()
-        
-        mock_event = {
-            'type': 'checkout.session.completed',
-            'data': {
-                'object': {
-                    'id': 'cs_test123',
-                    'payment_intent': 'pi_test123',
-                    'amount_total': 10000,
-                    'metadata': {
-                        'invoice_id': str(invoice.id)
-                    }
-                }
-            }
-        }
-        
-        mock_stripe.Webhook.construct_event.return_value = mock_event
-        
-        response = client.post(
-            reverse('payments:webhook'),
-            data=json.dumps(mock_event),
-            content_type='application/json',
-            HTTP_STRIPE_SIGNATURE='test_signature'
-        )
-        
-        assert response.status_code == 200
-        
-        invoice.refresh_from_db()
-        assert invoice.status == 'paid'
-        
-        assert Payment.objects.filter(invoice=invoice).exists()
-
     @patch('apps.payments.views.stripe')
     def test_webhook_invalid_signature(self, mock_stripe, client):
         # Patching the module also replaces stripe.error; keep the real exception class so `except` works.

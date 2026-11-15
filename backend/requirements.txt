@@ -7,7 +7,6 @@ django-celery-beat>=2.5.0
 django-storages>=1.14.0
 django-crispy-forms>=2.1
 crispy-tailwind>=1.0.0
-django-debug-toolbar>=4.0
 
 # Database
 psycopg[binary]>=3.1.0

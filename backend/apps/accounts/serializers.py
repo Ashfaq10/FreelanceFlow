@@ -4,7 +4,8 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    default_currency = serializers.CharField(source='currency', required=False)
+    # ChoiceField, not CharField: 'ZZZ' used to be stored and then rendered on every invoice (SEC-8).
+    default_currency = serializers.ChoiceField(source='currency', choices=User.CURRENCY_CHOICES, required=False)
     created_at = serializers.DateTimeField(source='date_joined', read_only=True)
     logo = serializers.SerializerMethodField()
 

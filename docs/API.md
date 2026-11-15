@@ -14,11 +14,11 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 
 | Method | Path | Description | Known issues |
 |---|---|---|---|
-| POST | `/api/auth/signup/` | Create account, returns token + user | [SEC-4](AUDIT.md#sec-4) |
-| POST | `/api/auth/login/` | Email + password → token + user (401 on bad credentials) | [SEC-4](AUDIT.md#sec-4), [BUG-1](AUDIT.md#bug-1) |
+| POST | `/api/auth/signup/` | Create account (email lower-cased, Django password validators), returns token + user; throttled 5/hour | |
+| POST | `/api/auth/login/` | Email + password → token + user (401 on bad credentials); throttled 10/min | [BUG-1](AUDIT.md#bug-1) |
 | POST | `/api/auth/logout/` | Deletes the token | |
-| GET / PATCH | `/api/auth/user/` | Current user profile and business/invoice settings | [SEC-8](AUDIT.md#sec-8) |
-| POST | `/api/auth/logo/` | Upload business logo (multipart `logo`) | [SEC-3](AUDIT.md#sec-3) |
+| GET / PATCH | `/api/auth/user/` | Current user profile and business/invoice settings; `default_currency` limited to the supported list | |
+| POST | `/api/auth/logo/` | Upload business logo (multipart `logo`): PNG/JPEG/WebP, ≤ 2 MB, decoded by Pillow; replaces and deletes the old file | |
 | POST | `/api/auth/password/reset/` | **Stub: returns 200, sends nothing** | [BUG-6](AUDIT.md#bug-6) |
 
 ## Clients — `apps/clients/api_urls.py`

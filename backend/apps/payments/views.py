@@ -1,4 +1,9 @@
+import logging
+from decimal import Decimal
+
 from django.conf import settings
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
@@ -7,10 +12,11 @@ from django.views.decorators.http import require_POST
 
 import stripe
 
-from apps.invoices.models import Invoice
+from apps.invoices.models import Invoice, to_cents
 
 from .models import Payment
 
+logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
@@ -72,28 +78,54 @@ def stripe_webhook(request):
     return HttpResponse(status=200)
 
 
+@transaction.atomic
 def handle_successful_payment(session):
-    """Mark invoice as paid when checkout session completes."""
-    invoice_id = session.get('metadata', {}).get('invoice_id')
+    """Record a Stripe payment once, after checking the event says what we expect (PAY-1)."""
+    invoice_id = (session.get('metadata') or {}).get('invoice_id')
     if not invoice_id:
         return
 
     try:
-        invoice = Invoice.objects.get(id=invoice_id)
-    except Invoice.DoesNotExist:
+        invoice = Invoice.objects.select_for_update().get(id=invoice_id)
+    except (Invoice.DoesNotExist, DjangoValidationError, ValueError):
+        logger.warning('Stripe session %s references unknown invoice %s', session.get('id'), invoice_id)
         return
 
-    if invoice.status != 'paid':
-        invoice.mark_as_paid()
+    if session.get('payment_status') != 'paid':
+        logger.warning(
+            'Stripe session %s for invoice %s is %s, not paid',
+            session.get('id'),
+            invoice_id,
+            session.get('payment_status'),
+        )
+        return
 
-    Payment.objects.create(
+    amount_paid = to_cents(Decimal(session.get('amount_total') or 0) / 100)
+    if amount_paid != invoice.total:
+        logger.error(
+            'Stripe session %s paid %s but invoice %s totals %s; not recording',
+            session.get('id'),
+            amount_paid,
+            invoice.invoice_number,
+            invoice.total,
+        )
+        return
+
+    if invoice.status == 'paid':
+        # Replayed event, or the invoice was already settled manually.
+        return
+
+    Payment.objects.update_or_create(
         invoice=invoice,
-        amount_paid=session['amount_total'] / 100,
-        stripe_payment_id=session.get('payment_intent', ''),
-        stripe_session_id=session['id'],
-        paid_on=timezone.now().date(),
-        method='stripe',
+        defaults={
+            'amount_paid': amount_paid,
+            'stripe_payment_id': session.get('payment_intent', ''),
+            'stripe_session_id': session.get('id', ''),
+            'paid_on': timezone.now().date(),
+            'method': 'stripe',
+        },
     )
+    invoice.mark_as_paid()
 
 
 def handle_payment_intent_succeeded(payment_intent):

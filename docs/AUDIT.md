@@ -39,12 +39,12 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `SECRET_KEY = os.environ['SECRET_KEY']` in `production.py`; set `SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')`; parse `ALLOWED_HOSTS` from env with no default.
 
 ### <a id="sec-3"></a>SEC-3 — Logo upload trusts the client-sent content type
-`Must` · Phase 1 · `apps/accounts/api_views.py` (`upload_logo_view`)
+`Must` · Phase 1 · `apps/accounts/api_views.py` (`upload_logo_view`) · **Done 2026-11-15**: Pillow decodes the upload, PNG/JPEG/WebP only, old file deleted; `tests/test_accounts.py`.
 **Problem:** Only `content_type.startswith('image/')` is checked; Pillow validation never runs. An SVG with `<script>` or an HTML file labelled `image/png` is stored and served from `/media/` or S3 → stored XSS / hosted phishing page. Old logos are never deleted.
 **Fix:** Validate with `django.forms.ImageField().clean(file)`; allow PNG/JPEG/WebP only; cap size; delete the previous file.
 
 ### <a id="sec-4"></a>SEC-4 — Weak auth endpoints
-`Must` · Phase 1 · `apps/accounts/api_views.py:L13-75`, `config/settings/base.py` (`REST_FRAMEWORK`)
+`Must` · Phase 1 · `apps/accounts/api_views.py:L13-75`, `config/settings/base.py` (`REST_FRAMEWORK`) · **Done 2026-11-15**: login 10/min, signup 5/hour, `validate_password`, lower-cased emails, `IntegrityError` → 400; `tests/test_auth.py`. The password-reset stub stays throttle-free until it does something ([BUG-6](#bug-6)).
 **Problem:** No throttling on login/signup/reset (brute force). Signup only checks `len >= 8` and skips `AUTH_PASSWORD_VALIDATORS` ("password1" accepted). Emails are not lower-cased, so `Bob@x.com` and `bob@x.com` become two accounts. The exists-then-create race returns 500.
 **Fix:** `ScopedRateThrottle` on auth views; `validate_password()`; lower-case email on signup and login; catch `IntegrityError` → 400.
 
@@ -59,12 +59,12 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Remove `AWS_S3_CUSTOM_DOMAIN`, keep the bucket private, use `querystring_auth` (default) with a short expiry.
 
 ### <a id="sec-7"></a>SEC-7 — `django-debug-toolbar` ships in production requirements
-`Should` · Phase 1 · `backend/requirements.txt:L10`
+`Should` · Phase 1 · `backend/requirements.txt:L10` · **Done 2026-11-15**: dev-only now.
 **Problem:** Listed in both `requirements.txt` and `requirements-dev.txt`; installed into the production image.
 **Fix:** Remove from `requirements.txt`.
 
 ### <a id="sec-8"></a>SEC-8 — `default_currency` accepts any string
-`Must` · Phase 1 · `apps/accounts/serializers.py:L6`
+`Must` · Phase 1 · `apps/accounts/serializers.py:L6` · **Done 2026-11-15**: `ChoiceField`; `tests/test_accounts.py`.
 **Problem:** Declared as a plain `CharField(source='currency')`, which skips model `choices`. `PATCH {default_currency:'JPY'}` is saved and Stripe would charge `total*100` yen (100× too much, JPY is zero-decimal). `'ABCD'` overflows `varchar(3)` → 500 on Postgres.
 **Fix:** `serializers.ChoiceField(source='currency', choices=User.CURRENCY_CHOICES, required=False)`.
 
@@ -112,7 +112,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Payments
 
 ### <a id="pay-1"></a>PAY-1 — Stripe webhook is not idempotent and trusts the event blindly
-`Must` · Phase 1 · `apps/payments/views.py:L78-100`
+`Must` · Phase 1 · `apps/payments/views.py:L78-100` · **Done 2026-11-15**: atomic + `select_for_update`, `payment_status` and amount verified, `update_or_create`, `Decimal` cents, replays return 200 without a second payment; `tests/test_webhook.py`.
 **Problem:** `Payment` is OneToOne and the handler calls `Payment.objects.create`. A redelivered `checkout.session.completed`, or one for an invoice already marked paid manually, raises `IntegrityError` → 500, so Stripe retries for days. No check of `payment_status == 'paid'` or amount vs `total`; amount stored as float (`amount_total / 100`).
 **Fix:** `transaction.atomic` + `select_for_update`; return 200 early if already paid; `update_or_create`; `Decimal(amount_total) / 100`; verify `payment_status` and amount; log mismatches.
 
