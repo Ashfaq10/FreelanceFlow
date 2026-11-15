@@ -5,12 +5,16 @@ from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
-from rest_framework import permissions
+from rest_framework import permissions, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.clients.models import Client
 from apps.invoices.models import Invoice
+
+
+class MonthlyRevenueQuerySerializer(serializers.Serializer):
+    months = serializers.IntegerField(min_value=1, max_value=120, default=12)
 
 
 class DashboardSummaryView(APIView):
@@ -68,7 +72,9 @@ class MonthlyRevenueView(APIView):
         user = request.user
         today = timezone.now().date()
 
-        months = int(request.query_params.get('months', 12))
+        months_param = MonthlyRevenueQuerySerializer(data=request.query_params)
+        months_param.is_valid(raise_exception=True)  # ?months=abc used to be a 500 (BUG-17)
+        months = months_param.validated_data['months']
         start_date = today - timedelta(days=months * 30)
 
         monthly_revenue = (

@@ -10,7 +10,7 @@ import InvoicePreview, { TEMPLATES, COLOR_PALETTES } from '../../components/ui/I
 import { invoices as invoiceApi } from '../../api/endpoints'
 
 const STORAGE_KEY_TEMPLATE = 'invoice_template'
-const STORAGE_KEY_COLOR = 'invoice_color'
+
 
 function InvoiceDetail() {
   const { id } = useParams()
@@ -25,24 +25,30 @@ function InvoiceDetail() {
   const [templateId, setTemplateId] = useState(
     () => localStorage.getItem(STORAGE_KEY_TEMPLATE) || 'professional'
   )
-  const [colorId, setColorId] = useState(
-    () => localStorage.getItem(STORAGE_KEY_COLOR) || 'blue'
-  )
+  const [colorId, setColorId] = useState('indigo')
   const [showDesignPanel, setShowDesignPanel] = useState(false)
 
   const selectTemplate = (id) => {
     setTemplateId(id)
     localStorage.setItem(STORAGE_KEY_TEMPLATE, id)
   }
-  const selectColor = (id) => {
-    setColorId(id)
-    localStorage.setItem(STORAGE_KEY_COLOR, id)
+  // The colour lives on the invoice, so the emailed PDF matches the one you download (BUG-16).
+  const selectColor = async (color) => {
+    const previous = colorId
+    setColorId(color)
+    try {
+      await invoiceApi.update(id, { pdf_color: color })
+    } catch (error) {
+      setColorId(previous)
+      toast.error(apiError(error, 'Could not save the colour'))
+    }
   }
 
   const fetchInvoice = useCallback(async () => {
     try {
       const response = await invoiceApi.get(id)
       setInvoice(response.data)
+      setColorId(response.data.pdf_color || 'indigo')
     } catch (error) {
       toast.error('Failed to load invoice')
       navigate('/invoices')
@@ -82,8 +88,6 @@ function InvoiceDetail() {
     setActionLoading('download')
     try {
       const response = await invoiceApi.getPdf(id, {
-        template: templateId,
-        color: colorId,
         regenerate: true,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
@@ -94,7 +98,7 @@ function InvoiceDetail() {
       a.download = `invoice-${invoice.invoice_number}.pdf`
       a.click()
       window.URL.revokeObjectURL(url)
-    } catch { toast.error('Failed to download PDF') }
+    } catch (error) { toast.error(apiError(error, 'Failed to download PDF')) }
     finally { setActionLoading('') }
   }
 
@@ -235,6 +239,9 @@ function InvoiceDetail() {
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
                 <LayoutTemplate className="w-3.5 h-3.5" />Template
+              </p>
+              <p className="text-xs text-gray-400 mb-3 -mt-2">
+                Changes the preview above. The PDF keeps its own layout and uses the colour below.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {TEMPLATES.map(t => (

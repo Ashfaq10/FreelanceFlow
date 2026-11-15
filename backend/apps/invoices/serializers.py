@@ -6,6 +6,17 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Invoice, InvoiceItem
+from .utils import PDF_COLORS
+
+
+class InvoiceFilterSerializer(serializers.Serializer):
+    """Query params for the invoice list; invalid values answer 400, not 500 (BUG-17)."""
+
+    status = serializers.ChoiceField(choices=[choice[0] for choice in Invoice.STATUS_CHOICES], required=False)
+    client = serializers.UUIDField(required=False)
+    search = serializers.CharField(required=False, allow_blank=True)
+    page = serializers.IntegerField(min_value=1, required=False)
+    page_size = serializers.IntegerField(min_value=1, required=False)
 
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
@@ -70,6 +81,7 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
     tax_rate = serializers.DecimalField(
         max_digits=5, decimal_places=2, min_value=Decimal('0'), max_value=Decimal('100'), required=False
     )
+    pdf_color = serializers.ChoiceField(choices=sorted(PDF_COLORS), required=False)
 
     class Meta:
         model = Invoice
@@ -83,6 +95,7 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
             'discount_amount',
             'tax_rate',
             'notes',
+            'pdf_color',
             'items',
         ]
         # Status only moves through the model's transition methods — DATA-2.
@@ -122,10 +135,16 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        if not instance.is_editable:
+        items_data = validated_data.pop('items', None)
+
+        # The accent colour is cosmetic, so it stays editable after the invoice is sent (BUG-16).
+        cosmetic_only = items_data is None and set(validated_data) <= {'pdf_color'}
+        if not cosmetic_only and not instance.is_editable:
             raise serializers.ValidationError('Only draft invoices can be edited.')
 
-        items_data = validated_data.pop('items', None)
+        if 'pdf_color' in validated_data and validated_data['pdf_color'] != instance.pdf_color:
+            instance._discard_stored_pdf()  # the stored file still has the old colour
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
@@ -202,6 +221,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'tax_amount',
             'total',
             'notes',
+            'pdf_color',
             'stripe_payment_url',
             'pdf_file',
             'items',

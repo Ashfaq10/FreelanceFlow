@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] PDF labels: "Due Date", receipt text only when paid — [BUG-16](docs/AUDIT.md#bug-16)
-- [ ] Invalid query params return 400 — [BUG-17](docs/AUDIT.md#bug-17)
+- [ ] Phase 3: authenticated Stripe checkout from the SPA — [PAY-2](docs/AUDIT.md#pay-2)
+- [ ] Per-invoice currency with a data migration — [DATA-7](docs/AUDIT.md#data-7)
 
 ## Next
 

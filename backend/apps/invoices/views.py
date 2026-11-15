@@ -215,11 +215,9 @@ def invoice_pdf(request, pk):
         Invoice.objects.select_related('client', 'user').prefetch_related('items'), pk=pk, user=request.user
     )
 
-    template = request.GET.get('template', 'classic')
-    color = request.GET.get('color', 'indigo')
     timezone_str = request.GET.get('timezone')
 
-    pdf_bytes = generate_pdf(invoice, template=template, color=color, timezone_str=timezone_str)
+    pdf_bytes = generate_pdf(invoice, timezone_str=timezone_str)
     response = HttpResponse(pdf_bytes, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{invoice.invoice_number}.pdf"'
     return response
@@ -229,11 +227,9 @@ def invoice_pdf(request, pk):
 def invoice_download(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
 
-    template = request.GET.get('template', 'classic')
-    color = request.GET.get('color', 'indigo')
     timezone_str = request.GET.get('timezone')
 
-    pdf_bytes = generate_pdf(invoice, template=template, color=color, timezone_str=timezone_str)
+    pdf_bytes = generate_pdf(invoice, timezone_str=timezone_str)
     response = HttpResponse(pdf_bytes, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{invoice.invoice_number}.pdf"'
     return response

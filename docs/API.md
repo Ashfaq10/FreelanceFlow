@@ -35,14 +35,14 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 
 | Method | Path | Description | Known issues |
 |---|---|---|---|
-| GET | `/api/invoices/` | List; filters `?status=`, `?client=` | invalid `?client=` → 500 ([BUG-17](AUDIT.md#bug-17)) |
+| GET | `/api/invoices/` | List; filters `?status=`, `?client=`, `?search=`, `?page=`, `?page_size=` — all validated (400 on nonsense) | |
 | POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `rate`); one transaction; number auto-assigned `INV-YYYY-NNN` per user; `status` is ignored (always `draft`) | [DATA-5](AUDIT.md#data-5) |
-| GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale); `client` must be yours, `status` read-only | same as above |
+| GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale); `client` must be yours, `status` read-only; `pdf_color` (one of `indigo`, `blue`, `slate`, `emerald`, `rose`, `amber`, `cyan`) stays editable after sending | [DATA-5](AUDIT.md#data-5) |
 | DELETE | `/api/invoices/{id}/` | Drafts only (400 otherwise) | |
 | POST | `/api/invoices/{id}/send/` | Queues one task: mark sent → render PDF → email (drafts and sent only; 400 without line items; 503 if the queue is unreachable) | |
 | POST | `/api/invoices/{id}/mark-paid/` | Records a manual full payment; sent or overdue only (400 otherwise) | |
 | POST | `/api/invoices/{id}/cancel/` | Cancels a draft, sent or overdue invoice (400 otherwise) | |
-| GET | `/api/invoices/{id}/pdf/` | PDF download; `?regenerate=true` re-renders. The stored copy is dropped on every status change | |
+| GET | `/api/invoices/{id}/pdf/` | PDF download in the invoice's `pdf_color`; `?regenerate=true` re-renders, `?timezone=` formats the dates. The stored copy is dropped on every status or colour change | |
 
 **Statuses:** `draft` → `sent` → (`overdue`) → `paid`; `cancelled`. `overdue` is set daily by Celery. Transitions are enforced in `Invoice` model methods and nowhere else ([DATA-2](AUDIT.md#data-2)): `draft|sent→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`.
 
@@ -58,7 +58,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | Method | Path | Description | Known issues |
 |---|---|---|---|
 | GET | `/api/dashboard/summary/` | Totals: billed, paid, outstanding, overdue, counts | |
-| GET | `/api/dashboard/monthly-revenue/` | Revenue per month; `?months=N` | `?months=abc` → 500 ([BUG-17](AUDIT.md#bug-17)) |
+| GET | `/api/dashboard/monthly-revenue/` | Revenue per month; `?months=N` (1–120, default 12; 400 otherwise) | |
 
 ## Payments — `apps/payments/urls.py` (not under `/api/`)
 

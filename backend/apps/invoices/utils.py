@@ -14,6 +14,28 @@ DEFAULT_INVOICE_TERMS = [
 ]
 
 
+# Mirrors COLOR_PALETTES in frontend/src/components/ui/InvoicePreview.jsx — the SPA sends the id.
+PDF_COLORS = {
+    'indigo': {'primary': '#4f46e5', 'light': '#eef2ff', 'dark': '#1e1b4b'},
+    'blue': {'primary': '#2563eb', 'light': '#eef4ff', 'dark': '#141d2e'},
+    'slate': {'primary': '#334155', 'light': '#f1f5f9', 'dark': '#0f172a'},
+    'emerald': {'primary': '#059669', 'light': '#ecfdf5', 'dark': '#064e3b'},
+    'rose': {'primary': '#e11d48', 'light': '#fff1f2', 'dark': '#881337'},
+    'amber': {'primary': '#d97706', 'light': '#fffbeb', 'dark': '#78350f'},
+    'cyan': {'primary': '#06b6d4', 'light': '#cffafe', 'dark': '#155e75'},
+}
+
+
+def _default_notes(invoice):
+    """Only a paid invoice is a receipt (BUG-16)."""
+    if invoice.status == 'paid':
+        return (
+            'Thank you for your payment. This invoice serves as your official receipt. '
+            'Please retain it for your records and for any tax, audit, or support-related requirements.'
+        )
+    return 'Please settle this invoice by the due date shown above. Thank you for your business.'
+
+
 def get_currency_symbol(currency_code):
     symbols = {
         'USD': '$',
@@ -109,7 +131,7 @@ def _format_datetime_local(dt, timezone_str=None):
     return dt.strftime("%b %d, %Y, %I:%M:%S %p")
 
 
-def build_pdf_context(invoice, template='professional', color='indigo', timezone_str=None):
+def build_pdf_context(invoice, timezone_str=None):
     user = invoice.user
     client = invoice.client
     currency = user.currency or 'USD'
@@ -124,7 +146,6 @@ def build_pdf_context(invoice, template='professional', color='indigo', timezone
         'items': invoice.items.all(),
         'user': user,
         'client': client,
-        'template': template,
         'logo_uri': _logo_file_uri(user),
         'currency_code': currency,
         'currency_symbol': get_currency_symbol(currency),
@@ -136,11 +157,8 @@ def build_pdf_context(invoice, template='professional', color='indigo', timezone
         'bank_lines': _bank_lines(user.bank_details),
         'terms_list': _terms_list(user),
         'discount': invoice.discount_amount or 0,
-        'notes_text': invoice.notes
-        or (
-            'Thank you for your payment. This invoice serves as your official receipt. '
-            'Please retain it for your records and for any tax, audit, or support-related requirements.'
-        ),
+        'accent': PDF_COLORS.get(invoice.pdf_color, PDF_COLORS['indigo']),
+        'notes_text': invoice.notes or _default_notes(invoice),
         'issue_date_formatted': _format_datetime_local(invoice.issue_date, timezone_str),
         'due_date_formatted': _format_datetime_local(invoice.due_date, timezone_str),
     }
@@ -162,9 +180,9 @@ def _bank_lines(bank_details):
     return rows
 
 
-def generate_pdf(invoice, template='professional', color='indigo', timezone_str=None):
+def generate_pdf(invoice, timezone_str=None):
     """Generate PDF bytes from invoice using WeasyPrint."""
-    context = build_pdf_context(invoice, template=template, color=color, timezone_str=timezone_str)
+    context = build_pdf_context(invoice, timezone_str=timezone_str)
 
     html_string = render_to_string('invoices/invoice_pdf.html', context)
 

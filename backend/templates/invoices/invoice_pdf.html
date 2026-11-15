@@ -26,7 +26,7 @@
     .brand-name { font-size: 16pt; font-weight: 700; line-height: 1.2; white-space: nowrap; }
     .brand-tagline { font-size: 9pt; color: #6B7280; margin-top: 2px; }
     .invoice-title-block { text-align: right; }
-    .invoice-title { font-size: 28pt; font-weight: 800; letter-spacing: 0.02em; line-height: 1; }
+    .invoice-title { font-size: 28pt; font-weight: 800; letter-spacing: 0.02em; line-height: 1; color: {{ accent.primary }}; }
     .invoice-number {
       font-family: Consolas, 'Courier New', monospace;
       font-size: 8.5pt;
@@ -57,9 +57,9 @@
     .addr-line { font-size: 9pt; color: #374151; line-height: 1.5; }
     table.items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
     table.items thead th {
-      background: #374151; color: #fff; font-size: 7.5pt; font-weight: 700;
+      background: {{ accent.dark }}; color: #fff; font-size: 7.5pt; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 10px 8px; text-align: center; border: 1px solid #4B5563;
+      padding: 10px 8px; text-align: center; border: 1px solid {{ accent.dark }};
     }
     table.items thead th.desc { text-align: left; }
     table.items thead th.amt { text-align: right; }
@@ -78,10 +78,10 @@
     .total-row .label { color: #374151; }
     .total-row .value { font-weight: 600; }
     .total-row.discount .value { color: #10B981; }
-    .total-divider { border-top: 2px solid #000; margin: 8px 0 6px; }
+    .total-divider { border-top: 2px solid {{ accent.primary }}; margin: 8px 0 6px; }
     .total-due { display: flex; justify-content: space-between; font-size: 13pt; font-weight: 800; }
     .box {
-      background: #F3F4F6; border-left: 4px solid #000;
+      background: {{ accent.light }}; border-left: 4px solid {{ accent.primary }};
       padding: 14px 16px; margin-bottom: 14px;
     }
     .box-title {
@@ -140,7 +140,7 @@
       <div class="meta-value">{{ issue_date_formatted }}</div>
     </div>
     <div class="meta-col">
-      <div class="meta-label">Payment Date</div>
+      <div class="meta-label">Due Date</div>
       <div class="meta-value">{{ due_date_formatted }}</div>
     </div>
     {% if invoice.reference_number %}

@@ -203,12 +203,12 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Error state with retry; `Promise.allSettled` on the Dashboard.
 
 ### <a id="bug-16"></a>BUG-16 — PDF labels and options are wrong
-`Should` · Phase 2 · `templates/invoices/invoice_pdf.html:L143-144`, `apps/invoices/utils.py`
+`Should` · Phase 2 · `templates/invoices/invoice_pdf.html:L143-144`, `apps/invoices/utils.py` · **Done 2026-11-15**: label is "Due Date"; the receipt sentence appears only on paid invoices (otherwise "Please settle this invoice by the due date shown"); the colour is now `Invoice.pdf_color` (migration `0009`), validated against `PDF_COLORS`, editable after sending, and used by the downloaded *and* the emailed PDF. The ignored `?template=`/`?color=` query params are gone. The six template layouts remain preview-only, which the picker now says; building them for the PDF is a Phase 4 item.
 **Problem:** Due date labelled "Payment Date"; unpaid invoices with empty notes say "This invoice serves as your official receipt"; the template/colour picker in `InvoiceDetail.jsx` has no effect on the PDF.
 **Fix:** Label "Due Date"; receipt text only when paid; implement or remove template/colour params.
 
 ### <a id="bug-17"></a>BUG-17 — Bad query params return 500
-`Should` · Phase 2 · `apps/dashboard/api_views.py:L75` (`?months=abc`), `apps/invoices/api_views.py:L34` (`?client=foo`)
+`Should` · Phase 2 · `apps/dashboard/api_views.py:L75` (`?months=abc`), `apps/invoices/api_views.py:L34` (`?client=foo`) · **Done 2026-11-15**: `InvoiceFilterSerializer` and `MonthlyRevenueQuerySerializer` validate the params (`tests/test_query_params.py`).
 **Fix:** Validate with serializer fields or `django-filter`; return 400.
 
 ### <a id="bug-18"></a>BUG-18 — Production PDFs crash for users with a logo

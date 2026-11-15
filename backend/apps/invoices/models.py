@@ -49,6 +49,8 @@ class Invoice(models.Model):
     )
     notes = models.TextField(blank=True, help_text='Payment terms or additional notes')
     pdf_file = models.FileField(upload_to='invoices/pdfs/', blank=True, null=True)
+    # Accent colour of the rendered PDF; ids come from PDF_COLORS in utils.py (BUG-16).
+    pdf_color = models.CharField(max_length=20, default='indigo')
     stripe_payment_url = models.URLField(blank=True)
     stripe_session_id = models.CharField(max_length=255, blank=True)
 

@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from .models import Invoice
 from .serializers import (
     InvoiceDetailSerializer,
+    InvoiceFilterSerializer,
     InvoiceSerializer,
     InvoiceWriteSerializer,
 )
@@ -26,17 +27,19 @@ class InvoiceListCreateView(generics.ListCreateAPIView):
         return InvoiceSerializer
 
     def get_queryset(self):
+        filters = InvoiceFilterSerializer(data=self.request.query_params)
+        filters.is_valid(raise_exception=True)  # a bad ?client= or ?status= used to be a 500 (BUG-17)
+        params = filters.validated_data
+
         queryset = Invoice.objects.filter(user=self.request.user)
 
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
+        if params.get('status'):
+            queryset = queryset.filter(status=params['status'])
 
-        client_filter = self.request.query_params.get('client')
-        if client_filter:
-            queryset = queryset.filter(client_id=client_filter)
+        if params.get('client'):
+            queryset = queryset.filter(client_id=params['client'])
 
-        search = self.request.query_params.get('search')
+        search = params.get('search')
         if search:
             queryset = queryset.filter(
                 models.Q(invoice_number__icontains=search)
@@ -121,8 +124,6 @@ class InvoicePDFView(APIView):
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        template = request.query_params.get('template', 'professional')
-        color = request.query_params.get('color', 'indigo')
         timezone_str = request.query_params.get('timezone')
 
         if invoice.pdf_file and not request.query_params.get('regenerate'):
@@ -130,7 +131,7 @@ class InvoicePDFView(APIView):
             response['Content-Disposition'] = f'attachment; filename="{invoice.invoice_number}.pdf"'
             return response
 
-        pdf_bytes = generate_pdf(invoice, template=template, color=color, timezone_str=timezone_str)
+        pdf_bytes = generate_pdf(invoice, timezone_str=timezone_str)
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{invoice.invoice_number}.pdf"'
         return response
