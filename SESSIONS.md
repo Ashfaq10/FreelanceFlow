@@ -34,7 +34,7 @@ Entry template:
 
 ### Open questions
 
-1. **Product name:** Penough vs FreelanceFlow — [UX-6](docs/AUDIT.md#ux-6).
+1. ~~**Product name**~~ — resolved 2026-11-15: product **FreelanceFlow**, maker **Penough**; applied ([UX-6](docs/AUDIT.md#ux-6)). Still unverified: domain and trademark availability.
 2. **Python version:** CI/Docker 3.11, local venv 3.13 — [OPS-8](docs/AUDIT.md#ops-8).
 3. **ADRs 0001 and 0002:** accept as proposed?
 4. **`main` protection:** `.claude/settings.json` denies `git push origin main`, but pushes to `main` are what we do. Drop the rule, or switch to branch + PR?

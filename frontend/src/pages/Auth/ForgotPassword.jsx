@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Mail, ArrowLeft, CheckCircle2, Zap, Sun, Moon } from 'lucide-react'
+import { Mail, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { auth } from '../../api/endpoints'
-import { Button } from '../../components/ui'
+import { Button, Wordmark } from '../../components/ui'
 
 function ForgotPassword() {
   const [loading, setLoading] = useState(false)
@@ -85,15 +85,7 @@ function ForgotPassword() {
           <Moon className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${darkMode ? 'opacity-0 -rotate-90' : 'opacity-100 rotate-0'}`} />
         </div>
       </button>
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 mb-8">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)', boxShadow: '0 4px 12px rgba(37,99,235,.35)' }}
-        >
-          <Zap className="w-5 h-5 text-white" strokeWidth={2.5} />
-        </div>
-        <span className="text-xl font-bold gradient-text">FreelanceFlow</span>
-      </div>
+      <Wordmark className="mb-8" />
 
       <div className="w-full max-w-md animate-fade-up">
         <div className="mb-7 text-center">

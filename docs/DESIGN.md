@@ -8,7 +8,7 @@
 
 | Topic | Current state | Decision needed | Tracked in |
 |---|---|---|---|
-| Product name | "Penough" (`index.html`, `Login.jsx`, logos), "FreelanceFlow" (`Signup.jsx`, `ForgotPassword.jsx`, emails, README), "BugValluk-style" (an `InvoicePreview.jsx` template description) | Choose one name and apply it everywhere | [UX-6](AUDIT.md#ux-6) |
+| Product name | **Decided 2026-11-15: the product is FreelanceFlow, made by Penough.** One `Wordmark` component (`components/ui/Wordmark.jsx`) is the only brand mark in the SPA | — | [UX-6](AUDIT.md#ux-6) |
 | Dark mode | Toggle copied into each auth page and `Header`; Settings → Appearance does nothing | One theme provider, persisted per user | [UX-5](AUDIT.md#ux-5) |
 | Invoice templates | 6 templates in `InvoicePreview.jsx`; the PDF ignores the template and colour choices | Either render the selected template in the PDF or drop the picker | [BUG-16](AUDIT.md#bug-16) |
 

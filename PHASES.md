@@ -133,7 +133,7 @@ flowchart LR
 - [ ] 404 route ([UX-3](docs/AUDIT.md#ux-3)) — **S**
 - [ ] Implement or remove fake settings/bell/plan card; define `xs` breakpoint ([UX-4](docs/AUDIT.md#ux-4)) — **S**
 - [ ] One theme provider, persisted; correct logo per theme ([UX-5](docs/AUDIT.md#ux-5)) — **S**
-- [ ] Pick one product name and apply it everywhere ([UX-6](docs/AUDIT.md#ux-6)) — **S**
+- [x] Pick one product name and apply it everywhere ([UX-6](docs/AUDIT.md#ux-6)) — **S**
 - [ ] Generate an OpenAPI schema (`drf-spectacular`), commit it, fail CI on drift; SPA field names checked against it (prevents [BUG-2](docs/AUDIT.md#bug-2)-style mismatches) — **M**
 
 ## Phase 5 — Production readiness

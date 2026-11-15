@@ -8,6 +8,7 @@ import {
   Settings,
   X,
 } from 'lucide-react'
+import { Wordmark } from '../ui'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -17,14 +18,6 @@ const navigation = [
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
-
-function Logo() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <img src="/logos/penough_logo_dark.png" alt="Penough" className="h-8 w-auto" />
-    </div>
-  )
-}
 
 function NavItem({ item, onClick }) {
   return (
@@ -59,7 +52,7 @@ function SidebarContent({ onClose }) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between h-16 px-5 border-b border-gray-200/70 dark:border-white/8 flex-shrink-0">
-        <Logo />
+        <Wordmark size="sm" />
         {onClose && (
           <button
             onClick={onClose}

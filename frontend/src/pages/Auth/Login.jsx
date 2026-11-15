@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Mail, Lock, Eye, EyeOff, CheckCircle2, Sun, Moon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
-import { Button } from '../../components/ui'
+import { Button, Wordmark } from '../../components/ui'
 
 const features = [
   'Create beautiful, professional invoices in seconds',
@@ -91,10 +91,8 @@ function Login() {
 
         {/* Centered content */}
         <div className="relative z-10 space-y-8 max-w-md">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <img src="/logos/penough_logo_white.png" alt="Penough" className="h-10 w-auto" />
-          </div>
+          {/* Wordmark on the dark panel */}
+          <Wordmark variant="light" />
 
           {/* Headline + description */}
           <div>
@@ -125,9 +123,8 @@ function Login() {
 
       {/* ── Right Panel: Form ───────────────────────── */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-surface-light dark:bg-surface-dark">
-        {/* Mobile logo */}
         <div className="mb-8 lg:hidden">
-          <img src="/logos/penough_logo_dark.png" alt="Penough" className="h-9 w-auto" />
+          <Wordmark />
         </div>
 
         <div className="w-full max-w-md animate-fade-up">

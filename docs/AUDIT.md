@@ -289,7 +289,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Nice` · Phase 4 · dark-mode toggle duplicated in auth pages and `Header`; sidebar uses the dark logo on a dark background.
 
 ### <a id="ux-6"></a>UX-6 — Mixed product branding
-`Should` · Phase 4 · "Penough" vs "FreelanceFlow" vs "BugValluk". See [DESIGN.md](DESIGN.md).
+`Should` · Phase 4 · "Penough" vs "FreelanceFlow" vs "BugValluk". See [DESIGN.md](DESIGN.md). **Done 2026-11-15**: product is FreelanceFlow (Penough is the maker); shared `Wordmark` replaces the logo images and the three copied markup blocks. The `penough_logo_*.png` files are kept in `frontend/public/logos/` but unused.
 
 ---
 

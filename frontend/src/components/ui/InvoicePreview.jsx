@@ -67,7 +67,7 @@ export const COLOR_PALETTES = [
 // ── Template definitions ──────────────────────────────────────────────
 // eslint-disable-next-line react-refresh/only-export-components -- shared template config; splitting this file is LEAN-5
 export const TEMPLATES = [
-    { id: 'professional', name: 'Professional', description: 'BugValluk-style invoice with logo, meta bar, and bank details' },
+    { id: 'professional', name: 'Professional', description: 'Logo, meta bar and bank details' },
     { id: 'classic', name: 'Classic', description: 'Clean, timeless two-column layout' },
     { id: 'modern', name: 'Modern', description: 'Bold header with full-width accent bar' },
     { id: 'minimal', name: 'Minimal', description: 'Ultra-clean, typography-first design' },

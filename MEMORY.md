@@ -15,6 +15,7 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 - **2026-11-15 — Proposed: API-only backend ([ADR-0001](docs/adr/0001-api-only-backend.md)); session-cookie auth ([ADR-0002](docs/adr/0002-auth-session-cookies.md)).**
 - **2026-11-15 — Backend keeps single quotes.** Owner's call: black runs with `skip-string-normalization` (`backend/pyproject.toml`). Black does not read `setup.cfg`; its config must stay in `pyproject.toml`.
 - **2026-11-15 — Tests select Postgres with `TEST_DATABASE_URL`, not `DATABASE_URL`.** The root `.env` sets `DATABASE_URL` for Postgres, so reusing it would make local `pytest` need a database server.
+- **2026-11-15 — The product is FreelanceFlow; Penough is the maker.** Owner's call. The expensive identifiers (repo, database, Celery app, demo domain, docs) already said FreelanceFlow; only logo images and the page title said Penough. Use `components/ui/Wordmark.jsx` for the brand mark — never a second copy ([UX-6](docs/AUDIT.md#ux-6)). Domain and trademark are unverified.
 
 ## Lessons
 
