@@ -6,7 +6,8 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+# Same default as manage.py; production sets DJANGO_SETTINGS_MODULE explicitly (docker-compose.prod.yml).
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 
 app = Celery('freelanceflow')
 app.config_from_object('django.conf:settings', namespace='CELERY')
