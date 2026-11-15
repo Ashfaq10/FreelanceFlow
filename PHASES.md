@@ -14,7 +14,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 
 | Phase | Theme | Status | Done |
 |---|---|---|---|
-| 0 | Baseline: green tests, working CI, honest docs | 🟡 In progress | 5 / 11 |
+| 0 | Baseline: green tests, working CI, honest docs | 🟡 Items done; exit check: CI green on `main` after push | 11 / 11 |
 | 1 | Security & money integrity | ⚪ Not started | 0 / 14 |
 | 2 | Fix broken user flows | ⚪ Not started | 0 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ⚪ Not started | 0 / 8 |
@@ -46,12 +46,12 @@ flowchart LR
 - [x] Replace the broken fixture with `python manage.py seed_demo` ([OPS-11](docs/AUDIT.md#ops-11)) — **S**
 - [x] Rewrite README; add AUDIT, PHASES, AGENTS/CLAUDE, CONTRIBUTING, SECURITY, CHANGELOG, ADRs ([OPS-10](docs/AUDIT.md#ops-10)) — **S**
 - [x] Track `backend/static/` (`.gitkeep`) so fresh clones pass Django's `staticfiles.W004` check — **S**
-- [ ] Add `config/settings/test.py` and point `pytest.ini` at it ([TEST-2](docs/AUDIT.md#test-2)) — **S**
-- [ ] Make the backend suite green: delete the 4 dead-view tests, fix the other 5 ([TEST-1](docs/AUDIT.md#test-1)) — **S**
-- [ ] Fix CI: `working-directory: backend`, build `./backend`, add a frontend job ([OPS-1](docs/AUDIT.md#ops-1)) — **S**
-- [ ] Make lint pass: frontend `npm run lint`; backend one formatting-only commit (`black`/`isort`) + flake8 fixes ([OPS-2](docs/AUDIT.md#ops-2)) — **S**
-- [ ] Default Celery to local settings; anchor `.gitignore` `lib/` ([OPS-12](docs/AUDIT.md#ops-12), [OPS-13](docs/AUDIT.md#ops-13)) — **S**
-- [ ] Set up Vitest + React Testing Library + MSW with one passing test; add `npm test` to CI ([TEST-4](docs/AUDIT.md#test-4)) — **M**
+- [x] Add `config/settings/test.py` and point `pytest.ini` at it ([TEST-2](docs/AUDIT.md#test-2)) — **S**
+- [x] Make the backend suite green: deleted all 7 dead-view tests (4 failing), fixed the other 5 ([TEST-1](docs/AUDIT.md#test-1)) — **S**
+- [x] Fix CI: `working-directory: backend`, build `./backend`, add a frontend job ([OPS-1](docs/AUDIT.md#ops-1)) — **S**
+- [x] Make lint pass: frontend `npm run lint`; backend one formatting-only commit (`black`/`isort`) + flake8 fixes ([OPS-2](docs/AUDIT.md#ops-2)) — **S**
+- [x] Default Celery to local settings; anchor `.gitignore` `lib/` ([OPS-12](docs/AUDIT.md#ops-12), [OPS-13](docs/AUDIT.md#ops-13)) — **S**
+- [x] Set up Vitest + React Testing Library + MSW with one passing test; add `npm test` to CI ([TEST-4](docs/AUDIT.md#test-4)) — **M**
 
 ## Phase 1 — Security & money integrity
 

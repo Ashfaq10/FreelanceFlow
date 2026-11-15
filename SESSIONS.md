@@ -15,6 +15,33 @@ Entry template:
 
 ---
 
+## 2026-11-15 — Phase 0 baseline
+
+**Goal:** finish Phase 0: green tests, green lint, working CI, frontend test setup.
+
+**Done:** (one commit each, local `main`)
+- TEST-2 `config/settings/test.py`, `pytest.ini` → test settings; `TEST_DATABASE_URL` selects Postgres.
+- TEST-1 pytest 25 passed / 0 failed (deleted all 7 dead-view tests, fixed 5).
+- OPS-1 CI: `backend/` working dir, Postgres via `TEST_DATABASE_URL`, frontend job, Docker build from `./backend`.
+- OPS-2 formatting-only commit `65c4a55` (black single quotes + isort) then flake8 0; frontend `npm run lint` 0 problems.
+- OPS-12/13 Celery defaults to local settings; `lib/` ignore anchored.
+- TEST-4 Vitest + RTL + MSW, 3 tests on `api/client.js`; `npm test` in CI.
+- Smoke-checked the refactored effects in the browser (clients, invoices list/detail/edit/new, settings, dashboard): pages load, no refetch loops.
+
+**State:** all green locally (pytest, `npm test`, `npm run lint`, `npm run build`, black/isort/flake8). Not pushed yet; CI on GitHub has not run these changes. Not verified locally: tests on Postgres and the Docker build (Docker daemon was off).
+
+**Next:** push, confirm CI green on `main` (Phase 0 exit criterion), then BACKLOG "Now": [SEC-1](docs/AUDIT.md#sec-1).
+
+### Open questions
+
+1. **Product name:** Penough vs FreelanceFlow — [UX-6](docs/AUDIT.md#ux-6).
+2. **Python version:** CI/Docker 3.11, local venv 3.13 — [OPS-8](docs/AUDIT.md#ops-8).
+3. **ADRs 0001 and 0002:** accept as proposed?
+
+Resolved: backend quote style → keep single quotes (owner, 2026-11-15).
+
+---
+
 ## 2026-11-15 — Audit, cleanup, planning docs
 
 **Goal:** audit the whole repo, remove junk, write the improvement plan and tracking docs.

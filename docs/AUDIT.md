@@ -296,7 +296,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Tests
 
 ### <a id="test-1"></a>TEST-1 — 9 of 32 backend tests fail
-`Must` · Phase 0 · measured 2026-11-15
+`Must` · Phase 0 · measured 2026-11-15 · **Done 2026-11-15**: all 7 dead-view tests deleted, the other 5 fixed.
 | Test | Cause |
 |---|---|
 | `test_invoices.py::TestInvoiceViews` (4 tests) | test the dead template views ([LEAN-1](#lean-1)) → `TemplateDoesNotExist` |
@@ -307,7 +307,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Delete the 4 dead-view tests with LEAN-1 (or now); fix the factory to use aware datetimes; give the partial-payment invoice items; mock the exception as a real class; patch where the name is looked up.
 
 ### <a id="test-2"></a>TEST-2 — Test DB selection is accidental
-`Must` · Phase 0 · `config/settings/local.py:L28`
+`Must` · Phase 0 · `config/settings/local.py:L28` · **Done 2026-11-15**: `config/settings/test.py` uses `TEST_DATABASE_URL` (not `DATABASE_URL`, which `.env` sets for Postgres).
 **Problem:** `'test' in sys.argv` is never true under pytest, so tests use Postgres unless `.env` happens to set `USE_SQLITE=True`. CI passes `DATABASE_URL`, which `local.py` ignores.
 **Fix:** Add `config/settings/test.py` (SQLite in-memory or `DATABASE_URL`, MD5 hasher, locmem email, eager Celery) and point `pytest.ini` at it.
 
@@ -315,7 +315,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Must` · Phases 1–3 (each fix lands with its test) · see coverage map below.
 
 ### <a id="test-4"></a>TEST-4 — The frontend has no tests
-`Should` · Phase 0 (infra), Phases 2–4 (tests) · no Vitest/Jest, no test script.
+`Should` · Phase 0 (infra), Phases 2–4 (tests) · no Vitest/Jest, no test script. **Infra done 2026-11-15**: Vitest + RTL + MSW, `client.js` 401 test, `npm test` in CI.
 **Fix:** Vitest + React Testing Library + MSW; first targets: `client.js` 401 handling, `InvoiceCreate` edit/quantity payload, currency formatting, date-only parsing.
 
 ### <a id="test-5"></a>TEST-5 — No end-to-end smoke test
@@ -336,12 +336,12 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Ops, CI & developer experience
 
 ### <a id="ops-1"></a>OPS-1 — CI cannot pass
-`Must` · Phase 0 · `.github/workflows/ci.yml`
+`Must` · Phase 0 · `.github/workflows/ci.yml` · **Done 2026-11-15**.
 **Problem:** Lint and test steps run from the repo root (`flake8 apps/`, `pip install -r requirements-dev.txt`) but the code lives in `backend/`; the build job uses `context: .` and there is no root Dockerfile; no frontend job.
 **Fix:** `defaults.run.working-directory: backend`; build `./backend`; add a frontend job (`npm ci && npm run lint && npm run build && npm test`).
 
 ### <a id="ops-2"></a>OPS-2 — Lint fails on both sides
-`Must` · Phase 0
+`Must` · Phase 0 · **Done 2026-11-15**: single quotes kept (`skip-string-normalization` in `backend/pyproject.toml`); formatting commit listed in `.git-blame-ignore-revs`.
 **Frontend:** `npm run lint` → 16 errors, 12 warnings: unused vars (`Signup.jsx`, `InvoiceCreate.jsx`, `Settings.jsx`, …) and `react-hooks/exhaustive-deps`; `--max-warnings 0` makes warnings fatal.
 **Backend:** `black --check apps` → 64 files would be reformatted (the code uses single quotes; black's default normalizes to double), `isort --check-only` → 14 files, `flake8 apps` → 154 issues. CI's lint job fails on these even after [OPS-1](#ops-1).
 **Fix:** One formatting-only commit (`black apps && isort apps`, or set `skip-string-normalization` if single quotes are preferred), then fix the remaining flake8 findings; keep that commit separate so `git blame --ignore-rev` can skip it.
@@ -383,10 +383,10 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Should` · Phase 0 · **Done 2026-11-15**: `fixtures/sample_data.json` had one user with a placeholder password hash (login impossible). Replaced by `python manage.py seed_demo`.
 
 ### <a id="ops-12"></a>OPS-12 — Celery defaults to production settings
-`Must` · Phase 0 · `config/celery.py:L9`
+`Must` · Phase 0 · `config/celery.py:L9` · **Done 2026-11-15**.
 **Problem:** `celery -A config worker` without `DJANGO_SETTINGS_MODULE` loads `production`, so a local worker uses S3 storage and SendGrid; PDF tasks fail locally.
 **Fix:** Default to `config.settings.local` like `manage.py`; production sets the variable explicitly (compose already does).
 
 ### <a id="ops-13"></a>OPS-13 — Root `.gitignore` ignores any `lib/` directory
-`Nice` · Phase 0 · `.gitignore:L13` (`lib/`) would silently ignore e.g. `frontend/src/lib/`.
+`Nice` · Phase 0 · `.gitignore:L13` (`lib/`) would silently ignore e.g. `frontend/src/lib/`. **Done 2026-11-15**: anchored to `/backend/`.
 **Fix:** Anchor Python-packaging patterns (`/backend/lib/`) or drop them.

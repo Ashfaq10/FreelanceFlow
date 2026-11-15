@@ -10,20 +10,17 @@ Rules:
 
 ## Now
 
-- [ ] Add `config/settings/test.py`; point `pytest.ini` at it — [TEST-2](docs/AUDIT.md#test-2)
-- [ ] Make the backend suite green (delete 4 dead-view tests, fix 5) — [TEST-1](docs/AUDIT.md#test-1)
-- [ ] Fix CI paths and add a frontend job — [OPS-1](docs/AUDIT.md#ops-1)
+- [ ] Scope serializer querysets to the user — [SEC-1](docs/AUDIT.md#sec-1)
+- [ ] Quantize money on the backend — [DATA-3](docs/AUDIT.md#data-3)
+- [ ] Lock invoice status transitions — [DATA-2](docs/AUDIT.md#data-2)
 
 ## Next
 
-1. Lint green both sides (one formatting-only commit for backend) — [OPS-2](docs/AUDIT.md#ops-2)
-2. Celery defaults to local settings; anchor `.gitignore` `lib/` — [OPS-12](docs/AUDIT.md#ops-12), [OPS-13](docs/AUDIT.md#ops-13)
-3. Vitest + RTL + MSW with one test in CI — [TEST-4](docs/AUDIT.md#test-4)
-4. Scope serializer querysets to the user — [SEC-1](docs/AUDIT.md#sec-1)
-5. Quantize money on the backend — [DATA-3](docs/AUDIT.md#data-3)
-6. Lock invoice status transitions — [DATA-2](docs/AUDIT.md#data-2)
-7. `PROTECT` invoices from client deletion; archive in the UI — [DATA-1](docs/AUDIT.md#data-1)
-8. Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
+1. `PROTECT` invoices from client deletion; archive in the UI — [DATA-1](docs/AUDIT.md#data-1)
+2. Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
+3. Production settings require `SECRET_KEY` and `ALLOWED_HOSTS` — [SEC-2](docs/AUDIT.md#sec-2)
+4. Validate logo uploads with Pillow — [SEC-3](docs/AUDIT.md#sec-3)
+5. Throttle auth endpoints; password validators; lower-case emails — [SEC-4](docs/AUDIT.md#sec-4)
 
 ## Later
 
@@ -37,4 +34,5 @@ Rules:
 
 ## Done
 
+- [x] 2026-11-15 — Phase 0 baseline: test settings, green pytest, CI paths + frontend job, lint green both sides, Celery local default, `lib/` ignore, Vitest + MSW (TEST-2, TEST-1, OPS-1, OPS-2, OPS-12, OPS-13, TEST-4)
 - [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)

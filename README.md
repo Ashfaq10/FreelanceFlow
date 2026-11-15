@@ -71,7 +71,6 @@ Optional background worker (needs Redis):
 
 ```bash
 # backend/, with the venv active
-set DJANGO_SETTINGS_MODULE=config.settings.local      # macOS/Linux: export DJANGO_SETTINGS_MODULE=config.settings.local
 celery -A config worker -l info --pool=solo           # --pool=solo is required on Windows
 celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 ```
@@ -153,12 +152,13 @@ freelanceflow/
 
 ```bash
 # backend/
-pytest                                   # tests (9 known failures until Phase 0 is done: TEST-1)
+pytest                                   # tests (config.settings.test, in-memory SQLite)
 pytest --cov=apps --cov-report=html      # coverage
 flake8 apps && black --check apps && isort --check-only apps
 
 # frontend/
-npm run lint                             # currently fails, as do backend black/isort/flake8: OPS-2
+npm run lint
+npm test                                 # Vitest
 npm run build
 ```
 

@@ -32,26 +32,27 @@ venv/Scripts/python -m pytest tests/test_invoices.py -k totals   # one area
 venv/Scripts/python -m flake8 apps && venv/Scripts/python -m black --check apps && venv/Scripts/python -m isort --check-only apps
 venv/Scripts/python manage.py makemigrations --check --dry-run   # model/migration drift
 
-# Celery (needs Redis; set DJANGO_SETTINGS_MODULE until OPS-12 is fixed)
-DJANGO_SETTINGS_MODULE=config.settings.local venv/Scripts/celery -A config worker -l info --pool=solo   # --pool=solo on Windows
+# Celery (needs Redis)
+venv/Scripts/celery -A config worker -l info --pool=solo   # --pool=solo on Windows
 
 # Frontend
 npm install
 npm run dev       # http://localhost:3000, proxies /api → :8000
 npm run lint      # --max-warnings 0
+npm test          # Vitest
 npm run build
 
 # Everything in Docker
 docker compose up --build
 ```
 
-Known red baseline (2026-11-15): `pytest` 9 failing ([TEST-1](docs/AUDIT.md#test-1)); `npm run lint` 16 errors; backend `black` 64 files, `isort` 14, `flake8` 154 ([OPS-2](docs/AUDIT.md#ops-2)). Do not add to any of them; Phase 0 makes them green. Until the formatting commit lands, match the surrounding style (single quotes) and don't reformat unrelated lines.
+Baseline is green (2026-11-15): `pytest`, `npm test`, `npm run lint`, `npm run build`, backend `black`/`isort`/`flake8`; CI runs all of them. Keep it green. Backend style is black with single quotes (`backend/pyproject.toml`): run `black apps && isort apps` from `backend/` before committing.
 
 ## Layout
 
 ```
 backend/
-  config/settings/{base,local,production}.py   manage.py→local, wsgi.py→production, celery.py→production (OPS-12)
+  config/settings/{base,local,production,test}.py   manage.py→local, celery.py→local, wsgi.py→production, pytest→test
   config/urls.py                               /api/** is live; everything else except /admin and /payments/webhook is dead
   apps/accounts/      custom User (email login, business profile, currency), auth API, seed_demo command
   apps/clients/       Client (per user, unique email per user, is_archived)
@@ -85,16 +86,16 @@ docs/                 AUDIT.md (findings), API.md, DESIGN.md, adr/
 
 - `Invoice.save()` recalculates totals from `self.items.all()`. Saving an invoice whose items aren't persisted yet sets totals to 0. `InvoiceItem` post-save signals then recompute totals with `.update()`, so the in-memory invoice is stale — call `refresh_from_db()`.
 - Invoice numbers are `INV-<current year>-NNN` per user, generated in `Invoice.save()` with a retry loop on `IntegrityError`.
-- `config/settings/local.py` uses SQLite only when `USE_SQLITE=True` (the `'test' in sys.argv` check never fires under pytest). The root `.env` sets this for local dev.
+- `pytest` uses `config/settings/test.py`: in-memory SQLite, or Postgres when `TEST_DATABASE_URL` is set (CI). `config/settings/local.py` uses SQLite only when `USE_SQLITE=True`; the root `.env` sets this for local dev.
 - `.env` is loaded by `python-dotenv` from the repo root (found by walking up from `config/settings/`). There is no `backend/.env`.
 - Emails print to the console unless `EMAIL_HOST_USER` is set (local) — safe to run reminder tasks locally. Demo clients use `example.com` addresses.
 - WeasyPrint needs Pango/Cairo system libraries. On Windows it logs harmless `GLib-GIO-WARNING` lines; filter them, don't fix them.
-- The frontend has no TypeScript and no tests yet; the `@` import alias in `vite.config.js` is unused — use relative imports to match the codebase.
-- Root `.gitignore` ignores any `lib/` directory (OPS-13): don't name a source folder `lib` until that is fixed.
+- The frontend has no TypeScript; the `@` import alias in `vite.config.js` is unused — use relative imports to match the codebase.
+- Frontend tests: Vitest + Testing Library + MSW, `*.test.js` beside the code. `src/test/server.js` has no default handlers; declare responses per test with `server.use()` (unhandled requests fail).
 
 ## Testing expectations
 
-- Bug fix → a test that fails before the fix, in `backend/tests/test_<area>.py` (or Vitest once Phase 0 adds it).
+- Bug fix → a test that fails before the fix, in `backend/tests/test_<area>.py` or a Vitest `*.test.js` beside the frontend code.
 - Use factories from `tests/factories.py`; aware datetimes only (`timezone.now() + timedelta(...)`).
 - Mock Stripe and email at the boundary; patch the name where it is looked up (`apps.invoices.tasks.<name>` only if `tasks.py` imports it at module level).
 - No tests for wiring, copies, or snapshot text. Test behaviour: totals, transitions, scoping, idempotency, validation errors.

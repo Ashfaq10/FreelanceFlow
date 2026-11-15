@@ -5,15 +5,28 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 ## [Unreleased]
 
 ### Added
+- `config/settings/test.py`: in-memory SQLite by default, Postgres via `TEST_DATABASE_URL`; MD5 hasher, locmem email, eager Celery, temp media dir (TEST-2).
+- Frontend tests: Vitest + React Testing Library + MSW, `npm test`, first test covers `api/client.js` token and 401/500 handling (TEST-4).
+- CI frontend job (`npm ci`, lint, test, build) (OPS-1, TEST-4).
+- `backend/pyproject.toml` black config (line length 120, single quotes kept) and `.git-blame-ignore-revs` (OPS-2).
 - `python manage.py seed_demo [--reset]`: demo account with 6 clients, 19 invoices across all statuses, payments and time logs over the last 8 months (OPS-11). Refuses to run unless `DEBUG=True`, since the demo password is public.
 - Agent guardrails: [.claude/rules/](.claude/rules/) (code style, security) and `.claude/settings.json` deny rules; [PLAN.md](PLAN.md), [BACKLOG.md](BACKLOG.md), [MEMORY.md](MEMORY.md), [SESSIONS.md](SESSIONS.md).
 - Project tracking docs: [PHASES.md](PHASES.md) roadmap, [docs/AUDIT.md](docs/AUDIT.md) findings, [docs/API.md](docs/API.md), [docs/DESIGN.md](docs/DESIGN.md), [ADRs](docs/adr/), [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), PR template.
 - `backend/static/.gitkeep` so fresh clones pass Django's `staticfiles.W004` check.
 
 ### Changed
+- CI runs backend jobs from `backend/`, tests against the Postgres service, builds the image from `./backend`, and pins flake8/black/isort (OPS-1, OPS-2).
+- Backend formatted with black and isort; flake8 clean. `logout_view` catches `Token.DoesNotExist` instead of a bare `except` (OPS-2).
+- Frontend lint clean: fetch-on-mount effects declare their dependencies; unused code removed (OPS-2).
+- Celery defaults to `config.settings.local`, like `manage.py` (OPS-12).
+- `.gitignore` anchors `lib/`/`lib64/` to `/backend/` (OPS-13).
 - README rewritten to match the code: correct ports and commands, honest project status, links to the roadmap (OPS-10).
 - Single root `.env.example` covering SQLite/Postgres, SMTP/SendGrid, Stripe and S3 (OPS-6).
 
+### Fixed
+- Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).
+
 ### Removed
+- `TestInvoiceViews`: tests for the dead server-rendered invoice views (TEST-1, LEAN-1).
 - `backend/fixtures/sample_data.json`: its only user had a placeholder password hash and could never log in (OPS-11).
 - `backend/.env.example` (merged into the root file), stray `Untitled` file (Figma link moved to `docs/DESIGN.md`), empty `FreelanceFlow/` directory.
