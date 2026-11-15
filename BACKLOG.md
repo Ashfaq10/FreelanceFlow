@@ -10,35 +10,28 @@ Rules:
 
 ## Now
 
-- [ ] Then Phase 4: delete the server-rendered UI — [LEAN-1](docs/AUDIT.md#lean-1)
+Phase 4, in this order (see [PHASES.md](PHASES.md)):
+
+- [ ] Remove unused dependencies — [LEAN-2](docs/AUDIT.md#lean-2)
+- [ ] Remove dead backend helpers — [LEAN-3](docs/AUDIT.md#lean-3)
+- [ ] Remove dead frontend code, one shared status badge — [LEAN-4](docs/AUDIT.md#lean-4)
+- [ ] Client list in 2 queries instead of 61 — [PERF-1](docs/AUDIT.md#perf-1)
+- [ ] Route-level code splitting — [PERF-2](docs/AUDIT.md#perf-2)
 
 ## Next
 
-1. Phase 3: Stripe checkout from the SPA — [PAY-2](docs/AUDIT.md#pay-2)
-2. Per-invoice currency — [DATA-7](docs/AUDIT.md#data-7)
-3. Time logs billable on an invoice — [FEAT-1](docs/AUDIT.md#feat-1)
+1. Accessibility: Modal, labels, keyboard rows, 404 — [UX-1](docs/AUDIT.md#ux-1) to [UX-3](docs/AUDIT.md#ux-3)
+2. Fake settings, theme provider, big components — [UX-4](docs/AUDIT.md#ux-4), [UX-5](docs/AUDIT.md#ux-5), [LEAN-5](docs/AUDIT.md#lean-5)
+3. Tooling and upgrades — [OPS-8](docs/AUDIT.md#ops-8), [OPS-7](docs/AUDIT.md#ops-7) (also fixes the `accounts` migration drift)
+4. OpenAPI schema, PDF layouts for the six templates
 
 ## Later
 
-- Rest of Phase 2, then Phase 3 (core product) — see [PHASES.md](PHASES.md)
-- Phases 3–6: core product, code health, production, growth
+- Phase 5 (production), only what a live demo needs: [OPS-3](docs/AUDIT.md#ops-3), [OPS-9](docs/AUDIT.md#ops-9), [TEST-5](docs/AUDIT.md#test-5), a deploy
+- Phase 6 (growth features) only on user demand
 
 ## Blocked / needs a decision
 
-- Product name: Penough vs FreelanceFlow — [UX-6](docs/AUDIT.md#ux-6), see [SESSIONS.md](SESSIONS.md#open-questions)
-- Accept or reject [ADR-0001](docs/adr/0001-api-only-backend.md) and [ADR-0002](docs/adr/0002-auth-session-cookies.md)
-
-## Done
-
-- [x] 2026-11-15 — Phase 0 baseline: test settings, green pytest, CI paths + frontend job, lint green both sides, Celery local default, `lib/` ignore, Vitest + MSW (TEST-2, TEST-1, OPS-1, OPS-2, OPS-12, OPS-13, TEST-4)
-- [x] 2026-11-15 — Dev tooling: `scripts/check.sh`, pre-commit hooks, Dependabot
-- [x] 2026-11-15 — Cross-tenant related fields scoped to the caller (SEC-1)
-- [x] 2026-11-15 — Money quantized to cents on the backend (DATA-3); invoice status locked to its state machine with a cancel endpoint (DATA-2)
-- [x] 2026-11-15 — Production refuses the published default `SECRET_KEY`; `ALLOWED_HOSTS` required; proxy TLS header (SEC-2)
-- [x] 2026-11-15 — SPA money matches the server to the cent (DATA-3, frontend half)
-- [x] 2026-11-15 — Invoice writes are one transaction; totals computed once (DATA-4)
-- [x] 2026-11-15 — Fractional quantities and bounded discount/tax end to end (DATA-5); editing a draft keeps its dates (DATA-6)
-- [x] 2026-11-15 — Clients with invoices can no longer be deleted; the UI archives them (DATA-1)
-- [x] 2026-11-15 — Phase 1 closed: idempotent Stripe webhook (PAY-1), logo upload validation (SEC-3), auth throttling and password rules (SEC-4), debug toolbar out of prod (SEC-7), currency `ChoiceField` (SEC-8)
-- [x] 2026-11-15 — Phase 2 started: login errors visible (BUG-1), client totals real (BUG-2), optional hourly rate (BUG-3)
-- [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)
+- Rebuild the local `backend/venv` on Python 3.12 (3.13 is not supported by Django 4.2)
+- One real Stripe test-mode payment (everything payment-related is mocked so far)
+- Upload the repo's social preview image in GitHub settings

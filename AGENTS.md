@@ -6,7 +6,7 @@ Instructions for AI coding agents and new contributors. Humans: start with [READ
 
 FreelanceFlow: invoicing for freelancers. Django 4.2 + DRF API (`backend/`), React 18 + Vite + Tailwind SPA (`frontend/`), Celery + Redis for email/PDF/reminders, WeasyPrint PDFs, Stripe payments.
 
-The SPA is the only real UI. The server-rendered Django views (`views.py`, `urls.py`, `forms.py` in each app) are dead: their templates do not exist. Do not extend them; put new behaviour in `api_views.py` / `api_urls.py` / `serializers.py` ([ADR-0001](docs/adr/0001-api-only-backend.md)).
+The SPA is the only real UI. The old server-rendered Django views were deleted (LEAN-1). Put new behaviour in `api_views.py` / `api_urls.py` / `serializers.py` ([ADR-0001](docs/adr/0001-api-only-backend.md)).
 
 ## Before you change anything
 
@@ -55,7 +55,7 @@ Baseline is green (2026-11-15): `pytest`, `npm test`, `npm run lint`, `npm run b
 ```
 backend/
   config/settings/{base,local,production,test}.py   manage.py→local, celery.py→local, wsgi.py→production, pytest→test
-  config/urls.py                               /api/** is live; everything else except /admin and /payments/webhook is dead
+  config/urls.py                               /api/** is live (incl. /api/payments/webhook/) plus /admin; there are no server-rendered pages
   apps/accounts/      custom User (email login, business profile, currency), auth API, seed_demo command
   apps/clients/       Client (per user, unique email per user, is_archived)
   apps/invoices/      Invoice (frozen currency, public_token, pdf_color), InvoiceItem, numbering, totals, PDF (utils.py),

@@ -18,7 +18,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
-| 4 | Code health, performance, UX & a11y | ⚪ Not started | 0 / 16 |
+| 4 | Code health, performance, UX & a11y | 🟡 In progress | 1 / 16 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
 
@@ -119,7 +119,7 @@ flowchart LR
 
 **Exit criteria:** Lighthouse accessibility ≥ 95 on Dashboard, Invoice list, Invoice create · initial JS chunk < 300 KB minified (812 KB today) · `makemigrations --check` clean · no unused deps.
 
-- [ ] Delete the server-rendered UI, crispy, unused allauth URLs; move the webhook under `/api/` ([LEAN-1](docs/AUDIT.md#lean-1), [ADR-0001](docs/adr/0001-api-only-backend.md)) — **M**
+- [x] Delete the server-rendered UI, crispy, unused allauth URLs; move the webhook under `/api/` ([LEAN-1](docs/AUDIT.md#lean-1), [ADR-0001](docs/adr/0001-api-only-backend.md)) — **M**
 - [ ] Remove unused dependencies ([LEAN-2](docs/AUDIT.md#lean-2)) — **S**
 - [ ] Remove dead backend helpers ([LEAN-3](docs/AUDIT.md#lean-3)) — **S**
 - [ ] Remove dead frontend code; one shared `formatCurrency`/`StatusBadge` ([LEAN-4](docs/AUDIT.md#lean-4)) — **S**

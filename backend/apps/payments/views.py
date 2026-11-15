@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -137,15 +136,3 @@ def handle_refund(charge):
 def handle_expired_session(session):
     """The pay link is dead; drop it so the next request mints a fresh one (PAY-4)."""
     Invoice.objects.filter(stripe_session_id=session.get('id', '')).update(stripe_session_id='', stripe_payment_url='')
-
-
-def payment_success(request, invoice_id):
-    """Payment success callback page."""
-    invoice = get_object_or_404(Invoice, pk=invoice_id)
-    return redirect('invoices:detail', pk=invoice.pk)
-
-
-def payment_cancelled(request, invoice_id):
-    """Payment cancelled callback page."""
-    invoice = get_object_or_404(Invoice, pk=invoice_id)
-    return redirect('invoices:detail', pk=invoice.pk)

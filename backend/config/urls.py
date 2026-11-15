@@ -8,15 +8,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
-    path('', include('apps.dashboard.urls')),
-    path('clients/', include('apps.clients.urls')),
-    path('invoices/', include('apps.invoices.urls')),
-    path('time/', include('apps.time_tracker.urls')),
-    path('payments/', include('apps.payments.urls')),
-    path('settings/', include('apps.accounts.urls')),
-    
-    # API endpoints
+    # The SPA is the only UI (ADR-0001): everything below is JSON.
+    path('api/payments/', include('apps.payments.urls')),  # Stripe webhook
     path('api/auth/', include('apps.accounts.api_urls')),
     path('api/', include('apps.invoices.api_urls')),
     path('api/', include('apps.clients.api_urls')),

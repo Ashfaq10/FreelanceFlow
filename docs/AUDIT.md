@@ -247,7 +247,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Lean (delete / merge)
 
 ### <a id="lean-1"></a>LEAN-1 — Delete the dead server-rendered UI
-`Should` · Phase 4 · `views.py`, `urls.py`, `forms.py` in accounts, clients, dashboard, invoices, time_tracker; `config/urls.py:L11-17`; `crispy_forms`, `crispy_tailwind`
+`Should` · Phase 4 · `views.py`, `urls.py`, `forms.py` in accounts, clients, dashboard, invoices, time_tracker; `config/urls.py:L11-17`; `crispy_forms`, `crispy_tailwind` · **Done 2026-11-15**: `views.py`/`urls.py`/`forms.py` in five apps (~1,000 lines), `django-allauth`, `django-crispy-forms`, `crispy-tailwind` and their settings are gone; `/`, `/invoices/`, `/accounts/login/` now 404 instead of 500; the Stripe webhook moved to `/api/payments/webhook/` (update the URL in the Stripe dashboard) (`tests/test_routes.py`).
 **Why:** ~1,000 lines duplicating the API; every page 500s; `/invoices/<pk>/duplicate/` mutates on GET; allauth login redirects to a 500. Decision: [ADR-0001](adr/0001-api-only-backend.md).
 **Fix:** Delete; move the Stripe webhook under `/api/payments/webhook/`; keep `allauth` only if email confirmation is adopted.
 

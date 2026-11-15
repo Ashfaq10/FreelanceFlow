@@ -60,8 +60,4 @@ else:
 
 INTERNAL_IPS = ['127.0.0.1']
 
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-
 mimetypes.add_type('application/javascript', '.js', True)
