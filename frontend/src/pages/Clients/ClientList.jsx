@@ -84,6 +84,7 @@ function ClientList() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search clients"
                 placeholder="Search clients..."
                 className="input pl-10"
               />

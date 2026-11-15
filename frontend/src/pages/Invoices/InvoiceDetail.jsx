@@ -230,6 +230,7 @@ function InvoiceDetail() {
           <button
             onClick={() => navigate('/invoices')}
             className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/8 transition-all"
+            aria-label="Back to invoices"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>

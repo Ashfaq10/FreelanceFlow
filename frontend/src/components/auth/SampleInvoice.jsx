@@ -22,7 +22,7 @@ function Swap({ showSecond, first, second, firstClass = '', secondClass = '' }) 
  */
 function SampleInvoice() {
   const [paid, setPaid] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
 
   useEffect(() => {

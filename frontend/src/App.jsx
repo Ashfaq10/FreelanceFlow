@@ -18,6 +18,7 @@ const TimeTracker = lazy(() => import('./pages/TimeTracker/TimeTracker'))
 const Reports = lazy(() => import('./pages/Reports/Reports'))
 const Settings = lazy(() => import('./pages/Settings/Settings'))
 const PublicInvoice = lazy(() => import('./pages/Public/PublicInvoice'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 function PageLoader() {
   return (
@@ -75,6 +76,7 @@ function App() {
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
     </Suspense>
   )

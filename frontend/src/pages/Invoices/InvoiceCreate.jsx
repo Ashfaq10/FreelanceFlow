@@ -207,6 +207,7 @@ function InvoiceCreate() {
         <button
           onClick={() => navigate('/invoices')}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+          aria-label="Back to invoices"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -356,8 +357,9 @@ function InvoiceCreate() {
             {/* Notes */}
             <Card>
               <Card.Content>
-                <label className="label">Notes</label>
+                <label htmlFor="invoice-notes" className="label">Notes</label>
                 <textarea
+                  id="invoice-notes"
                   {...register('notes')}
                   rows={4}
                   placeholder="Additional notes or payment instructions..."

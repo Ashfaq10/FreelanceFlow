@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 const Select = forwardRef(({ 
@@ -9,14 +9,18 @@ const Select = forwardRef(({
   className = '',
   ...props 
 }, ref) => {
+  const generatedId = useId()
+  const id = props.id || generatedId
   return (
     <div className={className}>
       {label && (
-        <label className="label">{label}</label>
+        <label htmlFor={id} className="label">{label}</label>
       )}
       <div className="relative">
         <select
           ref={ref}
+          id={id}
+          aria-invalid={error ? 'true' : undefined}
           className={`input appearance-none pr-10 ${error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}`}
           {...props}
         >
@@ -30,7 +34,7 @@ const Select = forwardRef(({
         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
       </div>
       {error && (
-        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   )

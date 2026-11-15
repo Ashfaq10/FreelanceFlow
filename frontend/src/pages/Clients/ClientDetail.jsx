@@ -101,6 +101,7 @@ function ClientDetail() {
           <button
             onClick={() => navigate('/clients')}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+            aria-label="Back to clients"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -276,7 +277,7 @@ function ClientDetail() {
                       onClick={() => navigate(`/invoices/${invoice.id}`)}
                     >
                       <Table.Cell>
-                        <span className="font-medium">{invoice.invoice_number}</span>
+                        <Link to={`/invoices/${invoice.id}`} className="font-medium text-primary-700 dark:text-primary-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">{invoice.invoice_number}</Link>
                       </Table.Cell>
                       <Table.Cell className="text-gray-500 dark:text-gray-400">
                         {formatDate(invoice.issue_date)}

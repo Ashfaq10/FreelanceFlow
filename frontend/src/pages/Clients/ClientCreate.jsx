@@ -86,6 +86,7 @@ function ClientCreate() {
         <button
           onClick={() => navigate('/clients')}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+          aria-label="Back to clients"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>

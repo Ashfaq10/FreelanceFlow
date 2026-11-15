@@ -38,6 +38,9 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- Unknown addresses show a "Page not found" page with a way home instead of a blank screen (UX-3).
+- Screen readers and keyboards: form labels are tied to their fields, invoice numbers are links you can Tab to, and icon-only buttons have names (UX-2).
+- Dialogs are accessible: they are announced with their title, close on Escape, keep keyboard focus inside while open and give it back afterwards (UX-1).
 - The app loads 267 KB of JavaScript up front instead of 860 KB: every page loads on demand, and the chart library only when you open the Dashboard or Reports (PERF-2).
 - The client list runs a fixed number of queries instead of three per client (14 clients: 58 queries down to 10) (PERF-1).
 - Line quantities accept fractions (0.5 h is valid; `0` is not). Discounts must be between zero and the subtotal, tax between 0 and 100%, and the SPA sends decimal strings with `step="0.01"` instead of `parseInt`-ing quantities down (DATA-5).

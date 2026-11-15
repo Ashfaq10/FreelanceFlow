@@ -143,6 +143,7 @@ function InvoiceList() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  aria-label="Search invoices"
                   placeholder="Search invoices..."
                   className="input pl-10"
                 />
@@ -202,7 +203,7 @@ function InvoiceList() {
                   onClick={() => navigate(`/invoices/${invoice.id}`)}
                 >
                   <Table.Cell>
-                    <span className="font-medium">{invoice.invoice_number}</span>
+                    <Link to={`/invoices/${invoice.id}`} className="font-medium text-primary-700 dark:text-primary-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">{invoice.invoice_number}</Link>
                   </Table.Cell>
                   <Table.Cell>{invoice.client_name}</Table.Cell>
                   <Table.Cell className="text-gray-500 dark:text-gray-400">

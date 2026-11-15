@@ -222,11 +222,11 @@ function TimeTracker() {
               </div>
               <div className="flex gap-3">
                 {!isTracking ? (
-                  <Button onClick={startTracking} className="rounded-full w-12 h-12 p-0">
+                  <Button onClick={startTracking} aria-label="Start timer" className="rounded-full w-12 h-12 p-0">
                     <Play className="w-5 h-5" />
                   </Button>
                 ) : (
-                  <Button onClick={stopTracking} variant="danger" className="rounded-full w-12 h-12 p-0">
+                  <Button onClick={stopTracking} variant="danger" aria-label="Stop timer" className="rounded-full w-12 h-12 p-0">
                     <Pause className="w-5 h-5" />
                   </Button>
                 )}
@@ -366,6 +366,7 @@ function TimeTracker() {
                       <button
                         onClick={() => handleDelete(log.id)}
                         className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                        aria-label="Delete time log"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

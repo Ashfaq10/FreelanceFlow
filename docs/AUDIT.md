@@ -268,15 +268,15 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## UX & accessibility
 
 ### <a id="ux-1"></a>UX-1 — Modal has no dialog semantics, Esc, or focus trap
-`Should` · Phase 4 · `frontend/src/components/ui/Modal.jsx`
+`Should` · Phase 4 · `frontend/src/components/ui/Modal.jsx` · **Done 2026-11-15**: `Modal` is a `role="dialog"` named by its title and described by its text; Escape closes it, Tab and Shift+Tab stay inside, focus goes to the first field and returns to the button that opened it, the close button is named (`components/ui/Modal.test.jsx`).
 **Fix:** Native `<dialog>` + `showModal()`, or `role="dialog" aria-modal aria-labelledby`, Esc to close, focus in/out management, `aria-label` on close.
 
 ### <a id="ux-2"></a>UX-2 — Inputs unlabeled for assistive tech; rows not keyboard-reachable
-`Should` · Phase 4 · `components/ui/Input.jsx`, `Select.jsx`, `Table.jsx`, icon-only buttons across pages
+`Should` · Phase 4 · `components/ui/Input.jsx`, `Select.jsx`, `Table.jsx`, icon-only buttons across pages · **Done 2026-11-15**: `Input`, `Select` and the Notes field link their label with `useId`/`htmlFor` and announce errors; invoice numbers in the invoice list and on a client page are real links (keyboard reachable); the search boxes, back arrows, timer, delete and menu-close buttons have names. Settings textareas follow with [UX-4](#ux-4).
 **Fix:** `useId()` + `htmlFor`; invoice number as a `<Link>`; `aria-label` on icon buttons.
 
 ### <a id="ux-3"></a>UX-3 — No 404 route
-`Nice` · Phase 4 · `frontend/src/App.jsx` has no `*` route.
+`Nice` · Phase 4 · `frontend/src/App.jsx` has no `*` route. · **Done 2026-11-15**: new `NotFound` page on a catch-all route (`App.test.jsx`).
 
 ### <a id="ux-4"></a>UX-4 — Fake settings and header controls
 `Should` · Phase 4 · `Settings.jsx` (Notifications/Appearance not registered with the form), `Header.jsx` (bell always shows unread dot), `Sidebar.jsx` ("Pro Plan" card), undefined `xs:` breakpoint in `tailwind.config.js` ("New Invoice" label never shows).
