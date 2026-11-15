@@ -26,7 +26,7 @@ class TestPaymentModel:
 
     def test_partial_payment(self, invoice):
         InvoiceItemFactory(invoice=invoice, quantity=1, unit_price=100)
-        invoice.refresh_from_db()
+        invoice.save()  # totals are recomputed on save, not by a per-item signal (DATA-4)
         
         payment = Payment.objects.create(
             invoice=invoice,

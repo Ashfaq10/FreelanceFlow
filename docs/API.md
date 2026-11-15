@@ -35,7 +35,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | Method | Path | Description | Known issues |
 |---|---|---|---|
 | GET | `/api/invoices/` | List; filters `?status=`, `?client=` | invalid `?client=` → 500 ([BUG-17](AUDIT.md#bug-17)) |
-| POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `rate`); number auto-assigned `INV-YYYY-NNN` per user; `status` is ignored (always `draft`) | [DATA-4](AUDIT.md#data-4), [DATA-5](AUDIT.md#data-5) |
+| POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `rate`); one transaction; number auto-assigned `INV-YYYY-NNN` per user; `status` is ignored (always `draft`) | [DATA-5](AUDIT.md#data-5) |
 | GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale); `client` must be yours, `status` read-only | same as above |
 | DELETE | `/api/invoices/{id}/` | Drafts only (400 otherwise) | |
 | POST | `/api/invoices/{id}/send/` | Queues PDF generation + email (drafts and sent only) | [BUG-9](AUDIT.md#bug-9) |

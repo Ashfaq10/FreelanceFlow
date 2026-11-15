@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.utils import timezone
 
 from rest_framework import serializers
@@ -92,14 +93,15 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('At least one line item is required.')
         return value
 
+    @transaction.atomic
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        user = self.context['request'].user
-        invoice = Invoice.objects.create(user=user, **validated_data)
-        self._sync_items(invoice, items_data)
+        invoice = Invoice(user=self.context['request'].user, **validated_data)
         invoice.save()
+        self._replace_items(invoice, items_data)
         return invoice
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         if not instance.is_editable:
             raise serializers.ValidationError('Only draft invoices can be edited.')
@@ -107,24 +109,31 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
         items_data = validated_data.pop('items', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
 
-        if items_data is not None:
-            instance.items.all().delete()
-            self._sync_items(instance, items_data)
+        if items_data is None:
             instance.save()
+        else:
+            instance.items.all().delete()
+            self._replace_items(instance, items_data)
 
         return instance
 
-    def _sync_items(self, invoice, items_data):
+    def _replace_items(self, invoice, items_data):
+        items = []
         for item_data in items_data:
             rate = item_data.pop('rate', item_data.pop('unit_price', 0))
-            InvoiceItem.objects.create(
+            item = InvoiceItem(
                 invoice=invoice,
                 description=item_data['description'],
                 quantity=item_data['quantity'],
                 unit_price=rate,
             )
+            # bulk_create skips save(), so the line total is computed here.
+            item.line_total = item.compute_line_total()
+            items.append(item)
+
+        InvoiceItem.objects.bulk_create(items)
+        invoice.save()  # recalculates totals from the stored items, once
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):

@@ -58,7 +58,7 @@ backend/
   config/urls.py                               /api/** is live; everything else except /admin and /payments/webhook is dead
   apps/accounts/      custom User (email login, business profile, currency), auth API, seed_demo command
   apps/clients/       Client (per user, unique email per user, is_archived)
-  apps/invoices/      Invoice, InvoiceItem, numbering, totals, PDF (utils.py), Celery tasks, signals
+  apps/invoices/      Invoice, InvoiceItem, numbering, totals, PDF (utils.py), Celery tasks
   apps/payments/      Payment (OneToOne → Invoice), Stripe webhook + checkout (template side)
   apps/time_tracker/  TimeLog (DRF ViewSet)
   apps/dashboard/     summary + monthly revenue aggregates (no models)
@@ -86,7 +86,7 @@ docs/                 AUDIT.md (findings), API.md, DESIGN.md, adr/
 
 ## Gotchas
 
-- `Invoice.save()` recalculates totals from `self.items.all()`. Saving an invoice whose items aren't persisted yet sets totals to 0. `InvoiceItem` post-save signals then recompute totals with `.update()`, so the in-memory invoice is stale — call `refresh_from_db()`.
+- `Invoice.save()` recalculates totals from `self.items.all()`. There are no `InvoiceItem` signals (DATA-4): after creating or deleting items, call `invoice.save()` yourself, or the stored totals stay stale.
 - Invoice numbers are `INV-<current year>-NNN` per user, generated in `Invoice.save()` with a retry loop on `IntegrityError`.
 - `pytest` uses `config/settings/test.py`: in-memory SQLite, or Postgres when `TEST_DATABASE_URL` is set (CI). `config/settings/local.py` uses SQLite only when `USE_SQLITE=True`; the root `.env` sets this for local dev.
 - `.env` is loaded by `python-dotenv` from the repo root (found by walking up from `config/settings/`). There is no `backend/.env`.

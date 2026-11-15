@@ -21,6 +21,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ### Changed
 - The SPA previews unsaved drafts in integer cents (`utils/money.js`) and displays the server's `line_total` for saved items, so the live total and the saved invoice agree to the cent (DATA-3, frontend half).
+- Invoice create and update run in one transaction and insert items with `bulk_create`; a failed item write no longer leaves a numbered invoice with no items or a zero total. Totals are recomputed once per write instead of once per item, and the `InvoiceItem` signals are gone (DATA-4).
 - Money is quantized to the cent with `ROUND_HALF_UP` before it is stored (`to_cents`), so `subtotal - discount + tax == total` always holds; Django's half-even rounding on save no longer loses a cent (DATA-3, backend half).
 - `POST /api/invoices/{id}/cancel/` cancels a draft, sent or overdue invoice (DATA-2).
 - CI runs backend jobs from `backend/`, tests against the Postgres service, builds the image from `./backend`, and pins flake8/black/isort (OPS-1, OPS-2).

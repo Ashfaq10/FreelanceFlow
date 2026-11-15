@@ -160,6 +160,9 @@ class InvoiceItem(models.Model):
     def __str__(self):
         return f'{self.description} ({self.quantity} × {self.unit_price})'
 
+    def compute_line_total(self):
+        return to_cents(self.quantity * self.unit_price)
+
     def save(self, *args, **kwargs):
-        self.line_total = to_cents(self.quantity * self.unit_price)
+        self.line_total = self.compute_line_total()
         super().save(*args, **kwargs)

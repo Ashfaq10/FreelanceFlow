@@ -434,7 +434,7 @@ class Command(BaseCommand):
                         hourly_rate=Decimal(unit_price),
                         is_billed=True,
                     )
-            invoice.refresh_from_db()  # totals were written by the InvoiceItem post_save signal
+            invoice.save()  # Invoice.save() recalculates totals from the stored items
             totals[status] += 1
 
             if status == 'paid':

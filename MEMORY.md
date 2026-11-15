@@ -18,7 +18,7 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 
 ## Lessons
 
-- **2026-11-15 — `Invoice.save()` computes totals from saved items only.** Creating an invoice, then items, leaves the in-memory invoice with zero totals; the `InvoiceItem` signal writes totals with `.update()`. Call `invoice.refresh_from_db()` before reading totals. (Seed command does this.)
+- **2026-11-15 — `Invoice.save()` computes totals from saved items only.** Create the items first, then call `invoice.save()`. The `InvoiceItem` post-save signal that used to do this implicitly was deleted with [DATA-4](docs/AUDIT.md#data-4), so nothing recomputes totals behind your back.
 - **2026-11-15 — Invoice numbers follow creation order, not `issue_date`.** Backdated invoices must be created oldest-first or numbers look shuffled (`seed_demo` sorts by `days_ago`).
 - **2026-11-15 — Tests only use SQLite because `.env` sets `USE_SQLITE=True`.** The `'test' in sys.argv` branch in `local.py` never fires under pytest. Fix tracked as [TEST-2](docs/AUDIT.md#test-2). *(Fixed same day: pytest uses `config.settings.test`.)*
 - **2026-11-15 — `black --check` fails on 64 files** because the codebase uses single quotes and there is no black config. Don't reformat files piecemeal; one formatting-only commit ([OPS-2](docs/AUDIT.md#ops-2)). *(Fixed same day.)*
@@ -29,6 +29,7 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 - **2026-11-15 — Patching `apps.payments.views.stripe` also replaces `stripe.error`.** `except stripe.error.SignatureVerificationError` then catches a MagicMock and raises `TypeError`; put the real exception class back on the mock.
 - **2026-11-15 — Vitest/jsdom: stubbing `window.location` as `{ href: '/' }` breaks axios** ("Invalid base URL"). Copy `href`, `origin`, `protocol`, `host`, `hostname`, `port`, `pathname` into the stub (see `api/client.test.js`).
 - **2026-11-15 — CI pins flake8/black/isort to the local venv versions.** Unpinned tools in CI reformat differently from local runs; bump the pin in `ci.yml` when the venv upgrades.
+- **2026-11-15 — `bulk_create` skips `Model.save()`.** `InvoiceItem.line_total` must be set explicitly before the call (`item.compute_line_total()`), or the column is written as NULL/stale.
 
 ## Debugging recipes
 

@@ -88,7 +88,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Quantize `line_total`, `tax_amount` to `0.01` with `ROUND_HALF_UP`, then `total = taxable + tax_amount`. SPA displays server `line_total`/`subtotal`/`total` and only previews unsaved drafts with integer-cent math.
 
 ### <a id="data-4"></a>DATA-4 — Invoice create/update is not atomic
-`Must` · Phase 1 · `apps/invoices/serializers.py:L67-100`, `apps/invoices/signals.py`
+`Must` · Phase 1 · `apps/invoices/serializers.py:L67-100`, `apps/invoices/signals.py` · **Done 2026-11-15**: `transaction.atomic` on create/update, `bulk_create`, one `calculate_totals()`, signals deleted; `tests/test_invoice_writes.py`. The numbering retry still runs outside a savepoint.
 **Problem:** Invoice saved first, items after; `update` deletes all items before recreating. A failed item insert leaves a numbered invoice with no items or a 0 total. Each item save fires a signal that recomputes totals (n+1 queries).
 **Fix:** `transaction.atomic` on `create`/`update`; `bulk_create` items; call `calculate_totals()` once; drop the per-item signal; wrap the numbering retry in `Invoice.save` in a savepoint.
 
