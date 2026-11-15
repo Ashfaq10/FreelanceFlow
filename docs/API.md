@@ -28,7 +28,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | GET | `/api/clients/` | Active clients with `invoice_count`, `total_revenue`, `outstanding_amount`; `?archived=true` lists archived ones | `?search=` ignored ([BUG-11](AUDIT.md#bug-11)); N+1 ([PERF-1](AUDIT.md#perf-1)) |
 | POST | `/api/clients/` | Create client (`email` unique per user) | |
 | GET / PATCH / PUT | `/api/clients/{id}/` | Detail / update; `PATCH {"is_archived": true}` is the supported way to retire a client | |
-| DELETE | `/api/clients/{id}/` | Only for clients with no invoices; 409 otherwise | |
+| DELETE | `/api/clients/{id}/` | Only for clients with no invoices and no time logs; 409 otherwise | |
 
 ## Invoices — `apps/invoices/api_urls.py`
 

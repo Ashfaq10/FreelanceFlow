@@ -1,6 +1,6 @@
 # 0002 — Authenticate the SPA with HttpOnly session cookies
 
-- Status: Proposed
+- Status: Accepted (2026-11-15); implementation scheduled for Phase 5 ([SEC-5](../AUDIT.md#sec-5))
 - Date: 2026-11-15
 
 ## Context

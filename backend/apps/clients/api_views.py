@@ -27,6 +27,14 @@ class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Client.objects.filter(user=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
+        client = self.get_object()
+        if client.time_logs.exists():
+            # Billable history is a record too; archive keeps it (DATA-1).
+            return Response(
+                {'error': 'This client has time logs. Archive it instead of deleting it.'},
+                status=status.HTTP_409_CONFLICT,
+            )
+
         try:
             return super().destroy(request, *args, **kwargs)
         except ProtectedError:

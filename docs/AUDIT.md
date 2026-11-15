@@ -73,7 +73,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Data integrity & money
 
 ### <a id="data-1"></a>DATA-1 — Deleting a client deletes its paid invoices and payments
-`Must` · Phase 1 · `apps/invoices/models.py` (`Invoice.client` `on_delete=CASCADE`), `apps/clients/api_views.py`, `frontend/src/pages/Clients/ClientDetail.jsx` · **Done 2026-11-15**: `PROTECT` + migration 0008, DELETE returns 409, SPA archives; `tests/test_clients.py`. `TimeLog.client` is still `CASCADE`, so deleting a client with time logs but no invoices still drops those logs.
+`Must` · Phase 1 · `apps/invoices/models.py` (`Invoice.client` `on_delete=CASCADE`), `apps/clients/api_views.py`, `frontend/src/pages/Clients/ClientDetail.jsx` · **Done 2026-11-15**: `PROTECT` + migration 0008, DELETE returns 409 for a client with invoices *or* time logs, SPA archives; `tests/test_clients.py`.
 **Problem:** "Delete Client" removes every invoice (including paid), their `Payment` rows and time logs — accounting records gone. The SPA's `clients.archive` calls `/api/clients/{id}/archive/`, which does not exist.
 **Fix:** `on_delete=PROTECT` (migration); API delete returns 409 when invoices exist; replace the UI delete with archive (`PATCH {is_archived:true}` already works); add an archived filter.
 
@@ -370,7 +370,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Django 5.2 LTS with `STORAGES={...}`; `pip-tools` lockfile; `makemigrations --check` in CI.
 
 ### <a id="ops-8"></a>OPS-8 — Tooling gaps
-`Nice` · Phase 4 · ESLint 8 (EOL, legacy `.eslintrc.cjs`), no Prettier, no pre-commit hooks, no `ruff`/`mypy` in CI, Python version drift (docs/Docker/CI say 3.11, local venv is 3.13).
+`Nice` · Phase 4 · ESLint 8 (EOL, legacy `.eslintrc.cjs`), no Prettier. **Partly done 2026-11-15**: pre-commit hooks added; Python pinned to 3.12 in `.python-version`, `backend/Dockerfile`, CI and `setup.cfg` (Django 4.2 supports ≤ 3.12, so the 3.13 venv must be rebuilt). Still open: ESLint 9 flat config, Prettier, `ruff`/`mypy` in CI.
 **Fix:** ESLint 9 flat config + Prettier; `pre-commit` with ruff/black/isort/prettier; one Python version in `.python-version`, Dockerfile and CI.
 
 ### <a id="ops-9"></a>OPS-9 — No observability or task resilience

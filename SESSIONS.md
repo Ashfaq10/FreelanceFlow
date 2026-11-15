@@ -35,10 +35,10 @@ Entry template:
 ### Open questions
 
 1. ~~**Product name**~~ — resolved 2026-11-15: product **FreelanceFlow**, maker **Penough**; applied ([UX-6](docs/AUDIT.md#ux-6)). Still unverified: domain and trademark availability.
-2. **Python version:** CI/Docker 3.11, local venv 3.13 — [OPS-8](docs/AUDIT.md#ops-8).
-3. **ADRs 0001 and 0002:** accept as proposed?
-4. **`main` protection:** `.claude/settings.json` denies `git push origin main`, but pushes to `main` are what we do. Drop the rule, or switch to branch + PR?
-5. **`TimeLog.client` is still `CASCADE`:** deleting a client with time logs but no invoices drops those logs. Protect them too?
+2. ~~**Python version**~~ — resolved: pinned to **3.12** everywhere (`.python-version`, Dockerfile, CI, mypy). **Action for the owner: rebuild `backend/venv` on 3.12**; it is still 3.13, which Django 4.2 does not support.
+3. ~~**ADRs 0001 and 0002**~~ — both Accepted 2026-11-15. ADR-0001 unblocks LEAN-1 (Phase 4); ADR-0002 is implemented in Phase 5 ([SEC-5](docs/AUDIT.md#sec-5)).
+4. ~~**`main` protection**~~ — resolved: the `git push origin main` deny rule is gone from `.claude/settings.json`. Optional next step on GitHub: require the CI check before merge.
+5. ~~**`TimeLog.client`**~~ — resolved: deleting a client with time logs returns 409 too; archive is the universal exit.
 
 ---
 

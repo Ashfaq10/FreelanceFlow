@@ -3,8 +3,9 @@ import pytest
 
 from apps.clients.models import Client
 from apps.invoices.models import Invoice
+from apps.time_tracker.models import TimeLog
 
-from .factories import ClientFactory, InvoiceFactory, UserFactory
+from .factories import ClientFactory, InvoiceFactory, TimeLogFactory, UserFactory
 
 
 @pytest.mark.django_db
@@ -24,6 +25,14 @@ class TestClientDelete:
         assert 'error' in response.data
         assert Client.objects.filter(id=client_obj.id).exists()
         assert Invoice.objects.filter(id=invoice.id).exists()
+
+    def test_client_with_time_logs_returns_409(self, api_client, user, client_obj):
+        time_log = TimeLogFactory(user=user, client=client_obj)
+
+        response = api_client.delete(f'/api/clients/{client_obj.id}/')
+
+        assert response.status_code == 409
+        assert TimeLog.objects.filter(id=time_log.id).exists()
 
     def test_archiving_is_the_way_out(self, api_client, user, client_obj):
         InvoiceFactory(user=user, client=client_obj)

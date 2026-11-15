@@ -1,6 +1,6 @@
 # 0001 — Backend is API-only; the React SPA is the only UI
 
-- Status: Proposed
+- Status: Accepted (2026-11-15)
 - Date: 2026-11-15
 
 ## Context
