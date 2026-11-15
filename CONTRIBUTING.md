@@ -61,3 +61,14 @@ uv pip compile requirements-dev.in --universal --python-version 3.12 -c requirem
 ```
 
 `uv pip compile` is the pip-tools workflow with cross-platform output, so the lock works on Windows and Linux.
+
+## API schema
+
+`docs/openapi.json` is generated, and `tests/test_openapi.py` fails if it is stale. After changing an endpoint or serializer:
+
+```bash
+cd backend
+venv/Scripts/python manage.py spectacular --format openapi-json --file ../docs/openapi.json --validate --fail-on-warn --settings=config.settings.test
+```
+
+New `APIView`s need an `@extend_schema(...)` on each method (request and responses), or the generator cannot describe them. If the SPA starts reading a new field, add it to `frontend/src/api/contract.test.js`.

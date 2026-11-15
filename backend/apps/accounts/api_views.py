@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
+from drf_spectacular.utils import extend_schema
 from PIL import Image
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -16,6 +17,16 @@ from rest_framework.decorators import api_view, permission_classes, throttle_cla
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+
+from config.schema import (
+    LoginSerializer,
+    LogoUploadSerializer,
+    MessageSerializer,
+    PasswordResetConfirmSerializer,
+    PasswordResetSerializer,
+    SignupSerializer,
+    TokenSerializer,
+)
 
 from .models import User
 from .serializers import UserSerializer
@@ -31,6 +42,11 @@ class SignupRateThrottle(AnonRateThrottle):
     scope = 'signup'
 
 
+@extend_schema(
+    request=LoginSerializer,
+    responses={200: TokenSerializer, 400: MessageSerializer, 401: MessageSerializer},
+    auth=[],
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([LoginRateThrottle])
@@ -51,6 +67,7 @@ def login_view(request):
     return Response({'token': token.key, 'user': UserSerializer(user, context={'request': request}).data})
 
 
+@extend_schema(request=SignupSerializer, responses={201: TokenSerializer, 400: MessageSerializer}, auth=[])
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([SignupRateThrottle])
@@ -83,6 +100,7 @@ def signup_view(request):
     return Response({'token': token.key, 'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(request=None, responses=MessageSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -93,6 +111,8 @@ def logout_view(request):
     return Response({'message': 'Logged out successfully'})
 
 
+@extend_schema(methods=['GET'], responses=UserSerializer)
+@extend_schema(methods=['PATCH'], request=UserSerializer, responses=UserSerializer)
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def user_view(request):
@@ -111,6 +131,9 @@ def user_view(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    request={'multipart/form-data': LogoUploadSerializer}, responses={200: UserSerializer, 400: MessageSerializer}
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def upload_logo_view(request):
@@ -160,6 +183,7 @@ class PasswordResetRateThrottle(AnonRateThrottle):
     scope = 'password_reset'
 
 
+@extend_schema(request=PasswordResetSerializer, responses=MessageSerializer, auth=[])
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([PasswordResetRateThrottle])
@@ -189,6 +213,9 @@ def password_reset_view(request):
     return Response({'message': 'If that email has an account, a reset link is on its way.'})
 
 
+@extend_schema(
+    request=PasswordResetConfirmSerializer, responses={200: MessageSerializer, 400: MessageSerializer}, auth=[]
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([PasswordResetRateThrottle])

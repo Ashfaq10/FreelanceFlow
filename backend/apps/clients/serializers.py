@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
 from .models import Client, with_totals
@@ -40,14 +42,14 @@ class ClientSerializer(serializers.ModelSerializer):
             obj = with_totals(Client.objects.filter(pk=obj.pk)).get()
         return getattr(obj, name)
 
-    def get_invoice_count(self, obj):
+    def get_invoice_count(self, obj) -> int:
         return self._total(obj, 'invoice_count')
 
-    def get_total_billed(self, obj):
+    def get_total_billed(self, obj) -> Decimal:
         return self._total(obj, 'total_billed')
 
-    def get_total_paid(self, obj):
+    def get_total_paid(self, obj) -> Decimal:
         return self._total(obj, 'total_paid')
 
-    def get_outstanding(self, obj):
+    def get_outstanding(self, obj) -> Decimal:
         return self._total(obj, 'outstanding')

@@ -7,11 +7,14 @@ never touch its status, and are rate-limited against token guessing.
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, throttling
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.payments.services import PAYABLE_STATUSES, CheckoutUnavailable, payment_link
+from config.schema import ErrorSerializer, UrlSerializer
 
 from .models import Invoice
 from .serializers import PublicInvoiceSerializer
@@ -39,12 +42,14 @@ class PublicInvoiceMixin:
 
 
 class PublicInvoiceView(PublicInvoiceMixin, APIView):
+    @extend_schema(responses=PublicInvoiceSerializer)
     def get(self, request, token):
         invoice = self.get_invoice(token)
         return Response(PublicInvoiceSerializer(invoice).data)
 
 
 class PublicInvoicePDFView(PublicInvoiceMixin, APIView):
+    @extend_schema(responses={(200, 'application/pdf'): OpenApiTypes.BINARY})
     def get(self, request, token):
         invoice = self.get_invoice(token)
         response = HttpResponse(generate_pdf(invoice), content_type='application/pdf')
@@ -53,6 +58,7 @@ class PublicInvoicePDFView(PublicInvoiceMixin, APIView):
 
 
 class PublicInvoiceCheckoutView(PublicInvoiceMixin, APIView):
+    @extend_schema(request=None, responses={200: UrlSerializer, 400: ErrorSerializer, 503: ErrorSerializer})
     def post(self, request, token):
         invoice = self.get_invoice(token)
 

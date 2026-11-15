@@ -195,6 +195,7 @@ Details, checkboxes and sizes: **[PHASES.md](PHASES.md)**.
 | [MEMORY.md](MEMORY.md) | Small decisions, lessons learned, debugging recipes |
 | [SESSIONS.md](SESSIONS.md) | Handoff log between sessions; open questions |
 | [docs/AUDIT.md](docs/AUDIT.md) | Every finding: problem, location, fix, severity |
+| [docs/openapi.json](docs/openapi.json) | Generated OpenAPI 3 schema (all endpoints); checked for drift in CI |
 | [docs/API.md](docs/API.md) | REST endpoints, Celery tasks, known issues per endpoint |
 | [docs/DESIGN.md](docs/DESIGN.md) | Figma source, UI conventions, open design decisions |
 | [docs/adr/](docs/adr/) | Architecture decision records |

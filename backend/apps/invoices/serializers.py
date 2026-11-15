@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 from django.db import transaction
@@ -72,7 +73,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'invoice_number', 'subtotal', 'tax_amount', 'total', 'created_at']
 
-    def get_items_count(self, obj):
+    def get_items_count(self, obj) -> int:
         return obj.items.count()
 
 
@@ -108,7 +109,7 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         # Without this, any user could attach (and then email) another user's client — SEC-1.
         request = self.context.get('request')
-        if request is not None:
+        if request is not None and request.user.is_authenticated:
             self.fields['client'].queryset = request.user.clients.all()
 
     def validate_items(self, value):
@@ -267,7 +268,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'sent_at',
         ]
 
-    def get_logo_url(self, obj):
+    def get_logo_url(self, obj) -> str | None:
         if not obj.user.logo:
             return None
         request = self.context.get('request')
@@ -275,11 +276,11 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.user.logo.url)
         return obj.user.logo.url
 
-    def get_payment_date(self, obj):
+    def get_payment_date(self, obj) -> datetime.date | None:
         last = obj.payments.order_by('paid_on').last()
         return last.paid_on if last else None
 
-    def get_public_url(self, obj):
+    def get_public_url(self, obj) -> str:
         return public_invoice_url(obj)
 
 
@@ -315,5 +316,5 @@ class PublicInvoiceSerializer(serializers.ModelSerializer):
             'business_email',
         ]
 
-    def get_business_name(self, obj):
+    def get_business_name(self, obj) -> str:
         return obj.user.get_display_name()

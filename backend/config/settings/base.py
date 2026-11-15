@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'corsheaders',
     'rest_framework',
+    'drf_spectacular',
     'rest_framework.authtoken',
     'django_celery_beat',
     'storages',
@@ -117,6 +118,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'config.pagination.DefaultPagination',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'PAGE_SIZE': 20,
     # Brute-force budget for the unauthenticated auth endpoints (SEC-4).
     'DEFAULT_THROTTLE_RATES': {
@@ -152,6 +154,14 @@ EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 # Where the SPA lives; password-reset links point here (BUG-6).
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'FreelanceFlow API',
+    'DESCRIPTION': 'Invoicing for freelancers. The SPA is the only client; docs/openapi.yaml is generated from this (OPS-7).',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+}
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')

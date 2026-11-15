@@ -6,10 +6,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from drf_spectacular.views import SpectacularAPIView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     # The SPA is the only UI (ADR-0001): everything below is JSON.
     path('api/payments/', include('apps.payments.urls')),  # Stripe webhook
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/auth/', include('apps.accounts.api_urls')),
     path('api/', include('apps.invoices.api_urls')),
     path('api/', include('apps.clients.api_urls')),

@@ -29,7 +29,7 @@ class TimeLogSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         # Related objects must belong to the caller — SEC-1.
         request = self.context.get('request')
-        if request is not None:
+        if request is not None and request.user.is_authenticated:
             self.fields['client'].queryset = request.user.clients.all()
             self.fields['invoice'].queryset = request.user.invoices.all()
 

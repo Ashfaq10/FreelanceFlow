@@ -5,6 +5,7 @@ from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,6 +13,7 @@ from rest_framework.views import APIView
 from apps.clients.models import Client
 from apps.invoices.models import Invoice, to_cents
 from apps.payments.models import Payment
+from config.schema import DashboardSummarySerializer, MonthlyRevenueRowSerializer
 
 
 class MonthlyRevenueQuerySerializer(serializers.Serializer):
@@ -27,6 +29,7 @@ def _balance(invoices):
 class DashboardSummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(responses=DashboardSummarySerializer)
     def get(self, request):
         user = request.user
         today = timezone.now().date()
@@ -71,6 +74,7 @@ class DashboardSummaryView(APIView):
 class MonthlyRevenueView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(parameters=[MonthlyRevenueQuerySerializer], responses=MonthlyRevenueRowSerializer(many=True))
     def get(self, request):
         user = request.user
         today = timezone.now().date()

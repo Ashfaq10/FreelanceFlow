@@ -5,6 +5,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 ## [Unreleased]
 
 ### Added
+- OpenAPI schema: `GET /api/schema/` and a committed `docs/openapi.json` covering all 27 endpoints. A backend test fails when the file is stale, and a frontend test fails when the API stops offering a field the SPA reads (the BUG-2 class of bug).
 - `config/settings/test.py`: in-memory SQLite by default, Postgres via `TEST_DATABASE_URL`; MD5 hasher, locmem email, eager Celery, temp media dir (TEST-2).
 - Frontend tests: Vitest + React Testing Library + MSW, `npm test`, first test covers `api/client.js` token and 401/500 handling (TEST-4).
 - CI frontend job (`npm ci`, lint, test, build) (OPS-1, TEST-4).

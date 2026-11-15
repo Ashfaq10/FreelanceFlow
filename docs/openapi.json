@@ -1,0 +1,3599 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "FreelanceFlow API",
+        "version": "1.0.0",
+        "description": "Invoicing for freelancers. The SPA is the only client; docs/openapi.yaml is generated from this (OPS-7)."
+    },
+    "paths": {
+        "/api/auth/login/": {
+            "post": {
+                "operationId": "auth_login_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Token"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/logo/": {
+            "post": {
+                "operationId": "auth_logo_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LogoUploadRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/logout/": {
+            "post": {
+                "operationId": "auth_logout_create",
+                "tags": [
+                    "auth"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/password/reset/": {
+            "post": {
+                "operationId": "auth_password_reset_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/password/reset/confirm/": {
+            "post": {
+                "operationId": "auth_password_reset_confirm_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetConfirmRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetConfirmRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetConfirmRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/signup/": {
+            "post": {
+                "operationId": "auth_signup_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignupRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignupRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignupRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Token"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/user/": {
+            "get": {
+                "operationId": "auth_user_retrieve",
+                "tags": [
+                    "auth"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "auth_user_partial_update",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUserRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUserRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUserRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/clients/": {
+            "get": {
+                "operationId": "clients_list",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedClientList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "clients_create",
+                "tags": [
+                    "clients"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/clients/{id}/": {
+            "get": {
+                "operationId": "clients_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "clients_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClientRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "clients_partial_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedClientRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedClientRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedClientRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Client"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "clients_destroy",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/dashboard/monthly-revenue/": {
+            "get": {
+                "operationId": "dashboard_monthly_revenue_list",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "months",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 120,
+                            "minimum": 1,
+                            "default": 12
+                        }
+                    }
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MonthlyRevenueRow"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/dashboard/summary/": {
+            "get": {
+                "operationId": "dashboard_summary_retrieve",
+                "tags": [
+                    "dashboard"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DashboardSummary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/": {
+            "get": {
+                "operationId": "invoices_list",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedInvoiceList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "invoices_create",
+                "tags": [
+                    "invoices"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceWriteRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceWriteRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceWriteRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceWrite"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/": {
+            "get": {
+                "operationId": "invoices_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "invoices_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceWriteRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceWriteRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceWriteRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceWrite"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "invoices_partial_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedInvoiceWriteRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedInvoiceWriteRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedInvoiceWriteRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceWrite"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "invoices_destroy",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/cancel/": {
+            "post": {
+                "operationId": "invoices_cancel_create",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/checkout/": {
+            "post": {
+                "operationId": "invoices_checkout_create",
+                "description": "Pay link for one of your own invoices (PAY-2).",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Url"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/duplicate/": {
+            "post": {
+                "operationId": "invoices_duplicate_create",
+                "description": "Copy an invoice into a fresh draft (FEAT-2).",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/mark-paid/": {
+            "post": {
+                "operationId": "invoices_mark_paid_create",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/payments/": {
+            "post": {
+                "operationId": "invoices_payments_create",
+                "description": "Record a full or partial payment you received outside Stripe (PAY-3).",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/pdf/": {
+            "get": {
+                "operationId": "invoices_pdf_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "regenerate",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "timezone",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/remind/": {
+            "post": {
+                "operationId": "invoices_remind_create",
+                "description": "Chase a sent or overdue invoice by hand (FEAT-2).",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Queued"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/send/": {
+            "post": {
+                "operationId": "invoices_send_create",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendInvoiceRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendInvoiceRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendInvoiceRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Queued"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/public/invoices/{token}/": {
+            "get": {
+                "operationId": "public_invoices_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "public"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicInvoice"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/public/invoices/{token}/checkout/": {
+            "post": {
+                "operationId": "public_invoices_checkout_create",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "public"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Url"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/public/invoices/{token}/pdf/": {
+            "get": {
+                "operationId": "public_invoices_pdf_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "public"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/time-logs/": {
+            "get": {
+                "operationId": "time_logs_list",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "time-logs"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedTimeLogList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "time_logs_create",
+                "tags": [
+                    "time-logs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeLogRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeLogRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeLogRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeLog"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/time-logs/{id}/": {
+            "get": {
+                "operationId": "time_logs_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this time log.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "time-logs"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeLog"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "time_logs_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this time log.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "time-logs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeLogRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeLogRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TimeLogRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeLog"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "time_logs_partial_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this time log.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "time-logs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedTimeLogRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedTimeLogRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedTimeLogRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeLog"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "time_logs_destroy",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this time log.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "time-logs"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/time-logs/bill/": {
+            "post": {
+                "operationId": "time_logs_bill_create",
+                "description": "Put tracked hours on a draft invoice, new or existing (FEAT-1).",
+                "tags": [
+                    "time-logs"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BillTimeLogsRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BillTimeLogsRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BillTimeLogsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BillTimeLogsRequest": {
+                "type": "object",
+                "properties": {
+                    "time_logs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "invoice": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "time_logs"
+                ]
+            },
+            "Client": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Invoice delivery email",
+                        "maxLength": 254
+                    },
+                    "company": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "description": "Appears on PDF invoice"
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "state": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "zip_code": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "country": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "is_archived": {
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "invoice_count": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "total_billed": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true
+                    },
+                    "total_paid": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true
+                    },
+                    "outstanding": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "email",
+                    "id",
+                    "invoice_count",
+                    "name",
+                    "outstanding",
+                    "total_billed",
+                    "total_paid",
+                    "updated_at"
+                ]
+            },
+            "ClientRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1,
+                        "description": "Invoice delivery email",
+                        "maxLength": 254
+                    },
+                    "company": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "description": "Appears on PDF invoice"
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "state": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "zip_code": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "country": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "is_archived": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "email",
+                    "name"
+                ]
+            },
+            "DashboardSummary": {
+                "type": "object",
+                "properties": {
+                    "total_revenue": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    },
+                    "outstanding_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    },
+                    "overdue_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    },
+                    "this_month_revenue": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    },
+                    "total_billed": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    },
+                    "total_invoices": {
+                        "type": "integer"
+                    },
+                    "paid_count": {
+                        "type": "integer"
+                    },
+                    "sent_count": {
+                        "type": "integer"
+                    },
+                    "draft_count": {
+                        "type": "integer"
+                    },
+                    "overdue_count": {
+                        "type": "integer"
+                    },
+                    "status_counts": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
+                    "total_clients": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "draft_count",
+                    "outstanding_amount",
+                    "overdue_amount",
+                    "overdue_count",
+                    "paid_count",
+                    "sent_count",
+                    "status_counts",
+                    "this_month_revenue",
+                    "total_billed",
+                    "total_clients",
+                    "total_invoices",
+                    "total_revenue"
+                ]
+            },
+            "DefaultCurrencyEnum": {
+                "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "INR",
+                    "BDT"
+                ],
+                "type": "string",
+                "description": "* `USD` - US Dollar\n* `EUR` - Euro\n* `GBP` - British Pound\n* `CAD` - Canadian Dollar\n* `AUD` - Australian Dollar\n* `INR` - Indian Rupee\n* `BDT` - Bangladeshi Taka"
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "error"
+                ]
+            },
+            "Invoice": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "invoice_number": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "client_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "reference_number": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum"
+                    },
+                    "subtotal": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "discount_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "total": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "currency": {
+                        "type": "string",
+                        "maxLength": 3
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Payment terms or additional notes"
+                    },
+                    "items_count": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "client",
+                    "client_name",
+                    "created_at",
+                    "id",
+                    "invoice_number",
+                    "items_count",
+                    "subtotal",
+                    "tax_amount",
+                    "total"
+                ]
+            },
+            "InvoiceDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "invoice_number": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "client_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client_email": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client_address": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client_full_address": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client_phone": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client_company": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "client_display_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "reference_number": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum"
+                    },
+                    "subtotal": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "discount_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "total": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Payment terms or additional notes"
+                    },
+                    "pdf_color": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "stripe_payment_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "pdf_file": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItem"
+                        },
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "sent_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "business_tagline": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "business_email": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "business_phone": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "tax_number": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "bank_details": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "invoice_terms": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "user_address": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "user_phone": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "user_email": {
+                        "type": "string",
+                        "format": "email",
+                        "readOnly": true
+                    },
+                    "currency": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "logo_url": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "payment_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "payments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Payment"
+                        },
+                        "readOnly": true
+                    },
+                    "amount_paid": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "amount_due": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "public_url": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "amount_due",
+                    "amount_paid",
+                    "bank_details",
+                    "business_email",
+                    "business_name",
+                    "business_phone",
+                    "business_tagline",
+                    "client",
+                    "client_address",
+                    "client_company",
+                    "client_display_name",
+                    "client_email",
+                    "client_full_address",
+                    "client_name",
+                    "client_phone",
+                    "created_at",
+                    "currency",
+                    "id",
+                    "invoice_number",
+                    "invoice_terms",
+                    "items",
+                    "logo_url",
+                    "payment_date",
+                    "payments",
+                    "pdf_file",
+                    "public_url",
+                    "sent_at",
+                    "stripe_payment_url",
+                    "subtotal",
+                    "tax_amount",
+                    "tax_number",
+                    "total",
+                    "updated_at",
+                    "user_address",
+                    "user_email",
+                    "user_phone",
+                    "website"
+                ]
+            },
+            "InvoiceItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "quantity": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "unit_price": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "line_total": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "description",
+                    "id",
+                    "line_total",
+                    "rate",
+                    "unit_price"
+                ]
+            },
+            "InvoiceItemWrite": {
+                "type": "object",
+                "description": "Accepts `rate` from the React frontend (maps to model `unit_price`).",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "quantity": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    }
+                },
+                "required": [
+                    "description",
+                    "quantity",
+                    "rate"
+                ]
+            },
+            "InvoiceItemWriteRequest": {
+                "type": "object",
+                "description": "Accepts `rate` from the React frontend (maps to model `unit_price`).",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500
+                    },
+                    "quantity": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    }
+                },
+                "required": [
+                    "description",
+                    "quantity",
+                    "rate"
+                ]
+            },
+            "InvoiceWrite": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "reference_number": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/StatusEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "discount_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Payment terms or additional notes"
+                    },
+                    "pdf_color": {
+                        "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItemWrite"
+                        }
+                    }
+                },
+                "required": [
+                    "client",
+                    "id",
+                    "items",
+                    "status"
+                ]
+            },
+            "InvoiceWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "reference_number": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "discount_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Payment terms or additional notes"
+                    },
+                    "pdf_color": {
+                        "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItemWriteRequest"
+                        }
+                    }
+                },
+                "required": [
+                    "client",
+                    "items"
+                ]
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "LogoUploadRequest": {
+                "type": "object",
+                "properties": {
+                    "logo": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "PNG, JPEG or WebP"
+                    }
+                },
+                "required": [
+                    "logo"
+                ]
+            },
+            "Message": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "MethodEnum": {
+                "enum": [
+                    "stripe",
+                    "bank",
+                    "cash",
+                    "check",
+                    "manual",
+                    "other"
+                ],
+                "type": "string",
+                "description": "* `stripe` - Stripe\n* `bank` - Bank Transfer\n* `cash` - Cash\n* `check` - Check\n* `manual` - Manual\n* `other` - Other"
+            },
+            "MonthlyRevenueRow": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string",
+                        "description": "YYYY-MM"
+                    },
+                    "total": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$"
+                    },
+                    "count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "count",
+                    "month",
+                    "total"
+                ]
+            },
+            "PaginatedClientList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Client"
+                        }
+                    }
+                }
+            },
+            "PaginatedInvoiceList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Invoice"
+                        }
+                    }
+                }
+            },
+            "PaginatedTimeLogList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TimeLog"
+                        }
+                    }
+                }
+            },
+            "PasswordResetConfirmRequest": {
+                "type": "object",
+                "properties": {
+                    "uid": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "token": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "new_password": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "new_password",
+                    "token",
+                    "uid"
+                ]
+            },
+            "PasswordResetRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email"
+                ]
+            },
+            "PatchedClientRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1,
+                        "description": "Invoice delivery email",
+                        "maxLength": 254
+                    },
+                    "company": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "description": "Appears on PDF invoice"
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "state": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "zip_code": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "country": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "is_archived": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PatchedInvoiceWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "reference_number": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "discount_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Payment terms or additional notes"
+                    },
+                    "pdf_color": {
+                        "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItemWriteRequest"
+                        }
+                    }
+                }
+            },
+            "PatchedTimeLogRequest": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "What was worked on",
+                        "maxLength": 500
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "hours": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "hourly_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "invoice": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    }
+                }
+            },
+            "PatchedUserRequest": {
+                "type": "object",
+                "properties": {
+                    "full_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "business_tagline": {
+                        "type": "string",
+                        "description": "Short tagline shown below business name on invoices",
+                        "maxLength": 255
+                    },
+                    "business_email": {
+                        "description": "Business contact email shown on invoices",
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "email",
+                                "maxLength": 254
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
+                    },
+                    "business_phone": {
+                        "type": "string",
+                        "description": "Business contact phone shown on invoices",
+                        "maxLength": 20
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "default_currency": {
+                        "$ref": "#/components/schemas/DefaultCurrencyEnum"
+                    },
+                    "tax_number": {
+                        "type": "string",
+                        "description": "VAT/GST/Tax ID number",
+                        "maxLength": 50
+                    },
+                    "bank_details": {
+                        "type": "string",
+                        "description": "Bank details for invoices (one field per line, e.g. Account Name: …)"
+                    },
+                    "invoice_terms": {
+                        "type": "string",
+                        "description": "Terms & conditions shown at the bottom of invoices"
+                    },
+                    "website": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
+                    }
+                }
+            },
+            "Payment": {
+                "type": "object",
+                "description": "A recorded payment; invoices can have several (PAY-3).",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "paid_on": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/MethodEnum"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "amount",
+                    "created_at",
+                    "id"
+                ]
+            },
+            "PaymentRequest": {
+                "type": "object",
+                "description": "A recorded payment; invoices can have several (PAY-3).",
+                "properties": {
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "paid_on": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/MethodEnum"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "amount"
+                ]
+            },
+            "PdfColorEnum": {
+                "enum": [
+                    "amber",
+                    "blue",
+                    "cyan",
+                    "emerald",
+                    "indigo",
+                    "rose",
+                    "slate"
+                ],
+                "type": "string",
+                "description": "* `amber` - amber\n* `blue` - blue\n* `cyan` - cyan\n* `emerald` - emerald\n* `indigo` - indigo\n* `rose` - rose\n* `slate` - slate"
+            },
+            "PublicInvoice": {
+                "type": "object",
+                "description": "What a client holding the link may see — no account, no other invoices (FEAT-3).",
+                "properties": {
+                    "invoice_number": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum"
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "maxLength": 3
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItem"
+                        },
+                        "readOnly": true
+                    },
+                    "subtotal": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "discount_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "total": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "amount_paid": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "amount_due": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Payment terms or additional notes"
+                    },
+                    "client_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "business_email": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "amount_due",
+                    "amount_paid",
+                    "business_email",
+                    "business_name",
+                    "client_name",
+                    "invoice_number",
+                    "items"
+                ]
+            },
+            "Queued": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Always \"queued\""
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message",
+                    "status"
+                ]
+            },
+            "SendInvoiceRequest": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Optional note above the invoice"
+                    }
+                }
+            },
+            "SignupRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "password1": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "password2": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email",
+                    "password1",
+                    "password2"
+                ]
+            },
+            "StatusEnum": {
+                "enum": [
+                    "draft",
+                    "sent",
+                    "overdue",
+                    "paid",
+                    "cancelled"
+                ],
+                "type": "string",
+                "description": "* `draft` - Draft\n* `sent` - Sent\n* `overdue` - Overdue\n* `paid` - Paid\n* `cancelled` - Cancelled"
+            },
+            "TimeLog": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "client_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "What was worked on",
+                        "maxLength": 500
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "hours": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "hourly_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "is_billed": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "invoice": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "total_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "client",
+                    "client_name",
+                    "created_at",
+                    "date",
+                    "description",
+                    "hours",
+                    "id",
+                    "is_billed",
+                    "total_amount"
+                ]
+            },
+            "TimeLogRequest": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "What was worked on",
+                        "maxLength": 500
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "hours": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "hourly_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "invoice": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "client",
+                    "date",
+                    "description",
+                    "hours"
+                ]
+            },
+            "Token": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "required": [
+                    "token",
+                    "user"
+                ]
+            },
+            "Url": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
+                "required": [
+                    "url"
+                ]
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "readOnly": true
+                    },
+                    "full_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "business_tagline": {
+                        "type": "string",
+                        "description": "Short tagline shown below business name on invoices",
+                        "maxLength": 255
+                    },
+                    "business_email": {
+                        "description": "Business contact email shown on invoices",
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "email",
+                                "maxLength": 254
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
+                    },
+                    "business_phone": {
+                        "type": "string",
+                        "description": "Business contact phone shown on invoices",
+                        "maxLength": 20
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "logo": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "default_currency": {
+                        "$ref": "#/components/schemas/DefaultCurrencyEnum"
+                    },
+                    "tax_number": {
+                        "type": "string",
+                        "description": "VAT/GST/Tax ID number",
+                        "maxLength": 50
+                    },
+                    "bank_details": {
+                        "type": "string",
+                        "description": "Bank details for invoices (one field per line, e.g. Account Name: …)"
+                    },
+                    "invoice_terms": {
+                        "type": "string",
+                        "description": "Terms & conditions shown at the bottom of invoices"
+                    },
+                    "website": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "email",
+                    "id",
+                    "logo"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "sessionid"
+            },
+            "tokenAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Authorization",
+                "description": "Token-based authentication with required prefix \"Token\""
+            }
+        }
+    }
+}

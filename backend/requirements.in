@@ -18,6 +18,9 @@ redis>=5.0.0
 # PDF Generation
 weasyprint>=60.0
 
+# API schema
+drf-spectacular>=0.28.0
+
 # Stripe
 stripe>=8.0.0
 

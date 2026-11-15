@@ -11,6 +11,12 @@ asgiref==3.13.0
     #   -c requirements.txt
     #   django
     #   django-cors-headers
+attrs==26.1.0
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   jsonschema
+    #   referencing
 billiard==4.3.2
     # via
     #   -c requirements.txt
@@ -120,6 +126,7 @@ django==5.2.19
     #   django-storages
     #   django-timezone-field
     #   djangorestframework
+    #   drf-spectacular
 django-celery-beat==2.9.0
     # via
     #   -c requirements.txt
@@ -143,6 +150,12 @@ django-timezone-field==7.2.2
     #   -c requirements.txt
     #   django-celery-beat
 djangorestframework==3.18.3
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   -r requirements.in
+    #   drf-spectacular
+drf-spectacular==0.30.0
     # via
     #   -c requirements.txt
     #   -c requirements.txt
@@ -174,6 +187,11 @@ idna==3.20
     #   -c requirements.txt
     #   -c requirements.txt
     #   requests
+inflection==0.5.1
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   drf-spectacular
 iniconfig==2.3.1
     # via pytest
 isort==9.0.2
@@ -184,6 +202,16 @@ jmespath==1.1.0
     #   -c requirements.txt
     #   boto3
     #   botocore
+jsonschema==4.26.0
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   drf-spectacular
+jsonschema-specifications==2025.9.1
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   jsonschema
 kombu==5.7.0
     # via
     #   -c requirements.txt
@@ -286,17 +314,33 @@ python-dotenv==1.2.4
 pytokens==0.4.1
     # via black
 pyyaml==6.0.3
-    # via pre-commit
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   drf-spectacular
+    #   pre-commit
 redis==8.1.0
     # via
     #   -c requirements.txt
     #   -c requirements.txt
     #   -r requirements.in
+referencing==0.37.0
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   jsonschema
+    #   jsonschema-specifications
 requests==2.34.2
     # via
     #   -c requirements.txt
     #   -c requirements.txt
     #   stripe
+rpds-py==2026.9.1
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   jsonschema
+    #   referencing
 s3transfer==0.19.3
     # via
     #   -c requirements.txt
@@ -335,6 +379,7 @@ typing-extensions==4.16.0
     #   -c requirements.txt
     #   click-repl
     #   psycopg
+    #   referencing
     #   stripe
 tzdata==2026.6
     # via
@@ -351,6 +396,11 @@ tzlocal==5.4.5
     #   -c requirements.txt
     #   -c requirements.txt
     #   celery
+uritemplate==4.2.0
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   drf-spectacular
 urllib3==2.8.0
     # via
     #   -c requirements.txt

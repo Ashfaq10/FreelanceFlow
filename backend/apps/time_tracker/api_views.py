@@ -1,11 +1,13 @@
 from django.core.exceptions import ValidationError
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.invoices.models import Invoice
 from apps.invoices.serializers import InvoiceDetailSerializer
+from config.schema import ErrorSerializer
 
 from .billing import bill_time_logs
 from .models import TimeLog
@@ -22,6 +24,8 @@ class TimeLogViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # schema generation has no user
+            return TimeLog.objects.none()
         return TimeLog.objects.filter(user=self.request.user)
 
 
@@ -30,6 +34,7 @@ class BillTimeLogsView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=BillTimeLogsSerializer, responses={201: InvoiceDetailSerializer, 400: ErrorSerializer})
     def post(self, request):
         payload = BillTimeLogsSerializer(data=request.data)
         payload.is_valid(raise_exception=True)

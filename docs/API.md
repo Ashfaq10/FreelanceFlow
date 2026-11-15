@@ -1,5 +1,7 @@
 # API Reference
 
+The machine-readable version is [openapi.json](openapi.json), generated from the code (`GET /api/schema/`) and checked in CI. This page adds the behaviour the schema cannot express.
+
 Base URL: `http://localhost:8000` in development (the Vite dev server on `:3000` proxies `/api`).
 
 **Auth:** `Authorization: Token <token>` (returned by login/signup) or a Django session cookie. Every endpoint except login, signup, password reset and the Stripe webhook requires authentication. Moving to session cookies is proposed in [ADR-0002](adr/0002-auth-session-cookies.md).

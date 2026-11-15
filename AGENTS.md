@@ -115,4 +115,5 @@ Full lists: [.claude/rules/security.md](.claude/rules/security.md) (secrets, des
 - Do not force-push, `reset --hard`, delete data, or `git push` without being asked.
 - Do not add dependencies for what a few lines or the standard library can do; justify every new one in the PR.
 - Do not create migrations that rewrite existing migration files; add a new one.
+- API changes: annotate new `APIView` methods with `@extend_schema` and regenerate `docs/openapi.json` (command in CONTRIBUTING.md); `tests/test_openapi.py` fails on drift.
 - Do not "fix" a `Must` finding without its regression test.

@@ -1,11 +1,13 @@
 from django.core.exceptions import ValidationError
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.invoices.models import Invoice
 from apps.invoices.serializers import InvoiceDetailSerializer
+from config.schema import ErrorSerializer, UrlSerializer
 
 from .serializers import PaymentSerializer
 from .services import PAYABLE_STATUSES, CheckoutUnavailable, payment_link, record_payment
@@ -22,6 +24,7 @@ class InvoiceCheckoutView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={200: UrlSerializer, 400: ErrorSerializer, 503: ErrorSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.select_related('user').get(pk=pk, user=request.user)
@@ -47,6 +50,7 @@ class InvoicePaymentCreateView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=PaymentSerializer, responses={201: InvoiceDetailSerializer, 400: ErrorSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.get(pk=pk, user=request.user)

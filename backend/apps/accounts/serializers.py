@@ -31,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'email', 'created_at']
 
-    def get_logo(self, obj):
+    def get_logo(self, obj) -> str | None:
         if not obj.logo:
             return None
         request = self.context.get('request')

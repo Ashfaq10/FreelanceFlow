@@ -2,10 +2,14 @@ from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.http import FileResponse, HttpResponse
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from kombu.exceptions import OperationalError
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from config.schema import ErrorSerializer, QueuedSerializer, SendInvoiceSerializer
 
 from .models import Invoice, InvoiceItem
 from .serializers import (
@@ -87,6 +91,10 @@ class InvoiceDetailView(generics.RetrieveUpdateDestroyAPIView):
 class InvoiceSendView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        request=SendInvoiceSerializer,
+        responses={200: QueuedSerializer, 400: ErrorSerializer, 503: ErrorSerializer},
+    )
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.get(pk=pk, user=request.user)
@@ -114,6 +122,10 @@ class InvoiceSendView(APIView):
 class InvoicePDFView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        parameters=[OpenApiParameter('regenerate', bool), OpenApiParameter('timezone', str)],
+        responses={(200, 'application/pdf'): OpenApiTypes.BINARY},
+    )
     def get(self, request, pk):
         try:
             invoice = (
@@ -138,6 +150,7 @@ class InvoicePDFView(APIView):
 class InvoiceMarkPaidView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={200: InvoiceDetailSerializer, 400: ErrorSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.get(pk=pk, user=request.user)
@@ -168,6 +181,7 @@ class InvoiceMarkPaidView(APIView):
 class InvoiceCancelView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={200: InvoiceDetailSerializer, 400: ErrorSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.get(pk=pk, user=request.user)
@@ -188,6 +202,7 @@ class InvoiceDuplicateView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={201: InvoiceDetailSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.prefetch_related('items').get(pk=pk, user=request.user)
@@ -228,6 +243,7 @@ class InvoiceRemindView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={200: QueuedSerializer, 400: ErrorSerializer, 503: ErrorSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.get(pk=pk, user=request.user)
