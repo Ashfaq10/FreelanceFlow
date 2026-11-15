@@ -38,6 +38,7 @@ export const timeLogs = {
   create: (data) => api.post('/api/time-logs/', data),
   update: (id, data) => api.patch(`/api/time-logs/${id}/`, data),
   delete: (id) => api.delete(`/api/time-logs/${id}/`),
+  bill: (data) => api.post('/api/time-logs/bill/', data),
 }
 
 export const dashboard = {

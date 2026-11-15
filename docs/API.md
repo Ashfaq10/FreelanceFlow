@@ -51,6 +51,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | Method | Path | Description | Known issues |
 |---|---|---|---|
 | GET / POST | `/api/time-logs/` | List / create (`client`, `description`, `date`, `hours`; `hourly_rate` optional — `total_amount` is null without it) | |
+| POST | `/api/time-logs/bill/` | `{time_logs: [id...], invoice?: id}` → the draft invoice holding those hours. 400 on mixed clients, already-billed logs, a missing hourly rate or a non-draft invoice | |
 | GET / PATCH / PUT / DELETE | `/api/time-logs/{id}/` | Detail / update / delete | |
 
 ## Dashboard — `apps/dashboard/api_urls.py`

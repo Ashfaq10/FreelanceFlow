@@ -8,5 +8,6 @@ router = DefaultRouter()
 router.register('time-logs', api_views.TimeLogViewSet, basename='time-log')
 
 urlpatterns = [
+    path('time-logs/bill/', api_views.BillTimeLogsView.as_view(), name='api-time-log-bill'),
     path('', include(router.urls)),
 ]

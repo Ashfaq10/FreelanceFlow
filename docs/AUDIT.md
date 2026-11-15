@@ -221,7 +221,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Payments-adjacent product gaps (core features)
 
 ### <a id="feat-1"></a>FEAT-1 — Bill unbilled time logs onto an invoice
-`Should` · Phase 3 · `TimeLog.is_billed`, `TimeLog.link_to_invoice` (unused), no SPA flow.
+`Should` · Phase 3 · `TimeLog.is_billed`, `TimeLog.link_to_invoice` (unused), no SPA flow · **Done 2026-11-15**: `POST /api/time-logs/bill/` turns selected logs into one draft invoice (or appends to an existing draft for the same client), marks them billed and links them; the time tracker has checkboxes and a "Bill N entries" button. Logs without an hourly rate, already-billed logs and mixed clients are refused (`tests/test_time_billing.py`).
 
 ### <a id="feat-2"></a>FEAT-2 — Invoice actions missing from the API
 `Should` · Phase 3 · duplicate (only the dead view has it, and it mutates on GET), cancel/void, re-send and manual reminder for overdue invoices (`InvoiceSendView` rejects `overdue`).

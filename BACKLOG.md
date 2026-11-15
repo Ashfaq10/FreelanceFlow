@@ -11,7 +11,7 @@ Rules:
 ## Now
 
 - [ ] Handle refunds and expired Stripe sessions — [PAY-4](docs/AUDIT.md#pay-4)
-- [ ] Bill unbilled time logs onto an invoice — [FEAT-1](docs/AUDIT.md#feat-1)
+- [ ] API: duplicate, cancel/void, re-send, manual reminder — [FEAT-2](docs/AUDIT.md#feat-2)
 
 ## Next
 

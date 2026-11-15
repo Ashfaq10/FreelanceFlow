@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Plus, Clock, Trash2, Play, Pause, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -10,8 +11,11 @@ import { fetchAllPages } from '../../utils/pagination'
 import { parseDateOnly, todayISO } from '../../utils/dates'
 
 function TimeTracker() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [selectedLogs, setSelectedLogs] = useState([])
+  const [billing, setBilling] = useState(false)
   const [timeLogs, setTimeLogs] = useState([])
   const [clientList, setClients] = useState([])
   const [showModal, setShowModal] = useState(false)
@@ -57,6 +61,23 @@ function TimeTracker() {
       setError(true)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleLog = (id) =>
+    setSelectedLogs(current => (current.includes(id) ? current.filter(x => x !== id) : [...current, id]))
+
+  const handleBill = async () => {
+    setBilling(true)
+    try {
+      const { data } = await timeLogApi.bill({ time_logs: selectedLogs })
+      setSelectedLogs([])
+      toast.success(`${data.invoice_number} created from your hours`)
+      navigate(`/invoices/${data.id}`)
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Could not bill those hours')
+    } finally {
+      setBilling(false)
     }
   }
 
@@ -268,8 +289,14 @@ function TimeTracker() {
 
       {/* Time Logs */}
       <Card>
-        <Card.Header>
+        <Card.Header className="flex items-center justify-between">
           <Card.Title>Recent Time Logs</Card.Title>
+          {selectedLogs.length > 0 && (
+            <Button size="sm" onClick={handleBill} loading={billing}>
+              <FileText className="w-4 h-4 mr-1.5" />
+              Bill {selectedLogs.length} {selectedLogs.length === 1 ? 'entry' : 'entries'}
+            </Button>
+          )}
         </Card.Header>
         {loading ? (
           <Card.Content>
@@ -283,6 +310,7 @@ function TimeTracker() {
           <Table>
             <Table.Header>
               <Table.Row>
+                <Table.Head></Table.Head>
                 <Table.Head>Date</Table.Head>
                 <Table.Head>Client</Table.Head>
                 <Table.Head>Description</Table.Head>
@@ -295,10 +323,21 @@ function TimeTracker() {
             <Table.Body>
               {timeLogs.map((log) => (
                 <Table.Row key={log.id}>
+                  <Table.Cell>
+                    {/* Only unbilled, rated hours can go on an invoice (FEAT-1). */}
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${log.description}`}
+                      className="w-4 h-4 accent-primary-600 disabled:opacity-30"
+                      disabled={log.is_billed || !log.hourly_rate}
+                      checked={selectedLogs.includes(log.id)}
+                      onChange={() => toggleLog(log.id)}
+                    />
+                  </Table.Cell>
                   <Table.Cell className="text-gray-500 dark:text-gray-400">
                     {formatDate(log.date)}
                   </Table.Cell>
-                  <Table.Cell>{log.client_name}</Table.Cell>
+                  <Table.Cell>{log.client_name}{log.is_billed ? ' · billed' : ''}</Table.Cell>
                   <Table.Cell className="max-w-xs truncate">
                     {log.description}
                   </Table.Cell>
