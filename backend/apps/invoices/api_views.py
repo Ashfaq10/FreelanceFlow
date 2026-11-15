@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import FileResponse, HttpResponse
 
@@ -134,15 +135,13 @@ class InvoiceMarkPaidView(APIView):
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if invoice.status == 'paid':
-            return Response(
-                {'message': 'Invoice is already marked as paid.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         from apps.payments.models import Payment
 
-        invoice.mark_as_paid()
+        try:
+            invoice.mark_as_paid()
+        except ValidationError as exc:
+            return Response({'error': exc.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
+
         Payment.objects.get_or_create(
             invoice=invoice,
             defaults={
@@ -154,5 +153,23 @@ class InvoiceMarkPaidView(APIView):
         invoice = (
             Invoice.objects.select_related('client', 'user', 'payment').prefetch_related('items').get(pk=invoice.pk)
         )
+        serializer = InvoiceDetailSerializer(invoice, context={'request': request})
+        return Response(serializer.data)
+
+
+class InvoiceCancelView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            invoice = Invoice.objects.get(pk=pk, user=request.user)
+        except Invoice.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            invoice.cancel()
+        except ValidationError as exc:
+            return Response({'error': exc.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = InvoiceDetailSerializer(invoice, context={'request': request})
         return Response(serializer.data)

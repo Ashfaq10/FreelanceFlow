@@ -16,8 +16,11 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ### Security
 - Invoice and time-log writes only accept clients and invoices owned by the caller; a cross-user id now returns 400 instead of attaching (and emailing) someone else's client (SEC-1).
+- Invoice `status` is read-only over the API: `POST {"status": "paid"}` no longer creates revenue without a payment. Transitions are enforced in the model (`draft→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`) and illegal ones return 400 (DATA-2).
 
 ### Changed
+- Money is quantized to the cent with `ROUND_HALF_UP` before it is stored (`to_cents`), so `subtotal - discount + tax == total` always holds; Django's half-even rounding on save no longer loses a cent (DATA-3, backend half).
+- `POST /api/invoices/{id}/cancel/` cancels a draft, sent or overdue invoice (DATA-2).
 - CI runs backend jobs from `backend/`, tests against the Postgres service, builds the image from `./backend`, and pins flake8/black/isort (OPS-1, OPS-2).
 - Backend formatted with black and isort; flake8 clean. `logout_view` catches `Token.DoesNotExist` instead of a bare `except` (OPS-2).
 - Frontend lint clean: fetch-on-mount effects declare their dependencies; unused code removed (OPS-2).

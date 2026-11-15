@@ -98,8 +98,11 @@ class TestInvoiceModel:
         assert invoice.sent_at is not None
 
     def test_mark_as_paid(self, invoice):
+        # Only sent or overdue invoices can be paid (DATA-2); transitions are covered in test_transitions.py.
+        invoice.mark_as_sent()
+
         invoice.mark_as_paid()
-        
+
         assert invoice.status == 'paid'
 
 

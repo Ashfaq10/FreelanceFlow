@@ -66,8 +66,8 @@ flowchart LR
 - [ ] Remove `django-debug-toolbar` from production requirements ([SEC-7](docs/AUDIT.md#sec-7)) — **S**
 - [ ] `default_currency` → `ChoiceField` ([SEC-8](docs/AUDIT.md#sec-8)) — **S**
 - [ ] `Invoice.client` → `PROTECT`; client delete returns 409 when invoices exist; UI archives instead ([DATA-1](docs/AUDIT.md#data-1)) — **M**
-- [ ] Make `status` read-only; enforce transitions in model methods; add a cancel endpoint ([DATA-2](docs/AUDIT.md#data-2)) — **M**
-- [ ] Quantize `line_total`, `tax_amount`, `total` (`ROUND_HALF_UP`) ([DATA-3](docs/AUDIT.md#data-3), backend half) — **S**
+- [x] Make `status` read-only; enforce transitions in model methods; add a cancel endpoint ([DATA-2](docs/AUDIT.md#data-2)) — **M**
+- [x] Quantize `line_total`, `tax_amount`, `total` (`ROUND_HALF_UP`) ([DATA-3](docs/AUDIT.md#data-3), backend half) — **S**
 - [ ] SPA shows server-computed money; integer-cent preview for unsaved drafts ([DATA-3](docs/AUDIT.md#data-3), frontend half) — **M**
 - [ ] Atomic invoice create/update; `bulk_create` items; one totals calculation; drop the per-item signal ([DATA-4](docs/AUDIT.md#data-4)) — **M**
 - [ ] Fractional quantities end-to-end; non-negative discount/tax; tax ≤ 100 ([DATA-5](docs/AUDIT.md#data-5)) — **S**

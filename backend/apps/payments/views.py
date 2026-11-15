@@ -83,8 +83,8 @@ def handle_successful_payment(session):
     except Invoice.DoesNotExist:
         return
 
-    invoice.status = 'paid'
-    invoice.save(update_fields=['status'])
+    if invoice.status != 'paid':
+        invoice.mark_as_paid()
 
     Payment.objects.create(
         invoice=invoice,

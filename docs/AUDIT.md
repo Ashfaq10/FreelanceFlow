@@ -78,12 +78,12 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `on_delete=PROTECT` (migration); API delete returns 409 when invoices exist; replace the UI delete with archive (`PATCH {is_archived:true}` already works); add an archived filter.
 
 ### <a id="data-2"></a>DATA-2 — Invoice status bypasses the state machine
-`Must` · Phase 1 · `apps/invoices/serializers.py` (`InvoiceWriteSerializer.status`), `apps/invoices/api_views.py` (`InvoiceMarkPaidView`)
+`Must` · Phase 1 · `apps/invoices/serializers.py` (`InvoiceWriteSerializer.status`), `apps/invoices/api_views.py` (`InvoiceMarkPaidView`) · **Done 2026-11-15**: `status` read-only, transitions enforced in model methods, `POST /api/invoices/{id}/cancel/` added; `tests/test_transitions.py`.
 **Problem:** `status` is writable: `POST {status:'paid'}` creates a "paid" invoice with no `Payment` (counted as revenue); `{status:'sent'}` marks sent without emailing. `mark-paid` accepts `draft` and `cancelled`.
 **Fix:** Make `status` read-only. Allowed transitions: `draft→sent` (send), `sent|overdue→paid` (mark-paid / webhook), `draft|sent|overdue→cancelled` (new cancel endpoint). Enforce in model methods; test each illegal transition.
 
 ### <a id="data-3"></a>DATA-3 — Tax and totals are not rounded explicitly; SPA recomputes with floats
-`Must` · Phase 1 · `apps/invoices/models.py` (`calculate_totals`, `InvoiceItem.save`), `frontend/src/components/ui/InvoicePreview.jsx`, `InvoiceCreate.jsx`
+`Must` · Phase 1 · `apps/invoices/models.py` (`calculate_totals`, `InvoiceItem.save`), `frontend/src/components/ui/InvoicePreview.jsx`, `InvoiceCreate.jsx` · **Backend done 2026-11-15** (`to_cents`, `tests/test_money.py`); SPA half still open.
 **Problem:** `tax_amount = taxable * rate/100` is unquantized; Django rounds each field half-even on save, so subtotal + tax ≠ total (1.25 @ 10% → tax 0.12, total 1.38). The SPA multiplies `quantity * rate` in JS floats (`1.50 × 0.33` → `$0.49` vs server `$0.50`).
 **Fix:** Quantize `line_total`, `tax_amount` to `0.01` with `ROUND_HALF_UP`, then `total = taxable + tax_amount`. SPA displays server `line_total`/`subtotal`/`total` and only previews unsaved drafts with integer-cent math.
 

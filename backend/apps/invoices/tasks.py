@@ -16,8 +16,7 @@ def check_overdue_invoices():
 
     count = 0
     for invoice in overdue_invoices:
-        invoice.status = 'overdue'
-        invoice.save(update_fields=['status'])
+        invoice.mark_as_overdue()
         send_overdue_reminder.delay(str(invoice.id))
         count += 1
 

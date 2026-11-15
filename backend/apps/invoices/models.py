@@ -1,9 +1,17 @@
 import uuid
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+
+CENTS = Decimal('0.01')
+
+
+def to_cents(amount):
+    """Round money half-up to the cent; Django would otherwise round half-even when saving."""
+    return Decimal(str(amount)).quantize(CENTS, rounding=ROUND_HALF_UP)
 
 
 def default_due_date():
@@ -90,11 +98,11 @@ class Invoice(models.Model):
         return f'{prefix}{max_num + 1:03d}'
 
     def calculate_totals(self):
-        self.subtotal = sum(item.line_total for item in self.items.all())
-        discount = Decimal(str(self.discount_amount or 0))
+        self.subtotal = to_cents(sum(item.line_total for item in self.items.all()))
+        discount = to_cents(self.discount_amount or 0)
         tax_rate = Decimal(str(self.tax_rate or 0))
         taxable_subtotal = max(self.subtotal - discount, Decimal('0'))
-        self.tax_amount = taxable_subtotal * (tax_rate / Decimal('100'))
+        self.tax_amount = to_cents(taxable_subtotal * tax_rate / Decimal('100'))
         self.total = taxable_subtotal + self.tax_amount
 
     @property
@@ -112,12 +120,18 @@ class Invoice(models.Model):
         delta = self.due_date - timezone.now()
         return delta.days
 
+    def _require_status(self, new_status, allowed_from):
+        if self.status not in allowed_from:
+            raise ValidationError(f'An invoice that is {self.status} cannot become {new_status}.')
+
     def mark_as_sent(self):
+        self._require_status('sent', ('draft', 'sent'))
         self.status = 'sent'
         self.sent_at = timezone.now()
         self.save(update_fields=['status', 'sent_at'])
 
     def mark_as_paid(self):
+        self._require_status('paid', ('sent', 'overdue'))
         self.status = 'paid'
         self.save(update_fields=['status'])
 
@@ -127,6 +141,7 @@ class Invoice(models.Model):
             self.save(update_fields=['status'])
 
     def cancel(self):
+        self._require_status('cancelled', ('draft', 'sent', 'overdue'))
         self.status = 'cancelled'
         self.save(update_fields=['status'])
 
@@ -146,5 +161,5 @@ class InvoiceItem(models.Model):
         return f'{self.description} ({self.quantity} × {self.unit_price})'
 
     def save(self, *args, **kwargs):
-        self.line_total = self.quantity * self.unit_price
+        self.line_total = to_cents(self.quantity * self.unit_price)
         super().save(*args, **kwargs)

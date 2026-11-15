@@ -35,14 +35,15 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | Method | Path | Description | Known issues |
 |---|---|---|---|
 | GET | `/api/invoices/` | List; filters `?status=`, `?client=` | invalid `?client=` → 500 ([BUG-17](AUDIT.md#bug-17)) |
-| POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `unit_price`); number auto-assigned `INV-YYYY-NNN` per user | [SEC-1](AUDIT.md#sec-1), [DATA-2](AUDIT.md#data-2), [DATA-4](AUDIT.md#data-4), [DATA-5](AUDIT.md#data-5) |
-| GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale) | same as above |
+| POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `rate`); number auto-assigned `INV-YYYY-NNN` per user; `status` is ignored (always `draft`) | [DATA-4](AUDIT.md#data-4), [DATA-5](AUDIT.md#data-5) |
+| GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale); `client` must be yours, `status` read-only | same as above |
 | DELETE | `/api/invoices/{id}/` | Drafts only (400 otherwise) | |
 | POST | `/api/invoices/{id}/send/` | Queues PDF generation + email (drafts and sent only) | [BUG-9](AUDIT.md#bug-9) |
-| POST | `/api/invoices/{id}/mark-paid/` | Records a manual full payment | accepts draft/cancelled ([DATA-2](AUDIT.md#data-2)) |
+| POST | `/api/invoices/{id}/mark-paid/` | Records a manual full payment; sent or overdue only (400 otherwise) | |
+| POST | `/api/invoices/{id}/cancel/` | Cancels a draft, sent or overdue invoice (400 otherwise) | |
 | GET | `/api/invoices/{id}/pdf/` | PDF download; `?regenerate=true` re-renders | stale cache ([BUG-9](AUDIT.md#bug-9)) |
 
-**Statuses:** `draft` → `sent` → (`overdue`) → `paid`; `cancelled`. `overdue` is set daily by Celery. The intended transition rules are in [DATA-2](AUDIT.md#data-2).
+**Statuses:** `draft` → `sent` → (`overdue`) → `paid`; `cancelled`. `overdue` is set daily by Celery. Transitions are enforced in `Invoice` model methods and nowhere else ([DATA-2](AUDIT.md#data-2)): `draft|sent→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`.
 
 ## Time logs — `apps/time_tracker/api_urls.py` (DRF router)
 

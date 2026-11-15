@@ -77,7 +77,8 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
             'notes',
             'items',
         ]
-        read_only_fields = ['id']
+        # Status only moves through the model's transition methods — DATA-2.
+        read_only_fields = ['id', 'status']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
