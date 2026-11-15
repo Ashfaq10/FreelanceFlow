@@ -159,7 +159,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** One `formatCurrency(amount, currency)` in `utils/formatters.js` (exists, unused) used everywhere; pass currency into email context and use the existing `currency` template filter.
 
 ### <a id="bug-6"></a>BUG-6 — "Forgot password" pretends to send an email
-`Must` · Phase 2 · `apps/accounts/api_views.py:L137-150`, `frontend/src/pages/Auth/ForgotPassword.jsx`
+`Must` · Phase 2 · `apps/accounts/api_views.py:L137-150`, `frontend/src/pages/Auth/ForgotPassword.jsx` · **Done 2026-11-15**: real token email + `POST /api/auth/password/reset/confirm/` + `/reset-password/:uid/:token` page; throttled, identical response for unknown emails, API tokens revoked on reset (`tests/test_password_reset.py`).
 **Problem:** Endpoint returns 200 and sends nothing; there is no confirm endpoint or reset page. Locked-out users cannot recover.
 **Fix:** Django `PasswordResetForm` with a link to `/reset-password/:uid/:token`; confirm endpoint with `default_token_generator` + `SetPasswordForm`; throttle (SEC-4); same response whether or not the email exists.
 
@@ -169,7 +169,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Pagination controls on lists; `page_size_query_param` on the backend; searchable client select; totals computed server-side.
 
 ### <a id="bug-8"></a>BUG-8 — Any error during page load logs the user out
-`Should` · Phase 2 · `frontend/src/context/AuthContext.jsx:L14-26`
+`Should` · Phase 2 · `frontend/src/context/AuthContext.jsx:L14-26` · **Done 2026-11-15**: only a 401 clears the token.
 **Fix:** Clear the token only on `401`.
 
 ### <a id="bug-9"></a>BUG-9 — "Send" reports success while only queued; stored PDF is stale

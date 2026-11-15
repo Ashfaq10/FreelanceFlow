@@ -9,6 +9,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Frontend tests: Vitest + React Testing Library + MSW, `npm test`, first test covers `api/client.js` token and 401/500 handling (TEST-4).
 - CI frontend job (`npm ci`, lint, test, build) (OPS-1, TEST-4).
 - `backend/pyproject.toml` black config (line length 120, single quotes kept) and `.git-blame-ignore-revs` (OPS-2).
+- Password reset that works: `POST /api/auth/password/reset/` emails a tokenised link, `POST /api/auth/password/reset/confirm/` sets the password, and `/reset-password/:uid/:token` is a real page. The old endpoint returned 200 and sent nothing (BUG-6).
 - `python manage.py seed_demo [--reset]`: demo account with 6 clients, 19 invoices across all statuses, payments and time logs over the last 8 months (OPS-11). Refuses to run unless `DEBUG=True`, since the demo password is public.
 - Agent guardrails: [.claude/rules/](.claude/rules/) (code style, security) and `.claude/settings.json` deny rules; [PLAN.md](PLAN.md), [BACKLOG.md](BACKLOG.md), [MEMORY.md](MEMORY.md), [SESSIONS.md](SESSIONS.md).
 - Project tracking docs: [PHASES.md](PHASES.md) roadmap, [docs/AUDIT.md](docs/AUDIT.md) findings, [docs/API.md](docs/API.md), [docs/DESIGN.md](docs/DESIGN.md), [ADRs](docs/adr/), [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), PR template.
@@ -46,6 +47,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Time logs save without an hourly rate, as the "optional" label promised; `total_amount` is empty for those entries (BUG-3).
 - Money is shown in the user's currency everywhere: six screens, all six invoice templates, both chart axes and the three emails used to print `$` regardless of the account setting (BUG-5).
 - "Mark Paid" appears on overdue invoices, not only sent ones (BUG-4).
+- A failed profile load no longer logs you out: only a 401 clears the stored token (BUG-8).
 - Editing a draft keeps its saved issue and due dates instead of resetting them to today and today + 30 days (DATA-6).
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).
 - `ClientFactory.phone` stays within `Client.phone`'s `max_length=20`; Postgres rejected the longer Faker values that SQLite accepted (TEST-1).

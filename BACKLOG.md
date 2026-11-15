@@ -10,17 +10,17 @@ Rules:
 
 ## Now
 
-- [ ] Real password reset — [BUG-6](docs/AUDIT.md#bug-6)
 - [ ] Pagination controls and server-side totals — [BUG-7](docs/AUDIT.md#bug-7)
-- [ ] Only a 401 clears the session on page load — [BUG-8](docs/AUDIT.md#bug-8)
+- [ ] Single send pipeline; UI shows queued state — [BUG-9](docs/AUDIT.md#bug-9)
+- [ ] Delete only on drafts; show API error messages — [BUG-10](docs/AUDIT.md#bug-10)
 
 ## Next
 
-1. Single send pipeline; UI shows queued state — [BUG-9](docs/AUDIT.md#bug-9)
-2. Delete only on drafts; show API error messages — [BUG-10](docs/AUDIT.md#bug-10)
-3. Client search filters on the backend — [BUG-11](docs/AUDIT.md#bug-11)
-4. `?client=` preselects the client on new invoices — [BUG-12](docs/AUDIT.md#bug-12)
-5. Date-only values parsed as local dates — [BUG-13](docs/AUDIT.md#bug-13)
+1. Client search filters on the backend — [BUG-11](docs/AUDIT.md#bug-11)
+2. `?client=` preselects the client on new invoices — [BUG-12](docs/AUDIT.md#bug-12)
+3. Date-only values parsed as local dates — [BUG-13](docs/AUDIT.md#bug-13)
+4. Reports: no `NaN%` — [BUG-14](docs/AUDIT.md#bug-14)
+5. Error + retry states; `Promise.allSettled` on the Dashboard — [BUG-15](docs/AUDIT.md#bug-15)
 
 ## Later
 

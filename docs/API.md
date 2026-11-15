@@ -19,7 +19,8 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | POST | `/api/auth/logout/` | Deletes the token | |
 | GET / PATCH | `/api/auth/user/` | Current user profile and business/invoice settings; `default_currency` limited to the supported list | |
 | POST | `/api/auth/logo/` | Upload business logo (multipart `logo`): PNG/JPEG/WebP, ≤ 2 MB, decoded by Pillow; replaces and deletes the old file | |
-| POST | `/api/auth/password/reset/` | **Stub: returns 200, sends nothing** | [BUG-6](AUDIT.md#bug-6) |
+| POST | `/api/auth/password/reset/` | Emails a reset link to `FRONTEND_URL/reset-password/<uid>/<token>`; same 200 whether or not the account exists; throttled 5/hour | |
+| POST | `/api/auth/password/reset/confirm/` | `{uid, token, new_password}` → sets the password, revokes existing API tokens; 400 on a used, tampered or expired link | |
 
 ## Clients — `apps/clients/api_urls.py`
 

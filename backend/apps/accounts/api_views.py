@@ -1,7 +1,13 @@
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.mail import EmailMessage
 from django.db import IntegrityError, transaction
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from PIL import Image
 from rest_framework import status
@@ -150,14 +156,66 @@ def upload_logo_view(request):
     return Response(serializer.data)
 
 
+class PasswordResetRateThrottle(AnonRateThrottle):
+    scope = 'password_reset'
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetRateThrottle])
 def password_reset_view(request):
-    email = request.data.get('email')
+    email = (request.data.get('email') or '').strip().lower()
 
     if not email:
         return Response({'message': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # In production, send an email with reset link
-    # For now, just return success
-    return Response({'message': 'Password reset email sent'})
+    user = User.objects.filter(email=email, is_active=True).first()
+    if user is not None:
+        reset_link = (
+            f'{settings.FRONTEND_URL.rstrip("/")}/reset-password/'
+            f'{urlsafe_base64_encode(force_bytes(user.pk))}/{default_token_generator.make_token(user)}'
+        )
+        message = render_to_string('accounts/email/password_reset.html', {'user': user, 'reset_link': reset_link})
+        email_message = EmailMessage(
+            subject='Reset your FreelanceFlow password',
+            body=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email],
+        )
+        email_message.content_subtype = 'html'
+        email_message.send()
+
+    # Same answer either way: the response must not reveal whether an account exists.
+    return Response({'message': 'If that email has an account, a reset link is on its way.'})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([PasswordResetRateThrottle])
+def password_reset_confirm_view(request):
+    uid = request.data.get('uid')
+    token = request.data.get('token')
+    new_password = request.data.get('new_password')
+
+    if not uid or not token or not new_password:
+        return Response({'message': 'uid, token and new_password are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(pk=urlsafe_base64_decode(uid).decode())
+    except (User.DoesNotExist, ValueError, TypeError, DjangoValidationError):
+        return Response({'message': 'This reset link is invalid or has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not default_token_generator.check_token(user, token):
+        return Response({'message': 'This reset link is invalid or has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        validate_password(new_password, user)
+    except DjangoValidationError as exc:
+        return Response({'message': ' '.join(exc.messages)}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save(update_fields=['password'])
+    # The old token is now stale: the hash it was built from changed.
+    Token.objects.filter(user=user).delete()
+
+    return Response({'message': 'Password updated. You can sign in now.'})

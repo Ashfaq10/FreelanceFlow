@@ -9,4 +9,9 @@ urlpatterns = [
     path('user/', api_views.user_view, name='api_user'),
     path('logo/', api_views.upload_logo_view, name='api_upload_logo'),
     path('password/reset/', api_views.password_reset_view, name='api_password_reset'),
+    path(
+        'password/reset/confirm/',
+        api_views.password_reset_confirm_view,
+        name='api_password_reset_confirm',
+    ),
 ]

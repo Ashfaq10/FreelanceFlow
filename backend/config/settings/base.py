@@ -167,6 +167,8 @@ EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
+# Where the SPA lives; password-reset links point here (BUG-6).
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'tailwind'
 CRISPY_TEMPLATE_PACK = 'tailwind'

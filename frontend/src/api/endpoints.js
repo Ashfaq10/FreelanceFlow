@@ -7,6 +7,7 @@ export const auth = {
   getUser: () => api.get('/api/auth/user/'),
   updateProfile: (data) => api.patch('/api/auth/user/', data),
   resetPassword: (email) => api.post('/api/auth/password/reset/', { email }),
+  confirmPasswordReset: (data) => api.post('/api/auth/password/reset/confirm/', data),
 }
 
 export const invoices = {

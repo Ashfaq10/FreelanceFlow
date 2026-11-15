@@ -18,8 +18,11 @@ export function AuthProvider({ children }) {
         const response = await api.get('/api/auth/user/')
         setUser(response.data)
       } catch (error) {
-        localStorage.removeItem('token')
-        setUser(null)
+        // Only a 401 means the token is dead; a 500 or a dropped connection must not log the user out (BUG-8).
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token')
+          setUser(null)
+        }
       }
     }
     setLoading(false)

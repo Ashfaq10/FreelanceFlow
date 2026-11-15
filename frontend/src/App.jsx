@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout'
 import Login from './pages/Auth/Login'
 import Signup from './pages/Auth/Signup'
 import ForgotPassword from './pages/Auth/ForgotPassword'
+import ResetPassword from './pages/Auth/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import InvoiceList from './pages/Invoices/InvoiceList'
 import InvoiceCreate from './pages/Invoices/InvoiceCreate'
@@ -56,6 +57,7 @@ function App() {
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+      <Route path="/reset-password/:uid/:token" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
       {/* Private routes */}
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
