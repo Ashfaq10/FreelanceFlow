@@ -12,23 +12,23 @@ import { COLOR_PALETTES } from './palettes'
 // Main exported component
 // ─────────────────────────────────────────────────────────────────────
 function InvoicePreview({ invoice, templateId = 'professional', colorId = 'blue' }) {
-    const color = COLOR_PALETTES.find(c => c.id === colorId) || COLOR_PALETTES[0]
+  const color = COLOR_PALETTES.find((c) => c.id === colorId) || COLOR_PALETTES[0]
 
-    if (templateId === 'professional') {
-        return <ProfessionalTemplate invoice={invoice} />
-    }
+  if (templateId === 'professional') {
+    return <ProfessionalTemplate invoice={invoice} />
+  }
 
-    const props = { invoice, color }
+  const props = { invoice, color }
 
-    const templates = {
-        classic: <ClassicTemplate {...props} />,
-        modern: <ModernTemplate  {...props} />,
-        minimal: <MinimalTemplate {...props} />,
-        bold: <BoldTemplate    {...props} />,
-        compact: <CompactTemplate {...props} />,
-    }
+  const templates = {
+    classic: <ClassicTemplate {...props} />,
+    modern: <ModernTemplate {...props} />,
+    minimal: <MinimalTemplate {...props} />,
+    bold: <BoldTemplate {...props} />,
+    compact: <CompactTemplate {...props} />,
+  }
 
-    return templates[templateId] || <ProfessionalTemplate invoice={invoice} />
+  return templates[templateId] || <ProfessionalTemplate invoice={invoice} />
 }
 
 export default InvoicePreview

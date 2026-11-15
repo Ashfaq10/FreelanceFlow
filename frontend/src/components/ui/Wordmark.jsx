@@ -20,9 +20,7 @@ function Wordmark({ variant = 'default', size = 'md', className = '' }) {
       >
         <Zap className={`${icon} text-white`} strokeWidth={2.5} />
       </div>
-      <span className={`${text} font-bold ${variant === 'light' ? 'text-white' : 'gradient-text'}`}>
-        FreelanceFlow
-      </span>
+      <span className={`${text} font-bold ${variant === 'light' ? 'text-white' : 'gradient-text'}`}>FreelanceFlow</span>
     </div>
   )
 }

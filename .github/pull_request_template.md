@@ -11,7 +11,7 @@ Audit ID(s):
 
 - [ ] Regression test fails before / passes after
 - [ ] `pytest`, `flake8`, `black --check`, `isort --check-only` pass (backend)
-- [ ] `npm run lint` and `npm run build` pass (frontend)
+- [ ] `npm run lint`, `npm run format:check` and `npm run build` pass (frontend)
 - [ ] Money stays `Decimal`; queries scoped to `request.user`; multi-row writes atomic
 - [ ] PHASES.md box ticked, CHANGELOG.md updated, docs/API.md updated if an endpoint changed
 - [ ] New migration added (never edited an existing one) — or none needed

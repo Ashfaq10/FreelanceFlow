@@ -13,7 +13,12 @@ function ClientCreate() {
   const [saving, setSaving] = useState(false)
   const isEditing = !!id
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: '',
       company_name: '',
@@ -24,8 +29,8 @@ function ClientCreate() {
       state: '',
       zip_code: '',
       country: '',
-      notes: ''
-    }
+      notes: '',
+    },
   })
 
   useEffect(() => {
@@ -38,7 +43,7 @@ function ClientCreate() {
           ...response.data,
           company_name: response.data.company || '',
         })
-      } catch (error) {
+      } catch {
         toast.error('Failed to load client')
         navigate('/clients')
       } finally {
@@ -115,11 +120,7 @@ function ClientCreate() {
                   error={errors.name?.message}
                   {...register('name', { required: 'Name is required' })}
                 />
-                <Input
-                  label="Company Name"
-                  placeholder="Acme Inc."
-                  {...register('company_name')}
-                />
+                <Input label="Company Name" placeholder="Acme Inc." {...register('company_name')} />
                 <Input
                   label="Email"
                   type="email"
@@ -129,16 +130,11 @@ function ClientCreate() {
                     required: 'Email is required',
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
-                    }
+                      message: 'Invalid email address',
+                    },
                   })}
                 />
-                <Input
-                  label="Phone"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
-                  {...register('phone')}
-                />
+                <Input label="Phone" type="tel" placeholder="+1 (555) 123-4567" {...register('phone')} />
               </div>
             </Card.Content>
           </Card>
@@ -150,33 +146,13 @@ function ClientCreate() {
             </Card.Header>
             <Card.Content>
               <div className="space-y-6">
-                <Input
-                  label="Street Address"
-                  placeholder="123 Main St"
-                  {...register('address')}
-                />
+                <Input label="Street Address" placeholder="123 Main St" {...register('address')} />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Input
-                    label="City"
-                    placeholder="New York"
-                    {...register('city')}
-                  />
-                  <Input
-                    label="State / Province"
-                    placeholder="NY"
-                    {...register('state')}
-                  />
-                  <Input
-                    label="ZIP / Postal Code"
-                    placeholder="10001"
-                    {...register('zip_code')}
-                  />
+                  <Input label="City" placeholder="New York" {...register('city')} />
+                  <Input label="State / Province" placeholder="NY" {...register('state')} />
+                  <Input label="ZIP / Postal Code" placeholder="10001" {...register('zip_code')} />
                 </div>
-                <Input
-                  label="Country"
-                  placeholder="United States"
-                  {...register('country')}
-                />
+                <Input label="Country" placeholder="United States" {...register('country')} />
               </div>
             </Card.Content>
           </Card>
@@ -198,11 +174,7 @@ function ClientCreate() {
 
           {/* Actions */}
           <div className="flex justify-end gap-4">
-            <Button 
-              type="button" 
-              variant="secondary"
-              onClick={() => navigate('/clients')}
-            >
+            <Button type="button" variant="secondary" onClick={() => navigate('/clients')}>
               Cancel
             </Button>
             <Button type="submit" loading={saving}>

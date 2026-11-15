@@ -18,7 +18,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
-| 4 | Code health, performance, UX & a11y | 🟡 In progress | 12 / 16 |
+| 4 | Code health, performance, UX & a11y | 🟡 In progress | 14 / 17 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
 
@@ -127,13 +127,14 @@ flowchart LR
 - [x] Annotate client aggregates (61 → 2 queries per page) ([PERF-1](docs/AUDIT.md#perf-1)) — **S**
 - [x] Route-level code splitting ([PERF-2](docs/AUDIT.md#perf-2)) — **S**
 - [ ] Upgrade to Django 5.2 LTS + `STORAGES`; pin with pip-tools; fix migration drift ([OPS-7](docs/AUDIT.md#ops-7)) — **M**
-- [ ] ESLint 9 flat config, Prettier, pre-commit (ruff/black/isort/prettier), one Python version ([OPS-8](docs/AUDIT.md#ops-8)) — **S**
+- [x] ESLint 9 flat config, Prettier, pre-commit (ruff/black/isort/prettier), one Python version ([OPS-8](docs/AUDIT.md#ops-8)) — **S**
 - [x] Accessible Modal ([UX-1](docs/AUDIT.md#ux-1)) — **S**
 - [x] Labelled inputs, keyboard-reachable rows, named icon buttons ([UX-2](docs/AUDIT.md#ux-2)) — **S**
 - [x] 404 route ([UX-3](docs/AUDIT.md#ux-3)) — **S**
 - [x] Implement or remove fake settings/bell/plan card; define `xs` breakpoint ([UX-4](docs/AUDIT.md#ux-4)) — **S**
 - [x] One theme provider, persisted; correct logo per theme ([UX-5](docs/AUDIT.md#ux-5)) — **S**
 - [x] Pick one product name and apply it everywhere ([UX-6](docs/AUDIT.md#ux-6)) — **S**
+- [x] Charts and responsive layouts at tablet and phone widths ([BUG-19](docs/AUDIT.md#bug-19)) — **M**
 - [ ] Generate an OpenAPI schema (`drf-spectacular`), commit it, fail CI on drift; SPA field names checked against it (prevents [BUG-2](docs/AUDIT.md#bug-2)-style mismatches) — **M**
 - [ ] PDF layouts match the six designs in the SPA preview (today the picker changes the preview only, [BUG-16](docs/AUDIT.md#bug-16)) — **L**
 

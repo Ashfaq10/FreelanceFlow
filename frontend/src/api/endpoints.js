@@ -49,7 +49,7 @@ export const settings = {
     const formData = new FormData()
     formData.append('logo', file)
     return api.post('/api/auth/logo/', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 }

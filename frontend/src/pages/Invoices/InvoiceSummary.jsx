@@ -39,13 +39,7 @@ function InvoiceSummary({ totals, discountAmount, taxRate, saving, onSaveAndSend
           <Save className="w-4 h-4 mr-2" />
           Save as Draft
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onSaveAndSend}
-          loading={saving}
-          className="w-full"
-        >
+        <Button type="button" variant="secondary" onClick={onSaveAndSend} loading={saving} className="w-full">
           <Send className="w-4 h-4 mr-2" />
           Save & Send
         </Button>

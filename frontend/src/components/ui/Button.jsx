@@ -14,27 +14,24 @@ const sizes = {
   lg: 'px-6 py-3 text-base',
 }
 
-const Button = forwardRef(({
-  children,
-  variant = 'primary',
-  size = 'md',
-  loading = false,
-  disabled = false,
-  className = '',
-  ...props
-}, ref) => {
-  return (
-    <button
-      ref={ref}
-      disabled={disabled || loading}
-      className={`btn ${variants[variant]} ${sizes[size]} ${className}`}
-      {...props}
-    >
-      {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-      {children}
-    </button>
-  )
-})
+const Button = forwardRef(
+  (
+    { children, variant = 'primary', size = 'md', loading = false, disabled = false, className = '', ...props },
+    ref
+  ) => {
+    return (
+      <button
+        ref={ref}
+        disabled={disabled || loading}
+        className={`btn ${variants[variant]} ${sizes[size]} ${className}`}
+        {...props}
+      >
+        {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        {children}
+      </button>
+    )
+  }
+)
 
 Button.displayName = 'Button'
 

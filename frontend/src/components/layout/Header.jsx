@@ -38,10 +38,9 @@ function Header({ onMenuClick }) {
 
   return (
     <header
-      className={`sticky top-0 z-30 transition-all duration-300 ${scrolled
-          ? 'glass-strong border-b border-gray-200/60 dark:border-white/10 shadow-sm'
-          : 'bg-transparent'
-        }`}
+      className={`sticky top-0 z-30 transition-all duration-300 ${
+        scrolled ? 'glass-strong border-b border-gray-200/60 dark:border-white/10 shadow-sm' : 'bg-transparent'
+      }`}
     >
       <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
         {/* Left: mobile menu */}
@@ -58,10 +57,7 @@ function Header({ onMenuClick }) {
         {/* Right: actions */}
         <div className="flex items-center gap-2">
           {/* New Invoice CTA */}
-          <Link
-            to="/invoices/new"
-            className="btn btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2"
-          >
+          <Link to="/invoices/new" className="btn btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2">
             <Plus className="w-4 h-4 mr-1.5 flex-shrink-0" />
             <span className="hidden xs:inline">New Invoice</span>
             <span className="xs:hidden">New</span>
@@ -76,12 +72,14 @@ function Header({ onMenuClick }) {
           >
             <div className="relative w-5 h-5">
               <Sun
-                className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${darkMode ? 'opacity-100 rotate-0' : 'opacity-0 rotate-90'
-                  }`}
+                className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${
+                  darkMode ? 'opacity-100 rotate-0' : 'opacity-0 rotate-90'
+                }`}
               />
               <Moon
-                className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${darkMode ? 'opacity-0 -rotate-90' : 'opacity-100 rotate-0'
-                  }`}
+                className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${
+                  darkMode ? 'opacity-0 -rotate-90' : 'opacity-100 rotate-0'
+                }`}
               />
             </div>
           </button>
@@ -103,16 +101,16 @@ function Header({ onMenuClick }) {
                 {userName}
               </span>
               <ChevronDown
-                className={`hidden md:block w-4 h-4 text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''
-                  }`}
+                className={`hidden md:block w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                  dropdownOpen ? 'rotate-180' : ''
+                }`}
               />
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 animate-scale-in"
-                style={{ transformOrigin: 'top right' }}
-              >
-                <div className="bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 overflow-hidden py-1.5"
+              <div className="absolute right-0 mt-2 w-56 animate-scale-in" style={{ transformOrigin: 'top right' }}>
+                <div
+                  className="bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 overflow-hidden py-1.5"
                   style={{ backdropFilter: 'blur(16px)' }}
                 >
                   {/* User info header */}

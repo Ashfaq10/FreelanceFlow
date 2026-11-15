@@ -33,6 +33,7 @@ venv/Scripts/python manage.py makemigrations --check --dry-run
 
 # frontend/
 npm run lint
+npm run format:check   # or `npm run format` to fix
 npm run build
 ```
 

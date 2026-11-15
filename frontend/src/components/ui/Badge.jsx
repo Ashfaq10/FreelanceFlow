@@ -8,11 +8,7 @@ const variants = {
 }
 
 function Badge({ children, variant = 'gray', className = '' }) {
-  return (
-    <span className={`badge ${variants[variant] || variants.gray} ${className}`}>
-      {children}
-    </span>
-  )
+  return <span className={`badge ${variants[variant] || variants.gray} ${className}`}>{children}</span>
 }
 
 export default Badge

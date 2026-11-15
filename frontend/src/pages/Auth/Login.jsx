@@ -7,13 +7,18 @@ import { Button, Input } from '../../components/ui'
 import AuthShell, { AUTH_SUBMIT } from '../../components/auth/AuthShell'
 import PasswordField from '../../components/auth/PasswordField'
 
-const LINK = 'font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline'
+const LINK =
+  'font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline'
 
 function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm()
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -32,7 +37,14 @@ function Login() {
     <AuthShell
       title="Sign in"
       subtitle="Pick up where you left off."
-      footer={<>New to FreelanceFlow? <Link to="/signup" className={LINK}>Create an account</Link></>}
+      footer={
+        <>
+          New to FreelanceFlow?{' '}
+          <Link to="/signup" className={LINK}>
+            Create an account
+          </Link>
+        </>
+      }
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <Input
@@ -43,7 +55,10 @@ function Login() {
           error={errors.email?.message}
           {...register('email', {
             required: 'Enter your email',
-            pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'That email address looks incomplete' },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'That email address looks incomplete',
+            },
           })}
         />
 
@@ -55,10 +70,14 @@ function Login() {
         />
 
         <div className="flex justify-end -mt-2">
-          <Link to="/forgot-password" className={`text-sm ${LINK}`}>Forgot password?</Link>
+          <Link to="/forgot-password" className={`text-sm ${LINK}`}>
+            Forgot password?
+          </Link>
         </div>
 
-        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>Sign in</Button>
+        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>
+          Sign in
+        </Button>
       </form>
     </AuthShell>
   )

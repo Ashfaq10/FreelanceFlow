@@ -7,13 +7,19 @@ import { Button, Input } from '../../components/ui'
 import AuthShell, { AUTH_SUBMIT } from '../../components/auth/AuthShell'
 import PasswordField from '../../components/auth/PasswordField'
 
-const LINK = 'font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline'
+const LINK =
+  'font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline'
 
 function Signup() {
   const { signup } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, watch, formState: { errors } } = useForm()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm()
   const password = watch('password1')
 
   const onSubmit = async (data) => {
@@ -33,7 +39,14 @@ function Signup() {
     <AuthShell
       title="Create your account"
       subtitle="Free to start. Add a client and send your first invoice."
-      footer={<>Already have an account? <Link to="/login" className={LINK}>Sign in</Link></>}
+      footer={
+        <>
+          Already have an account?{' '}
+          <Link to="/login" className={LINK}>
+            Sign in
+          </Link>
+        </>
+      }
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <Input
@@ -44,7 +57,10 @@ function Signup() {
           error={errors.email?.message}
           {...register('email', {
             required: 'Enter your email',
-            pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'That email address looks incomplete' },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'That email address looks incomplete',
+            },
           })}
         />
 
@@ -69,7 +85,9 @@ function Signup() {
           })}
         />
 
-        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>Create account</Button>
+        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>
+          Create account
+        </Button>
       </form>
     </AuthShell>
   )

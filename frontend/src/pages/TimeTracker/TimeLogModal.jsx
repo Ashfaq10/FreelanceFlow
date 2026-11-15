@@ -4,11 +4,7 @@ import { Modal, Button, Input, Select } from '../../components/ui'
 function TimeLogModal({ isOpen, onClose, isEditing, clients, saving, form, onSubmit }) {
   const { register, errors } = form
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={isEditing ? 'Edit Time Log' : 'Log Time'}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? 'Edit Time Log' : 'Log Time'}>
       <form onSubmit={onSubmit} className="space-y-6">
         <Select
           label="Client"
@@ -17,14 +13,14 @@ function TimeLogModal({ isOpen, onClose, isEditing, clients, saving, form, onSub
           error={errors.client?.message}
           {...register('client', { required: 'Client is required' })}
         />
-        
+
         <Input
           label="Description"
           placeholder="What did you work on?"
           error={errors.description?.message}
           {...register('description', { required: 'Description is required' })}
         />
-        
+
         <div className="grid grid-cols-2 gap-4">
           <Input
             label="Hours"
@@ -33,9 +29,9 @@ function TimeLogModal({ isOpen, onClose, isEditing, clients, saving, form, onSub
             min="0.25"
             placeholder="1.5"
             error={errors.hours?.message}
-            {...register('hours', { 
+            {...register('hours', {
               required: 'Hours is required',
-              min: { value: 0.25, message: 'Minimum 0.25 hours' }
+              min: { value: 0.25, message: 'Minimum 0.25 hours' },
             })}
           />
           <Input
@@ -45,7 +41,7 @@ function TimeLogModal({ isOpen, onClose, isEditing, clients, saving, form, onSub
             {...register('date', { required: 'Date is required' })}
           />
         </div>
-        
+
         <Input
           label="Hourly Rate (optional)"
           type="number"

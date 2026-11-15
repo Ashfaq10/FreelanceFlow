@@ -1,20 +1,12 @@
 function Skeleton({ className = '', ...props }) {
-  return (
-    <div 
-      className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`}
-      {...props}
-    />
-  )
+  return <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`} {...props} />
 }
 
 function SkeletonText({ lines = 1, className = '' }) {
   return (
     <div className={`space-y-2 ${className}`}>
       {[...Array(lines)].map((_, i) => (
-        <Skeleton 
-          key={i} 
-          className={`h-4 ${i === lines - 1 ? 'w-3/4' : 'w-full'}`} 
-        />
+        <Skeleton key={i} className={`h-4 ${i === lines - 1 ? 'w-3/4' : 'w-full'}`} />
       ))}
     </div>
   )

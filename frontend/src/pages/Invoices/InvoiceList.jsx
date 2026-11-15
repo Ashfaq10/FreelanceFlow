@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { Plus, Search, FileText, Download } from 'lucide-react'
+import { Search, FileText, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Table, Button, EmptyState, ErrorState, Skeleton, Pagination, StatusBadge } from '../../components/ui'
+import { Card, Table, EmptyState, ErrorState, Skeleton, Pagination, StatusBadge } from '../../components/ui'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -76,13 +76,7 @@ function InvoiceList() {
   const currency = useCurrency()
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    })
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const handleDownload = async (e, invoice) => {
@@ -107,7 +101,6 @@ function InvoiceList() {
     }
   }
 
-
   const statusOptions = [
     { value: '', label: 'All Status' },
     { value: 'draft', label: 'Draft' },
@@ -124,18 +117,12 @@ function InvoiceList() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invoices</h1>
           <p className="text-gray-500 dark:text-gray-400">Manage and track your invoices</p>
         </div>
-        <Link to="/invoices/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            New Invoice
-          </Button>
-        </Link>
       </div>
 
       {/* Filters */}
       <Card>
         <Card.Content className="py-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col xl:flex-row gap-4">
             <form onSubmit={handleSearch} className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -189,7 +176,7 @@ function InvoiceList() {
               <Table.Row>
                 <Table.Head>Invoice</Table.Head>
                 <Table.Head>Client</Table.Head>
-                <Table.Head>Date</Table.Head>
+                <Table.Head className="hidden xl:table-cell">Date</Table.Head>
                 <Table.Head>Due Date</Table.Head>
                 <Table.Head>Amount</Table.Head>
                 <Table.Head>Status</Table.Head>
@@ -198,24 +185,26 @@ function InvoiceList() {
             </Table.Header>
             <Table.Body>
               {invoiceList.map((invoice) => (
-                <Table.Row 
-                  key={invoice.id} 
-                  onClick={() => navigate(`/invoices/${invoice.id}`)}
-                >
+                <Table.Row key={invoice.id} onClick={() => navigate(`/invoices/${invoice.id}`)}>
                   <Table.Cell>
-                    <Link to={`/invoices/${invoice.id}`} className="font-medium text-primary-700 dark:text-primary-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">{invoice.invoice_number}</Link>
+                    <Link
+                      to={`/invoices/${invoice.id}`}
+                      className="font-medium text-primary-700 dark:text-primary-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                    >
+                      {invoice.invoice_number}
+                    </Link>
                   </Table.Cell>
                   <Table.Cell>{invoice.client_name}</Table.Cell>
-                  <Table.Cell className="text-gray-500 dark:text-gray-400">
+                  <Table.Cell className="hidden xl:table-cell text-gray-500 dark:text-gray-400">
                     {formatDate(invoice.issue_date)}
                   </Table.Cell>
-                  <Table.Cell className="text-gray-500 dark:text-gray-400">
-                    {formatDate(invoice.due_date)}
-                  </Table.Cell>
+                  <Table.Cell className="text-gray-500 dark:text-gray-400">{formatDate(invoice.due_date)}</Table.Cell>
                   <Table.Cell>
                     <span className="font-semibold">{formatMoney(invoice.total, invoice.currency || currency)}</span>
                   </Table.Cell>
-                  <Table.Cell><StatusBadge status={invoice.status} /></Table.Cell>
+                  <Table.Cell>
+                    <StatusBadge status={invoice.status} />
+                  </Table.Cell>
                   <Table.Cell className="text-right">
                     <button
                       type="button"
@@ -233,7 +222,7 @@ function InvoiceList() {
             </Table.Body>
           </Table>
         ) : error ? (
-          <ErrorState title="Could not load your invoices" onRetry={() => setReloadKey(k => k + 1)} />
+          <ErrorState title="Could not load your invoices" onRetry={() => setReloadKey((k) => k + 1)} />
         ) : (
           <EmptyState
             icon={FileText}
@@ -241,7 +230,7 @@ function InvoiceList() {
             description="Get started by creating your first invoice."
             action
             actionLabel="Create Invoice"
-            onAction={() => window.location.href = '/invoices/new'}
+            onAction={() => (window.location.href = '/invoices/new')}
           />
         )}
         <Pagination page={page} count={count} onPageChange={goToPage} />

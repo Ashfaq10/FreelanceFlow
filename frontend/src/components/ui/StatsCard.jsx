@@ -26,17 +26,11 @@ function StatsCard({ title, value, icon: Icon, trend, trendLabel, variant = 'def
 
   return (
     <div className="card p-5 flex flex-col gap-3">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1 min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-            {title}
-          </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none">
-            {value}
-          </p>
-          {subtitle && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
-          )}
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none">{value}</p>
+          {subtitle && <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>}
         </div>
 
         {Icon && (
@@ -53,11 +47,16 @@ function StatsCard({ title, value, icon: Icon, trend, trendLabel, variant = 'def
       </div>
 
       {trend !== undefined && (
-        <div className={`flex items-center gap-1 text-xs font-semibold ${trend >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-          <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] ${trend >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-red-100 dark:bg-red-500/20'}`}>
+        <div
+          className={`flex items-center gap-1 text-xs font-semibold ${trend >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}
+        >
+          <span
+            className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] ${trend >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-red-100 dark:bg-red-500/20'}`}
+          >
             {trend >= 0 ? '↑' : '↓'}
           </span>
-          {trend >= 0 ? '+' : ''}{trend}%
+          {trend >= 0 ? '+' : ''}
+          {trend}%
           {trendLabel && <span className="font-normal text-gray-500 dark:text-gray-400 ml-0.5">{trendLabel}</span>}
         </div>
       )}

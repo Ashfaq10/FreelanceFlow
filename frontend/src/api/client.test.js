@@ -17,9 +17,7 @@ describe('api client', () => {
   it('sends the stored token', async () => {
     localStorage.setItem('token', 'abc123')
     server.use(
-      http.get('*/api/auth/user/', ({ request }) =>
-        HttpResponse.json({ auth: request.headers.get('Authorization') }),
-      ),
+      http.get('*/api/auth/user/', ({ request }) => HttpResponse.json({ auth: request.headers.get('Authorization') }))
     )
 
     const response = await api.get('/api/auth/user/')
@@ -38,7 +36,9 @@ describe('api client', () => {
   })
 
   it('leaves a failed login to the page, without redirecting (BUG-1)', async () => {
-    server.use(http.post('*/api/auth/login/', () => HttpResponse.json({ message: 'Invalid email or password' }, { status: 401 })))
+    server.use(
+      http.post('*/api/auth/login/', () => HttpResponse.json({ message: 'Invalid email or password' }, { status: 401 }))
+    )
 
     await expect(api.post('/api/auth/login/', { email: 'a@b.c', password: 'nope' })).rejects.toMatchObject({
       response: { status: 401, data: { message: 'Invalid email or password' } },

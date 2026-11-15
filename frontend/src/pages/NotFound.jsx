@@ -11,7 +11,9 @@ function NotFound() {
           That address does not exist, or the invoice link is incomplete.
         </p>
       </div>
-      <Link to="/" className="btn btn-primary">Go to your dashboard</Link>
+      <Link to="/" className="btn btn-primary">
+        Go to your dashboard
+      </Link>
     </main>
   )
 }

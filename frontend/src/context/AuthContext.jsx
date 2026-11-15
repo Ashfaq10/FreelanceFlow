@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await api.post('/api/auth/logout/')
-    } catch (error) {
+    } catch {
       // Ignore logout errors
     }
     localStorage.removeItem('token')
@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
   }
 
   const updateUser = (userData) => {
-    setUser(prev => ({ ...prev, ...userData }))
+    setUser((prev) => ({ ...prev, ...userData }))
   }
 
   return (

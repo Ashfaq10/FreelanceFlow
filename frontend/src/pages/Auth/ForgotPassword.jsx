@@ -6,12 +6,17 @@ import { auth } from '../../api/endpoints'
 import { Button, Input } from '../../components/ui'
 import AuthShell, { AUTH_SUBMIT } from '../../components/auth/AuthShell'
 
-const LINK = 'font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline'
+const LINK =
+  'font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline'
 
 function ForgotPassword() {
   const [loading, setLoading] = useState(false)
   const [sentTo, setSentTo] = useState('')
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm()
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -25,7 +30,11 @@ function ForgotPassword() {
     }
   }
 
-  const back = <Link to="/login" className={LINK}>Back to sign in</Link>
+  const back = (
+    <Link to="/login" className={LINK}>
+      Back to sign in
+    </Link>
+  )
 
   if (sentTo) {
     return (
@@ -52,10 +61,15 @@ function ForgotPassword() {
           error={errors.email?.message}
           {...register('email', {
             required: 'Enter your email',
-            pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'That email address looks incomplete' },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'That email address looks incomplete',
+            },
           })}
         />
-        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>Send reset link</Button>
+        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>
+          Send reset link
+        </Button>
       </form>
     </AuthShell>
   )

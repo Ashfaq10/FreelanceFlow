@@ -6,14 +6,21 @@ function Probe() {
   const { choice, dark, setTheme, toggle } = useTheme()
   return (
     <>
-      <p data-testid="state">{choice}:{String(dark)}</p>
+      <p data-testid="state">
+        {choice}:{String(dark)}
+      </p>
       <button onClick={toggle}>toggle</button>
       <button onClick={() => setTheme('system')}>system</button>
     </>
   )
 }
 
-const mount = () => render(<ThemeProvider><Probe /></ThemeProvider>)
+const mount = () =>
+  render(
+    <ThemeProvider>
+      <Probe />
+    </ThemeProvider>
+  )
 
 describe('ThemeProvider (UX-5)', () => {
   it('starts light and toggles dark, saving the choice and marking <html>', () => {

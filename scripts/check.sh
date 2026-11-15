@@ -22,6 +22,6 @@ echo '== backend: format, lint, tests'
 (cd backend && "../$PY" -m pytest -q)
 
 echo '== frontend: lint, tests, build'
-(cd frontend && npm run lint && npm test && npm run build)
+(cd frontend && npm run lint && npm run format:check && npm test && npm run build)
 
 echo '== all green'

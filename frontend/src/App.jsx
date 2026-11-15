@@ -52,32 +52,67 @@ function PublicRoute({ children }) {
 function App() {
   return (
     <Suspense fallback={<PageLoader />}>
-    <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-      <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
-      <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
-      <Route path="/reset-password/:uid/:token" element={<PublicRoute><ResetPassword /></PublicRoute>} />
-      {/* The client's invoice page: no account, token is the credential (FEAT-3) */}
-      <Route path="/pay/:token" element={<PublicInvoice />} />
+      <Routes>
+        {/* Public routes */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password/:uid/:token"
+          element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          }
+        />
+        {/* The client's invoice page: no account, token is the credential (FEAT-3) */}
+        <Route path="/pay/:token" element={<PublicInvoice />} />
 
-      {/* Private routes */}
-      <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-        <Route index element={<Dashboard />} />
-        <Route path="invoices" element={<InvoiceList />} />
-        <Route path="invoices/new" element={<InvoiceCreate />} />
-        <Route path="invoices/:id" element={<InvoiceDetail />} />
-        <Route path="invoices/:id/edit" element={<InvoiceCreate />} />
-        <Route path="clients" element={<ClientList />} />
-        <Route path="clients/new" element={<ClientCreate />} />
-        <Route path="clients/:id" element={<ClientDetail />} />
-        <Route path="clients/:id/edit" element={<ClientCreate />} />
-        <Route path="time-tracker" element={<TimeTracker />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="settings" element={<Settings />} />
-      </Route>
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* Private routes */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Layout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="invoices" element={<InvoiceList />} />
+          <Route path="invoices/new" element={<InvoiceCreate />} />
+          <Route path="invoices/:id" element={<InvoiceDetail />} />
+          <Route path="invoices/:id/edit" element={<InvoiceCreate />} />
+          <Route path="clients" element={<ClientList />} />
+          <Route path="clients/new" element={<ClientCreate />} />
+          <Route path="clients/:id" element={<ClientDetail />} />
+          <Route path="clients/:id/edit" element={<ClientCreate />} />
+          <Route path="time-tracker" element={<TimeTracker />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </Suspense>
   )
 }

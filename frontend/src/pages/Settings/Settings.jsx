@@ -45,7 +45,7 @@ function Settings() {
       await authApi.updateProfile(data)
       updateUser(data)
       toast.success('Settings saved successfully')
-    } catch (error) {
+    } catch {
       toast.error('Failed to save settings')
     } finally {
       setLoading(false)
@@ -70,7 +70,7 @@ function Settings() {
       updateUser(data)
       if (data.logo) setLogoPreview(data.logo)
       toast.success('Logo uploaded successfully')
-    } catch (error) {
+    } catch {
       toast.error('Failed to upload logo')
     }
   }
@@ -86,9 +86,7 @@ function Settings() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Manage your account and business preferences
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">Manage your account and business preferences</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -119,7 +117,15 @@ function Settings() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {activeTab === 'profile' && <ProfileTab register={register} loading={loading} />}
 
-            {activeTab === 'business' && <BusinessTab register={register} loading={loading} user={user} logoPreview={logoPreview} onLogoUpload={handleLogoUpload} />}
+            {activeTab === 'business' && (
+              <BusinessTab
+                register={register}
+                loading={loading}
+                user={user}
+                logoPreview={logoPreview}
+                onLogoUpload={handleLogoUpload}
+              />
+            )}
 
             {activeTab === 'invoicing' && <InvoicingTab register={register} loading={loading} />}
 

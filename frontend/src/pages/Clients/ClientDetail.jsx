@@ -1,15 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { 
-  ArrowLeft, 
-  Edit, 
-  Archive,
-  Mail, 
-  Phone, 
-  MapPin,
-  FileText,
-  MoreVertical
-} from 'lucide-react'
+import { ArrowLeft, Edit, Archive, Mail, Phone, MapPin, FileText, MoreVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Button, Modal, Skeleton, Table, StatusBadge } from '../../components/ui'
 import { clients as clientApi, invoices as invoiceApi } from '../../api/endpoints'
@@ -31,7 +22,7 @@ function ClientDetail() {
       try {
         const response = await clientApi.get(id)
         setClient(response.data)
-      } catch (error) {
+      } catch {
         toast.error('Failed to load client')
         navigate('/clients')
       } finally {
@@ -73,10 +64,9 @@ function ClientDetail() {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
-
 
   if (loading) {
     return (
@@ -112,12 +102,8 @@ function ClientDetail() {
               </span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {client.name || client.company}
-              </h1>
-              {client.company && client.name && (
-                <p className="text-gray-500 dark:text-gray-400">{client.company}</p>
-              )}
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{client.name || client.company}</h1>
+              {client.company && client.name && <p className="text-gray-500 dark:text-gray-400">{client.company}</p>}
             </div>
           </div>
         </div>
@@ -135,20 +121,14 @@ function ClientDetail() {
               Create Invoice
             </Button>
           </Link>
-          
+
           <div className="relative">
-            <Button 
-              variant="ghost"
-              onClick={() => setShowDropdown(!showDropdown)}
-            >
+            <Button variant="ghost" onClick={() => setShowDropdown(!showDropdown)}>
               <MoreVertical className="w-5 h-5" />
             </Button>
             {showDropdown && (
               <>
-                <div 
-                  className="fixed inset-0 z-10"
-                  onClick={() => setShowDropdown(false)}
-                />
+                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
                   <button
                     onClick={() => {
@@ -178,10 +158,7 @@ function ClientDetail() {
               {client.email && (
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-gray-400" />
-                  <a 
-                    href={`mailto:${client.email}`}
-                    className="text-primary-600 hover:underline"
-                  >
+                  <a href={`mailto:${client.email}`} className="text-primary-600 hover:underline">
                     {client.email}
                   </a>
                 </div>
@@ -189,10 +166,7 @@ function ClientDetail() {
               {client.phone && (
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-gray-400" />
-                  <a 
-                    href={`tel:${client.phone}`}
-                    className="text-primary-600 hover:underline"
-                  >
+                  <a href={`tel:${client.phone}`} className="text-primary-600 hover:underline">
                     {client.phone}
                   </a>
                 </div>
@@ -204,7 +178,9 @@ function ClientDetail() {
                     {client.address && <p>{client.address}</p>}
                     {(client.city || client.state || client.zip_code) && (
                       <p>
-                        {client.city}{client.city && client.state && ', '}{client.state} {client.zip_code}
+                        {client.city}
+                        {client.city && client.state && ', '}
+                        {client.state} {client.zip_code}
                       </p>
                     )}
                     {client.country && <p>{client.country}</p>}
@@ -240,9 +216,7 @@ function ClientDetail() {
                 <Card.Title>Notes</Card.Title>
               </Card.Header>
               <Card.Content>
-                <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                  {client.notes}
-                </p>
+                <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{client.notes}</p>
               </Card.Content>
             </Card>
           )}
@@ -253,10 +227,7 @@ function ClientDetail() {
           <Card>
             <Card.Header className="flex items-center justify-between">
               <Card.Title>Invoices</Card.Title>
-              <Link 
-                to={`/invoices/new?client=${id}`}
-                className="text-sm text-primary-600 hover:text-primary-700"
-              >
+              <Link to={`/invoices/new?client=${id}`} className="text-sm text-primary-600 hover:text-primary-700">
                 Create Invoice
               </Link>
             </Card.Header>
@@ -272,12 +243,14 @@ function ClientDetail() {
                 </Table.Header>
                 <Table.Body>
                   {clientInvoices.map((invoice) => (
-                    <Table.Row 
-                      key={invoice.id} 
-                      onClick={() => navigate(`/invoices/${invoice.id}`)}
-                    >
+                    <Table.Row key={invoice.id} onClick={() => navigate(`/invoices/${invoice.id}`)}>
                       <Table.Cell>
-                        <Link to={`/invoices/${invoice.id}`} className="font-medium text-primary-700 dark:text-primary-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">{invoice.invoice_number}</Link>
+                        <Link
+                          to={`/invoices/${invoice.id}`}
+                          className="font-medium text-primary-700 dark:text-primary-300 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                        >
+                          {invoice.invoice_number}
+                        </Link>
                       </Table.Cell>
                       <Table.Cell className="text-gray-500 dark:text-gray-400">
                         {formatDate(invoice.issue_date)}
@@ -285,7 +258,9 @@ function ClientDetail() {
                       <Table.Cell>
                         <span className="font-semibold">{formatCurrency(invoice.total)}</span>
                       </Table.Cell>
-                      <Table.Cell><StatusBadge status={invoice.status} /></Table.Cell>
+                      <Table.Cell>
+                        <StatusBadge status={invoice.status} />
+                      </Table.Cell>
                     </Table.Row>
                   ))}
                 </Table.Body>
@@ -295,10 +270,7 @@ function ClientDetail() {
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                   <p>No invoices yet</p>
-                  <Link 
-                    to={`/invoices/new?client=${id}`}
-                    className="text-primary-600 hover:text-primary-700 text-sm"
-                  >
+                  <Link to={`/invoices/new?client=${id}`} className="text-primary-600 hover:text-primary-700 text-sm">
                     Create the first invoice
                   </Link>
                 </div>
@@ -309,11 +281,7 @@ function ClientDetail() {
       </div>
 
       {/* Archive Modal: invoices and payments are never deleted (DATA-1) */}
-      <Modal
-        isOpen={showArchiveModal}
-        onClose={() => setShowArchiveModal(false)}
-        title="Archive Client"
-      >
+      <Modal isOpen={showArchiveModal} onClose={() => setShowArchiveModal(false)} title="Archive Client">
         <p className="text-gray-600 dark:text-gray-400 mb-6">
           Archive <strong>{client?.name || client?.company}</strong>? They disappear from the client list and from new
           invoices. Their invoices, payments and history stay exactly as they are.
@@ -322,10 +290,7 @@ function ClientDetail() {
           <Button variant="secondary" onClick={() => setShowArchiveModal(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleArchive}
-            loading={archiving}
-          >
+          <Button onClick={handleArchive} loading={archiving}>
             Archive Client
           </Button>
         </div>

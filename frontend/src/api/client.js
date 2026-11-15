@@ -26,7 +26,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status } = error.response
-      
+
       // A 401 from /api/auth/* means "those credentials are wrong", not "your session expired";
       // redirecting there wiped the login page's own error message (BUG-1).
       const isAuthRequest = (error.config?.url || '').includes('/api/auth/')
@@ -47,7 +47,7 @@ api.interceptors.response.use(
     } else if (error.request) {
       toast.error('Network error. Please check your connection.')
     }
-    
+
     return Promise.reject(error)
   }
 )

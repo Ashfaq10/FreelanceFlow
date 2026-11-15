@@ -100,18 +100,18 @@ function PublicInvoice() {
               <thead>
                 <tr className="text-left text-gray-500 dark:text-gray-400">
                   <th className="py-2 font-medium">Description</th>
-                  <th className="py-2 font-medium text-right">Qty</th>
-                  <th className="py-2 font-medium text-right">Rate</th>
-                  <th className="py-2 font-medium text-right">Amount</th>
+                  <th className="py-2 pl-3 font-medium text-right">Qty</th>
+                  <th className="py-2 pl-3 font-medium text-right hidden sm:table-cell">Rate</th>
+                  <th className="py-2 pl-3 font-medium text-right">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/8">
                 {invoice.items.map(item => (
                   <tr key={item.id}>
                     <td className="py-2">{item.description}</td>
-                    <td className="py-2 text-right">{item.quantity}</td>
-                    <td className="py-2 text-right">{money(item.unit_price)}</td>
-                    <td className="py-2 text-right font-medium">{money(item.line_total)}</td>
+                    <td className="py-2 pl-3 text-right">{item.quantity}</td>
+                    <td className="py-2 pl-3 text-right hidden sm:table-cell">{money(item.unit_price)}</td>
+                    <td className="py-2 pl-3 text-right font-medium">{money(item.line_total)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -28,14 +28,20 @@ function TimeTracker() {
   const [trackingClient, setTrackingClient] = useState(null)
   const [trackingDescription, setTrackingDescription] = useState('')
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       client: '',
       description: '',
       hours: '',
       date: todayISO(),
-      hourly_rate: ''
-    }
+      hourly_rate: '',
+    },
   })
 
   useEffect(() => {
@@ -47,7 +53,7 @@ function TimeTracker() {
     let interval
     if (isTracking) {
       interval = setInterval(() => {
-        setTrackingTime(prev => prev + 1)
+        setTrackingTime((prev) => prev + 1)
       }, 1000)
     }
     return () => clearInterval(interval)
@@ -67,7 +73,7 @@ function TimeTracker() {
   }
 
   const toggleLog = (id) =>
-    setSelectedLogs(current => (current.includes(id) ? current.filter(x => x !== id) : [...current, id]))
+    setSelectedLogs((current) => (current.includes(id) ? current.filter((x) => x !== id) : [...current, id]))
 
   const handleBill = async () => {
     setBilling(true)
@@ -86,7 +92,7 @@ function TimeTracker() {
   const fetchClients = async () => {
     try {
       const clientData = await fetchAllPages(clientApi.list)
-      setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
+      setClients(clientData.map((c) => ({ value: c.id, label: c.name || c.company_name })))
     } catch (error) {
       console.error('Failed to fetch clients:', error)
     }
@@ -125,7 +131,7 @@ function TimeTracker() {
         description: log.description,
         hours: log.hours,
         date: log.date,
-        hourly_rate: log.hourly_rate || ''
+        hourly_rate: log.hourly_rate || '',
       })
     } else {
       setEditingLog(null)
@@ -134,7 +140,7 @@ function TimeTracker() {
         description: '',
         hours: '',
         date: todayISO(),
-        hourly_rate: ''
+        hourly_rate: '',
       })
     }
     setShowModal(true)
@@ -154,7 +160,7 @@ function TimeTracker() {
       const payload = {
         ...data,
         hours: parseFloat(data.hours),
-        hourly_rate: data.hourly_rate ? parseFloat(data.hourly_rate) : null
+        hourly_rate: data.hourly_rate ? parseFloat(data.hourly_rate) : null,
       }
 
       if (editingLog) {
@@ -166,7 +172,7 @@ function TimeTracker() {
       }
       fetchTimeLogs()
       closeModal()
-    } catch (error) {
+    } catch {
       toast.error('Failed to save time log')
     } finally {
       setSaving(false)
@@ -175,12 +181,12 @@ function TimeTracker() {
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this time log?')) return
-    
+
     try {
       await timeLogApi.delete(id)
       toast.success('Time log deleted')
       fetchTimeLogs()
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete time log')
     }
   }
@@ -189,7 +195,7 @@ function TimeTracker() {
     return parseDateOnly(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
 
@@ -198,7 +204,7 @@ function TimeTracker() {
 
   const totalHours = timeLogs.reduce((sum, log) => sum + parseFloat(log.hours || 0), 0)
   const totalEarnings = timeLogs.reduce((sum, log) => {
-    return sum + (parseFloat(log.hours || 0) * parseFloat(log.hourly_rate || 0))
+    return sum + parseFloat(log.hours || 0) * parseFloat(log.hourly_rate || 0)
   }, 0)
 
   return (
@@ -233,9 +239,7 @@ function TimeTracker() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Hours Logged</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {totalHours.toFixed(1)}h
-                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalHours.toFixed(1)}h</p>
               </div>
               <div className="p-3 rounded-lg bg-primary-100 dark:bg-primary-900/30">
                 <Clock className="w-6 h-6 text-primary-600 dark:text-primary-400" />
@@ -248,9 +252,7 @@ function TimeTracker() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Billable</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency(totalEarnings)}
-                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalEarnings)}</p>
               </div>
               <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
                 <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -288,7 +290,7 @@ function TimeTracker() {
                 <Table.Head>Client</Table.Head>
                 <Table.Head>Description</Table.Head>
                 <Table.Head>Hours</Table.Head>
-                <Table.Head>Rate</Table.Head>
+                <Table.Head className="hidden lg:table-cell">Rate</Table.Head>
                 <Table.Head>Total</Table.Head>
                 <Table.Head></Table.Head>
               </Table.Row>
@@ -307,25 +309,21 @@ function TimeTracker() {
                       onChange={() => toggleLog(log.id)}
                     />
                   </Table.Cell>
-                  <Table.Cell className="text-gray-500 dark:text-gray-400">
-                    {formatDate(log.date)}
+                  <Table.Cell className="text-gray-500 dark:text-gray-400">{formatDate(log.date)}</Table.Cell>
+                  <Table.Cell>
+                    {log.client_name}
+                    {log.is_billed ? ' · billed' : ''}
                   </Table.Cell>
-                  <Table.Cell>{log.client_name}{log.is_billed ? ' · billed' : ''}</Table.Cell>
-                  <Table.Cell className="max-w-xs truncate">
-                    {log.description}
-                  </Table.Cell>
+                  <Table.Cell className="max-w-[9rem] lg:max-w-xs truncate">{log.description}</Table.Cell>
                   <Table.Cell>
                     <span className="font-medium">{parseFloat(log.hours).toFixed(1)}h</span>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="hidden lg:table-cell">
                     {log.hourly_rate ? formatCurrency(log.hourly_rate) : '-'}
                   </Table.Cell>
                   <Table.Cell>
                     <span className="font-semibold">
-                      {log.hourly_rate 
-                        ? formatCurrency(parseFloat(log.hours) * parseFloat(log.hourly_rate))
-                        : '-'
-                      }
+                      {log.hourly_rate ? formatCurrency(parseFloat(log.hours) * parseFloat(log.hourly_rate)) : '-'}
                     </span>
                   </Table.Cell>
                   <Table.Cell>
@@ -350,7 +348,13 @@ function TimeTracker() {
             </Table.Body>
           </Table>
         ) : error ? (
-          <ErrorState title="Could not load your time logs" onRetry={() => { setLoading(true); fetchTimeLogs() }} />
+          <ErrorState
+            title="Could not load your time logs"
+            onRetry={() => {
+              setLoading(true)
+              fetchTimeLogs()
+            }}
+          />
         ) : (
           <EmptyState
             icon={Clock}

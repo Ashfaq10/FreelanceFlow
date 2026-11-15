@@ -3,8 +3,12 @@ import { parseDateOnly, todayISO } from './dates'
 
 // The bug only shows west of UTC; Node re-reads process.env.TZ per Date call.
 const originalTZ = process.env.TZ
-beforeAll(() => { process.env.TZ = 'America/Los_Angeles' })
-afterAll(() => { process.env.TZ = originalTZ })
+beforeAll(() => {
+  process.env.TZ = 'America/Los_Angeles'
+})
+afterAll(() => {
+  process.env.TZ = originalTZ
+})
 
 describe('parseDateOnly', () => {
   it('keeps the calendar day a date-only string names', () => {

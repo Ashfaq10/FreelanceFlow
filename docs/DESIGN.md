@@ -25,6 +25,7 @@ Redesigned 2026-11-15. All four use `components/auth/AuthShell.jsx`, so the flow
 
 ## UI conventions
 
-- Tailwind CSS 3, Inter font, `lucide-react` icons.
+- Tailwind CSS 3, Inter font, `lucide-react` icons. Prettier formats `frontend/src` (no semicolons, single quotes, 120 columns).
+- **Check every screen at 1920, 1440, 1024, 768 and 390 px before shipping.** Four-up card grids start at `xl` (1280 px); tables drop their least useful columns below `xl`/`lg`; `xs` is 480 px.
 - Shared primitives live in `frontend/src/components/ui/` (`Button`, `Input`, `Select`, `Modal`, `Table`, `Card`, `Badge`, `Skeleton`, `EmptyState`, `ErrorState`, `StatsCard`, `Pagination`, `Wordmark`). Use them before adding new markup.
 - Money is always shown with the invoice's currency; never hardcode `$` (see [BUG-5](AUDIT.md#bug-5)).

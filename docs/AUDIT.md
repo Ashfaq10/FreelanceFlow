@@ -209,6 +209,11 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Should` · Phase 2 · `apps/dashboard/api_views.py:L75` (`?months=abc`), `apps/invoices/api_views.py:L34` (`?client=foo`) · **Done 2026-11-15**: `InvoiceFilterSerializer` and `MonthlyRevenueQuerySerializer` validate the params (`tests/test_query_params.py`).
 **Fix:** Validate with serializer fields or `django-filter`; return 400.
 
+### <a id="bug-19"></a>BUG-19 — Charts drew nothing; layouts broke at tablet and phone widths
+`Should` · Phase 4 · `Dashboard.jsx`, `Reports.jsx`, `StatsCard.jsx`, `ClientList.jsx`, `InvoiceList.jsx`, `TimeTracker.jsx`, `InvoiceCreate.jsx`, `PublicInvoice.jsx` · **Done 2026-11-15** (found by screenshotting every page at 1920, 1440, 1024, 768, 390 and 320 px): the API sends amounts as strings and recharts plots nothing for a string, so the Dashboard chart was empty and the Reports bars were all full height with axis labels `$1k $1k $1k $0k` (`toChartRows`, `formatCompactCurrency`; `utils/formatters.test.js`); four-up stat cards overlapped their icons at 1024 px (now 4-up only from 1280 px); the Reports donut was clipped; the clients list overlapped email, phone and total on phones; the invoice and time-log tables ran past the screen at 768 px (tighter padding, date without time, least useful columns hidden); the new-invoice form crammed six fields into one row; the preview and the form still said "Payment Date" for the due date; the default PDF colour (indigo) was missing from the picker; "New Invoice" appeared twice on the Dashboard and the invoice list. No horizontal page overflow was found at any width.
+**Problem:** nobody had looked at the app below desktop width, and the chart bug hid behind "no data yet".
+**Fix:** as above.
+
 ### <a id="bug-18"></a>BUG-18 — Production PDFs crash for users with a logo
 `Must` · Phase 5 · `apps/invoices/utils.py:L39-48`
 **Problem:** `user.logo.path` raises `NotImplementedError` on S3 storage, which is not caught → every PDF download/send fails in production for users with a logo.
@@ -367,7 +372,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Django 5.2 LTS with `STORAGES={...}`; `pip-tools` lockfile; `makemigrations --check` in CI.
 
 ### <a id="ops-8"></a>OPS-8 — Tooling gaps
-`Nice` · Phase 4 · ESLint 8 (EOL, legacy `.eslintrc.cjs`), no Prettier. **Partly done 2026-11-15**: pre-commit hooks added; Python pinned to 3.12 in `.python-version`, `backend/Dockerfile`, CI and `setup.cfg` (Django 4.2 supports ≤ 3.12, so the 3.13 venv must be rebuilt). Still open: ESLint 9 flat config, Prettier, `ruff`/`mypy` in CI.
+`Nice` · Phase 4 · ESLint 8 (EOL, legacy `.eslintrc.cjs`), no Prettier. **Partly done 2026-11-15**: pre-commit hooks added; Python pinned to 3.12 in `.python-version`, `backend/Dockerfile`, CI and `setup.cfg` (Django 4.2 supports ≤ 3.12, so the 3.13 venv must be rebuilt). **Done 2026-11-15:** ESLint 9 flat config (`eslint.config.js`; not 10, because `eslint-plugin-react` does not support it yet), Prettier (`format` / `format:check`, in CI, `scripts/check.sh` and pre-commit), `npm run lint` without `--ext`. `ruff` and `mypy` were left out on purpose: black, isort and flake8 already cover the backend.
 **Fix:** ESLint 9 flat config + Prettier; `pre-commit` with ruff/black/isort/prettier; one Python version in `.python-version`, Dockerfile and CI.
 
 ### <a id="ops-9"></a>OPS-9 — No observability or task resilience

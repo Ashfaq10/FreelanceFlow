@@ -32,7 +32,8 @@ function Modal({ isOpen, onClose, title, children, size = 'md', description }) {
     const dialog = dialogRef.current
     const focusables = () => [...dialog.querySelectorAll(FOCUSABLE)]
     // Prefer the first form field; the close button is first in DOM order but rarely what you want.
-    const first = dialog.querySelector('input:not([disabled]), select:not([disabled]), textarea:not([disabled])') || focusables()[0]
+    const first =
+      dialog.querySelector('input:not([disabled]), select:not([disabled]), textarea:not([disabled])') || focusables()[0]
     ;(first || dialog).focus()
 
     const onKeyDown = (event) => {
@@ -99,7 +100,9 @@ function Modal({ isOpen, onClose, title, children, size = 'md', description }) {
                   {title}
                 </h2>
                 {description && (
-                  <p id={descriptionId} className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{description}</p>
+                  <p id={descriptionId} className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                    {description}
+                  </p>
                 )}
               </div>
               <button
@@ -111,9 +114,7 @@ function Modal({ isOpen, onClose, title, children, size = 'md', description }) {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6">
-              {children}
-            </div>
+            <div className="p-6">{children}</div>
           </div>
         </div>
       </div>

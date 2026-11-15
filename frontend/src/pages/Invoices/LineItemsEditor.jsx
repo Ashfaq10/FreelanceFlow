@@ -25,7 +25,7 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
                 <input
                   {...register(`items.${index}.description`, { required: 'Required' })}
                   placeholder="Description"
-                          aria-label={`Line ${index + 1} description`}
+                  aria-label={`Line ${index + 1} description`}
                   className="input"
                 />
               </div>
@@ -36,10 +36,10 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
                   step="0.01"
                   {...register(`items.${index}.quantity`, {
                     required: 'Required',
-                    min: { value: 0.01, message: 'Min 0.01' }
+                    min: { value: 0.01, message: 'Min 0.01' },
                   })}
                   placeholder="Qty"
-                          aria-label={`Line ${index + 1} quantity`}
+                  aria-label={`Line ${index + 1} quantity`}
                   className="input"
                 />
               </div>
@@ -47,12 +47,12 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
                 <input
                   type="number"
                   step="0.01"
-                  {...register(`items.${index}.rate`, { 
+                  {...register(`items.${index}.rate`, {
                     required: 'Required',
-                    min: { value: 0, message: 'Min 0' }
+                    min: { value: 0, message: 'Min 0' },
                   })}
                   placeholder="Rate"
-                          aria-label={`Line ${index + 1} rate`}
+                  aria-label={`Line ${index + 1} rate`}
                   className="input"
                 />
               </div>
@@ -66,7 +66,7 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
                   <button
                     type="button"
                     onClick={() => remove(index)}
-                          aria-label={`Remove line ${index + 1}`}
+                    aria-label={`Remove line ${index + 1}`}
                     className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
                   >
                     <Trash2 className="w-4 h-4" />

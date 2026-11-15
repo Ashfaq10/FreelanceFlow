@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react'
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   LineChart,
   Line,
-  Legend
+  Legend,
 } from 'recharts'
 import { DollarSign, TrendingUp, Users, FileText } from 'lucide-react'
 import { Card, StatsCard, Skeleton, ErrorState } from '../../components/ui'
 import { dashboard as dashboardApi } from '../../api/endpoints'
-import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { formatCurrency as formatMoney, formatCompactCurrency, toChartRows } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
@@ -41,11 +41,11 @@ function Reports() {
     try {
       const [summaryRes, revenueRes] = await Promise.all([
         dashboardApi.getSummary(),
-        dashboardApi.getMonthlyRevenue(12)
+        dashboardApi.getMonthlyRevenue(12),
       ])
 
       setStats(summaryRes.data)
-      setMonthlyData(revenueRes.data || [])
+      setMonthlyData(toChartRows(revenueRes.data))
     } catch (err) {
       console.error('Failed to fetch report data:', err)
       setError(true)
@@ -63,7 +63,7 @@ function Reports() {
     { name: 'Sent', value: stats?.sent_count || 0 },
     { name: 'Draft', value: stats?.draft_count || 0 },
     { name: 'Overdue', value: stats?.overdue_count || 0 },
-  ].filter(item => item.value > 0)
+  ].filter((item) => item.value > 0)
 
   if (loading) {
     return (
@@ -89,13 +89,11 @@ function Reports() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Analytics and insights for your business
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">Analytics and insights for your business</p>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <StatsCard
           title="Total Revenue"
           value={formatCurrency(stats?.total_revenue)}
@@ -108,21 +106,11 @@ function Reports() {
           icon={TrendingUp}
           variant="default"
         />
-        <StatsCard
-          title="Total Clients"
-          value={stats?.total_clients || 0}
-          icon={Users}
-          variant="default"
-        />
-        <StatsCard
-          title="Total Invoices"
-          value={stats?.total_invoices || 0}
-          icon={FileText}
-          variant="default"
-        />
+        <StatsCard title="Total Clients" value={stats?.total_clients || 0} icon={Users} variant="default" />
+        <StatsCard title="Total Invoices" value={stats?.total_invoices || 0} icon={FileText} variant="default" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Monthly Revenue Chart */}
         <Card className="lg:col-span-2">
           <Card.Header>
@@ -134,17 +122,13 @@ function Reports() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="month" 
+                  <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} />
+                  <YAxis
                     stroke="#9ca3af"
                     fontSize={12}
+                    tickFormatter={(value) => formatCompactCurrency(value, currency)}
                   />
-                  <YAxis 
-                    stroke="#9ca3af"
-                    fontSize={12}
-                    tickFormatter={(value) => `${formatCurrency(value / 1000)}k`}
-                  />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value) => [formatCurrency(value), 'Revenue']}
                     contentStyle={{
                       backgroundColor: '#fff',
@@ -152,11 +136,7 @@ function Reports() {
                       borderRadius: '8px',
                     }}
                   />
-                  <Bar 
-                    dataKey="total" 
-                    fill="#0ea5e9" 
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="total" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -178,8 +158,8 @@ function Reports() {
                       data={statusData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
+                      innerRadius="55%"
+                      outerRadius="80%"
                       paddingAngle={2}
                       dataKey="value"
                     >
@@ -187,7 +167,7 @@ function Reports() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value, name) => [value, name]}
                       contentStyle={{
                         backgroundColor: '#fff',
@@ -199,9 +179,7 @@ function Reports() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  No invoice data available
-                </div>
+                <div className="flex items-center justify-center h-full text-gray-500">No invoice data available</div>
               )}
             </div>
           </Card.Content>
@@ -219,17 +197,9 @@ function Reports() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis 
-                  dataKey="month" 
-                  stroke="#9ca3af"
-                  fontSize={12}
-                />
-                <YAxis 
-                  stroke="#9ca3af"
-                  fontSize={12}
-                  tickFormatter={(value) => `${formatCurrency(value / 1000)}k`}
-                />
-                <Tooltip 
+                <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} />
+                <YAxis stroke="#9ca3af" fontSize={12} tickFormatter={(value) => `${formatCurrency(value / 1000)}k`} />
+                <Tooltip
                   formatter={(value) => [formatCurrency(value), 'Revenue']}
                   contentStyle={{
                     backgroundColor: '#fff',
@@ -237,10 +207,10 @@ function Reports() {
                     borderRadius: '8px',
                   }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="total" 
-                  stroke="#0ea5e9" 
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#0ea5e9"
                   strokeWidth={2}
                   dot={{ fill: '#0ea5e9', strokeWidth: 2 }}
                   activeDot={{ r: 6 }}
@@ -255,20 +225,16 @@ function Reports() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <Card.Content className="py-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
-              Collection Rate
-            </h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Collection Rate</h3>
             <div className="flex items-end gap-2">
-              <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                {collectedPercent}%
-              </span>
+              <span className="text-4xl font-bold text-gray-900 dark:text-white">{collectedPercent}%</span>
               <span className="text-gray-500 text-sm mb-1">of billed amount</span>
             </div>
             <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-green-500 rounded-full"
-                style={{ 
-                  width: `${Math.min(collectedPercent, 100)}%`
+                style={{
+                  width: `${Math.min(collectedPercent, 100)}%`,
                 }}
               />
             </div>
@@ -277,37 +243,25 @@ function Reports() {
 
         <Card>
           <Card.Content className="py-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
-              Average Invoice Value
-            </h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Average Invoice Value</h3>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(
-                  Number(stats?.total_invoices) > 0
-                    ? Number(stats.total_billed) / Number(stats.total_invoices)
-                    : 0
+                  Number(stats?.total_invoices) > 0 ? Number(stats.total_billed) / Number(stats.total_invoices) : 0
                 )}
               </span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Based on {stats?.total_invoices || 0} invoices
-            </p>
+            <p className="text-sm text-gray-500 mt-2">Based on {stats?.total_invoices || 0} invoices</p>
           </Card.Content>
         </Card>
 
         <Card>
           <Card.Content className="py-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
-              Outstanding Amount
-            </h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Outstanding Amount</h3>
             <div className="flex items-end gap-2">
-              <span className="text-4xl font-bold text-yellow-600">
-                {formatCurrency(stats?.outstanding_amount)}
-              </span>
+              <span className="text-4xl font-bold text-yellow-600">{formatCurrency(stats?.outstanding_amount)}</span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              {stats?.overdue_count || 0} overdue invoices
-            </p>
+            <p className="text-sm text-gray-500 mt-2">{stats?.overdue_count || 0} overdue invoices</p>
           </Card.Content>
         </Card>
       </div>

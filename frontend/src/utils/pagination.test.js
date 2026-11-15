@@ -9,7 +9,7 @@ describe('fetchAllPages', () => {
           results: page === 1 ? [{ id: 1 }, { id: 2 }] : [{ id: 3 }],
           next: page === 1 ? 'http://api/next' : null,
         },
-      }),
+      })
     )
 
     const rows = await fetchAllPages(fetcher)

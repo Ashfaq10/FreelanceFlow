@@ -11,7 +11,12 @@ function ResetPassword() {
   const { uid, token } = useParams()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, watch, formState: { errors } } = useForm()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm()
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -30,7 +35,14 @@ function ResetPassword() {
     <AuthShell
       title="Choose a new password"
       subtitle="The link works once, so finish here."
-      footer={<Link to="/login" className="font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline">Back to sign in</Link>}
+      footer={
+        <Link
+          to="/login"
+          className="font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 underline-offset-4 hover:underline"
+        >
+          Back to sign in
+        </Link>
+      }
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <PasswordField
@@ -52,7 +64,9 @@ function ResetPassword() {
             validate: (value) => value === watch('password') || 'The passwords do not match',
           })}
         />
-        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>Update password</Button>
+        <Button type="submit" loading={loading} size="lg" className={AUTH_SUBMIT}>
+          Update password
+        </Button>
       </form>
     </AuthShell>
   )

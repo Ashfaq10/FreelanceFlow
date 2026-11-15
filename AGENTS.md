@@ -40,7 +40,8 @@ venv/Scripts/celery -A config worker -l info --pool=solo   # --pool=solo on Wind
 # Frontend
 npm install
 npm run dev       # http://localhost:3000, proxies /api → :8000
-npm run lint      # --max-warnings 0
+npm run lint      # ESLint 9, --max-warnings 0
+npm run format    # Prettier; `npm run format:check` is what CI runs
 npm test          # Vitest
 npm run build
 
@@ -48,7 +49,7 @@ npm run build
 docker compose up --build
 ```
 
-Baseline is green (2026-11-15): `pytest`, `npm test`, `npm run lint`, `npm run build`, backend `black`/`isort`/`flake8`; CI runs all of them. Keep it green. Backend style is black with single quotes (`backend/pyproject.toml`). Install the hooks once with `venv/Scripts/pre-commit install` and black/isort/flake8/eslint run on every commit.
+Baseline is green (2026-11-15): `pytest`, `npm test`, `npm run lint`, `npm run format:check`, `npm run build`, backend `black`/`isort`/`flake8`; CI runs all of them. Keep it green. Backend style is black with single quotes (`backend/pyproject.toml`). Install the hooks once with `venv/Scripts/pre-commit install` and black/isort/flake8/eslint run on every commit.
 
 ## Layout
 

@@ -38,6 +38,10 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- Dashboard and Reports charts show data: amounts arrive as strings and the chart library plotted nothing, so the revenue chart was empty and the bar chart drew every month at full height with axis labels like `$1k $1k $1k $0k`. Axis labels are compact (`$3K`) (BUG-19).
+- Layouts fixed at tablet and phone widths: stat cards no longer overlap their icons, the clients list stacks on phones, the invoice and time-log tables fit at 768 px, the new-invoice form wraps, the donut is no longer clipped, and "New Invoice" no longer appears twice (BUG-19).
+- The invoice preview and form say "Due Date" instead of "Payment Date", and the default Indigo colour shows up in the colour picker (BUG-19).
+- Frontend tooling: ESLint 9 flat config and Prettier (`npm run format`); CI, `scripts/check.sh` and pre-commit check formatting. The whole `src/` was reformatted once (OPS-8).
 - Big components split by job: one file per invoice template, one per Settings tab, and separate line-item and summary pieces for the invoice form and a timer and modal for the time tracker. No behaviour change (LEAN-5).
 - One theme setting for the whole app: light, dark or follow-the-system, remembered, applied before the page paints, and the same from the header toggle, the sign-in pages and Settings (UX-5).
 - Unknown addresses show a "Page not found" page with a way home instead of a blank screen (UX-3).

@@ -124,35 +124,31 @@ function ClientList() {
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 dark:text-white truncate">
-                    {client.name || client.company}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="font-medium text-gray-900 dark:text-white truncate">{client.name || client.company}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm text-gray-500 dark:text-gray-400">
                     {client.email && (
-                      <span className="flex items-center gap-1">
-                        <Mail className="w-4 h-4" />
+                      <span className="flex items-center gap-1 min-w-0">
+                        <Mail className="w-4 h-4 flex-shrink-0" />
                         {client.email}
                       </span>
                     )}
                     {client.phone && (
-                      <span className="flex items-center gap-1">
+                      <span className="hidden sm:flex items-center gap-1">
                         <Phone className="w-4 h-4" />
                         {client.phone}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0 hidden sm:block">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Billed</p>
-                  <p className="font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(client.total_billed)}
-                  </p>
+                  <p className="font-semibold text-gray-900 dark:text-white">{formatCurrency(client.total_billed)}</p>
                 </div>
               </Link>
             ))}
           </div>
         ) : error ? (
-          <ErrorState title="Could not load your clients" onRetry={() => setReloadKey(k => k + 1)} />
+          <ErrorState title="Could not load your clients" onRetry={() => setReloadKey((k) => k + 1)} />
         ) : (
           <EmptyState
             icon={Users}
@@ -160,7 +156,7 @@ function ClientList() {
             description="Get started by adding your first client."
             action
             actionLabel="Add Client"
-            onAction={() => window.location.href = '/clients/new'}
+            onAction={() => (window.location.href = '/clients/new')}
           />
         )}
         <Pagination page={page} count={count} onPageChange={goToPage} />

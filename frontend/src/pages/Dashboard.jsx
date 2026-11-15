@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { DollarSign, Clock, AlertTriangle, TrendingUp, ArrowRight, FileText, Users, Plus } from 'lucide-react'
+import { DollarSign, Clock, AlertTriangle, TrendingUp, ArrowRight, FileText, Users } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card, StatsCard, Skeleton, ErrorState, StatusBadge } from '../components/ui'
 import { dashboard, invoices } from '../api/endpoints'
-import { formatCurrency as formatMoney } from '../utils/formatters'
+import { formatCurrency as formatMoney, formatCompactCurrency, toChartRows } from '../utils/formatters'
 import { useCurrency } from '../hooks/useCurrency'
 
 function Dashboard() {
@@ -24,15 +24,15 @@ function Dashboard() {
     const [summaryRes, invoicesRes, revenueRes] = await Promise.allSettled([
       dashboard.getSummary(),
       invoices.list({ page_size: 5 }),
-      dashboard.getMonthlyRevenue(12)
+      dashboard.getMonthlyRevenue(12),
     ])
 
     if (summaryRes.status === 'fulfilled') setStats(summaryRes.value.data)
     if (invoicesRes.status === 'fulfilled') setRecentInvoices(invoicesRes.value.data.results || [])
-    if (revenueRes.status === 'fulfilled') setChartData(revenueRes.value.data || [])
+    if (revenueRes.status === 'fulfilled') setChartData(toChartRows(revenueRes.value.data))
 
-    const failures = [summaryRes, invoicesRes, revenueRes].filter(r => r.status === 'rejected')
-    failures.forEach(r => console.error('Dashboard request failed:', r.reason))
+    const failures = [summaryRes, invoicesRes, revenueRes].filter((r) => r.status === 'rejected')
+    failures.forEach((r) => console.error('Dashboard request failed:', r.reason))
     setFailedCount(failures.length)
     setLoading(false)
   }
@@ -41,7 +41,6 @@ function Dashboard() {
   const formatCurrency = (amount) =>
     formatMoney(amount, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
-
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
@@ -49,7 +48,7 @@ function Dashboard() {
           <Skeleton className="h-8 w-52 mb-2 rounded-xl" />
           <Skeleton className="h-4 w-72 rounded-lg" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
           {[...Array(4)].map((_, i) => (
             <Skeleton.Card key={i} />
           ))}
@@ -78,21 +77,15 @@ function Dashboard() {
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Dashboard
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-0.5 text-sm">
             Here&apos;s an overview of your business today.
           </p>
         </div>
-        <Link to="/invoices/new" className="btn btn-primary hidden sm:inline-flex">
-          <Plus className="w-4 h-4 mr-1.5" />
-          New Invoice
-        </Link>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         <StatsCard
           title="Total Revenue"
           value={formatCurrency(stats?.total_revenue)}
@@ -124,7 +117,7 @@ function Dashboard() {
       </div>
 
       {/* Chart + Recent Invoices */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         {/* Revenue Chart */}
         <Card className="lg:col-span-2">
           <Card.Header className="flex items-center justify-between">
@@ -144,19 +137,13 @@ function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(59,130,246,.08)" vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#9ca3af"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
+                  <XAxis dataKey="month" stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis
                     stroke="#9ca3af"
                     fontSize={11}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => (value >= 1000 ? `${formatCurrency(value / 1000)}k` : formatCurrency(value))}
+                    tickFormatter={(value) => formatCompactCurrency(value, currency)}
                   />
                   <Tooltip
                     formatter={(value) => [formatCurrency(value), 'Revenue']}
@@ -209,13 +196,14 @@ function Dashboard() {
                     <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                       {invoice.invoice_number}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                      {invoice.client_name}
-                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{invoice.client_name}</p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-3">
                     <p className="text-sm font-bold text-gray-900 dark:text-white">
-                      {formatMoney(invoice.total, invoice.currency || currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      {formatMoney(invoice.total, invoice.currency || currency, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}
                     </p>
                     <div className="mt-0.5">
                       <StatusBadge status={invoice.status} />
@@ -225,7 +213,8 @@ function Dashboard() {
               ))
             ) : (
               <div className="px-6 py-10 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-2xl flex items-center justify-center"
+                <div
+                  className="w-12 h-12 mx-auto mb-3 rounded-2xl flex items-center justify-center"
                   style={{ background: 'linear-gradient(135deg, rgba(37,99,235,.1) 0%, rgba(6,182,212,.06) 100%)' }}
                 >
                   <FileText className="w-6 h-6 text-primary-500" />
@@ -297,13 +286,19 @@ function Dashboard() {
                   background: action.bg,
                   borderColor: action.border,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = action.hoverBorder }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = action.border }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = action.hoverBorder
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = action.border
+                }}
               >
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-white/60 dark:bg-black/20 transition-transform group-hover:scale-110">
                   <action.icon className={`w-5 h-5 ${action.iconColor}`} strokeWidth={2} />
                 </div>
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-center">{action.label}</span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 text-center">
+                  {action.label}
+                </span>
               </Link>
             ))}
           </div>

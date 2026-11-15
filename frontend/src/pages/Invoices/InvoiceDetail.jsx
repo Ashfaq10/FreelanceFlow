@@ -1,9 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
-  ArrowLeft, Edit, Send, Download, CheckCircle, Trash2,
-  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard, Plus, Copy, Bell, Ban,
-  Link as LinkIcon
+  ArrowLeft,
+  Edit,
+  Send,
+  Download,
+  CheckCircle,
+  Trash2,
+  MoreVertical,
+  Palette,
+  LayoutTemplate,
+  ChevronDown,
+  ChevronUp,
+  CreditCard,
+  Plus,
+  Copy,
+  Bell,
+  Ban,
+  Link as LinkIcon,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Button, Modal, Skeleton, Input, Select, StatusBadge } from '../../components/ui'
@@ -15,7 +29,6 @@ import { parseDateOnly } from '../../utils/dates'
 
 const STORAGE_KEY_TEMPLATE = 'invoice_template'
 
-
 function MenuItem({ icon: Icon, label, onClick, danger }) {
   return (
     <button
@@ -26,7 +39,8 @@ function MenuItem({ icon: Icon, label, onClick, danger }) {
           : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'
       }`}
     >
-      <Icon className="w-4 h-4 mr-3" />{label}
+      <Icon className="w-4 h-4 mr-3" />
+      {label}
     </button>
   )
 }
@@ -44,12 +58,11 @@ function InvoiceDetail() {
 
   const currency = invoice?.currency || 'USD'
   const formatCurrency = (amount) => formatMoney(amount, currency)
-  const formatDate = (value) => parseDateOnly(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const formatDate = (value) =>
+    parseDateOnly(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   // Template / colour state (persisted)
-  const [templateId, setTemplateId] = useState(
-    () => localStorage.getItem(STORAGE_KEY_TEMPLATE) || 'professional'
-  )
+  const [templateId, setTemplateId] = useState(() => localStorage.getItem(STORAGE_KEY_TEMPLATE) || 'professional')
   const [colorId, setColorId] = useState('indigo')
   const [showDesignPanel, setShowDesignPanel] = useState(false)
 
@@ -74,7 +87,7 @@ function InvoiceDetail() {
       const response = await invoiceApi.get(id)
       setInvoice(response.data)
       setColorId(response.data.pdf_color || 'indigo')
-    } catch (error) {
+    } catch {
       toast.error('Failed to load invoice')
       navigate('/invoices')
     } finally {
@@ -82,10 +95,11 @@ function InvoiceDetail() {
     }
   }, [id, navigate])
 
-  useEffect(() => { fetchInvoice() }, [fetchInvoice])
+  useEffect(() => {
+    fetchInvoice()
+  }, [fetchInvoice])
 
-  const apiError = (error, fallback) =>
-    error.response?.data?.error || error.response?.data?.message || fallback
+  const apiError = (error, fallback) => error.response?.data?.error || error.response?.data?.message || fallback
 
   const handleSend = async () => {
     setActionLoading('send')
@@ -96,7 +110,9 @@ function InvoiceDetail() {
       fetchInvoice()
     } catch (error) {
       toast.error(apiError(error, 'Failed to send invoice'))
-    } finally { setActionLoading('') }
+    } finally {
+      setActionLoading('')
+    }
   }
 
   const handleMarkPaid = async () => {
@@ -105,8 +121,11 @@ function InvoiceDetail() {
       await invoiceApi.markPaid(id)
       toast.success('Invoice marked as paid')
       fetchInvoice()
-    } catch (error) { toast.error(apiError(error, 'Failed to mark as paid')) }
-    finally { setActionLoading('') }
+    } catch (error) {
+      toast.error(apiError(error, 'Failed to mark as paid'))
+    } finally {
+      setActionLoading('')
+    }
   }
 
   const handleDuplicate = async () => {
@@ -163,7 +182,9 @@ function InvoiceDetail() {
       fetchInvoice()
     } catch (error) {
       toast.error(apiError(error, 'Could not create a payment link'))
-    } finally { setActionLoading('') }
+    } finally {
+      setActionLoading('')
+    }
   }
 
   const handleRecordPayment = async () => {
@@ -176,7 +197,9 @@ function InvoiceDetail() {
       toast.success('Payment recorded')
     } catch (error) {
       toast.error(apiError(error, 'Could not record the payment'))
-    } finally { setActionLoading('') }
+    } finally {
+      setActionLoading('')
+    }
   }
 
   const handleDownload = async () => {
@@ -193,8 +216,11 @@ function InvoiceDetail() {
       a.download = `invoice-${invoice.invoice_number}.pdf`
       a.click()
       window.URL.revokeObjectURL(url)
-    } catch (error) { toast.error(apiError(error, 'Failed to download PDF')) }
-    finally { setActionLoading('') }
+    } catch (error) {
+      toast.error(apiError(error, 'Failed to download PDF'))
+    } finally {
+      setActionLoading('')
+    }
   }
 
   const handleDelete = async () => {
@@ -205,18 +231,23 @@ function InvoiceDetail() {
       navigate('/invoices')
     } catch (error) {
       toast.error(apiError(error, 'Failed to delete invoice'))
-    } finally { setActionLoading(''); setShowDeleteModal(false) }
+    } finally {
+      setActionLoading('')
+      setShowDeleteModal(false)
+    }
   }
 
-
-  const currentColor = COLOR_PALETTES.find(c => c.id === colorId) || COLOR_PALETTES[0]
+  const currentColor = COLOR_PALETTES.find((c) => c.id === colorId) || COLOR_PALETTES[0]
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Skeleton className="w-10 h-10 rounded-xl" />
-          <div><Skeleton className="h-6 w-32 mb-2" /><Skeleton className="h-4 w-48" /></div>
+          <div>
+            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
         </div>
         <Skeleton.Card />
       </div>
@@ -237,7 +268,9 @@ function InvoiceDetail() {
           </button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{invoice.invoice_number}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white whitespace-nowrap">
+                {invoice.invoice_number}
+              </h1>
               <StatusBadge status={invoice.status} />
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{invoice.client_name}</p>
@@ -249,26 +282,31 @@ function InvoiceDetail() {
             <>
               <Link to={`/invoices/${id}/edit`}>
                 <Button variant="secondary" size="sm">
-                  <Edit className="w-4 h-4 mr-1.5" />Edit
+                  <Edit className="w-4 h-4 mr-1.5" />
+                  Edit
                 </Button>
               </Link>
               <Button size="sm" onClick={handleSend} loading={actionLoading === 'send'}>
-                <Send className="w-4 h-4 mr-1.5" />Send
+                <Send className="w-4 h-4 mr-1.5" />
+                Send
               </Button>
             </>
           )}
           {['sent', 'overdue'].includes(invoice.status) && (
             <>
               <Button size="sm" onClick={handleMarkPaid} loading={actionLoading === 'paid'}>
-                <CheckCircle className="w-4 h-4 mr-1.5" />Mark Paid
+                <CheckCircle className="w-4 h-4 mr-1.5" />
+                Mark Paid
               </Button>
               <Button variant="secondary" size="sm" onClick={handlePayLink} loading={actionLoading === 'paylink'}>
-                <CreditCard className="w-4 h-4 mr-1.5" />Payment Link
+                <CreditCard className="w-4 h-4 mr-1.5" />
+                Payment Link
               </Button>
             </>
           )}
           <Button variant="secondary" size="sm" onClick={handleDownload} loading={actionLoading === 'download'}>
-            <Download className="w-4 h-4 mr-1.5" />Download PDF
+            <Download className="w-4 h-4 mr-1.5" />
+            Download PDF
           </Button>
 
           {/* More menu: whatever this invoice's status allows (FEAT-2, BUG-10) */}
@@ -279,8 +317,10 @@ function InvoiceDetail() {
             {showDropdown && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
-                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
-                  style={{ backdropFilter: 'blur(16px)' }}>
+                <div
+                  className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
+                  style={{ backdropFilter: 'blur(16px)' }}
+                >
                   <MenuItem icon={Copy} label="Duplicate" onClick={handleDuplicate} />
                   {['sent', 'overdue', 'paid'].includes(invoice.status) && (
                     <MenuItem icon={LinkIcon} label="Copy client link" onClick={handleCopyClientLink} />
@@ -295,8 +335,15 @@ function InvoiceDetail() {
                     <MenuItem icon={Ban} label="Cancel invoice" onClick={handleCancel} danger />
                   )}
                   {invoice.status === 'draft' && (
-                    <MenuItem icon={Trash2} label="Delete invoice" danger
-                      onClick={() => { setShowDropdown(false); setShowDeleteModal(true) }} />
+                    <MenuItem
+                      icon={Trash2}
+                      label="Delete invoice"
+                      danger
+                      onClick={() => {
+                        setShowDropdown(false)
+                        setShowDeleteModal(true)
+                      }}
+                    />
                   )}
                 </div>
               </>
@@ -312,21 +359,27 @@ function InvoiceDetail() {
           onClick={() => setShowDesignPanel(!showDesignPanel)}
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: currentColor.primary }}>
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{ background: currentColor.primary }}
+            >
               <Palette className="w-4 h-4 text-white" />
             </div>
             <div className="text-left">
               <p className="text-sm font-semibold text-gray-900 dark:text-white">Invoice Design</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                {TEMPLATES.find(t => t.id === templateId)?.name} · {COLOR_PALETTES.find(c => c.id === colorId)?.name}
+                {TEMPLATES.find((t) => t.id === templateId)?.name} ·{' '}
+                {COLOR_PALETTES.find((c) => c.id === colorId)?.name}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             {/* Color swatch row */}
             <div className="hidden sm:flex gap-1">
-              {COLOR_PALETTES.map(c => (
-                <div key={c.id} className="w-4 h-4 rounded-full border-2 transition-all"
+              {COLOR_PALETTES.map((c) => (
+                <div
+                  key={c.id}
+                  className="w-4 h-4 rounded-full border-2 transition-all"
                   style={{
                     background: c.primary,
                     borderColor: c.id === colorId ? '#1f2937' : 'transparent',
@@ -335,7 +388,11 @@ function InvoiceDetail() {
                 />
               ))}
             </div>
-            {showDesignPanel ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            {showDesignPanel ? (
+              <ChevronUp className="w-4 h-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            )}
           </div>
         </button>
 
@@ -344,13 +401,14 @@ function InvoiceDetail() {
             {/* Templates */}
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
-                <LayoutTemplate className="w-3.5 h-3.5" />Template
+                <LayoutTemplate className="w-3.5 h-3.5" />
+                Template
               </p>
               <p className="text-xs text-gray-400 mb-3 -mt-2">
                 Changes the preview above. The PDF keeps its own layout and uses the colour below.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                {TEMPLATES.map(t => (
+                {TEMPLATES.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => selectTemplate(t.id)}
@@ -363,7 +421,12 @@ function InvoiceDetail() {
                     {t.id !== templateId && (
                       <div className="absolute inset-0 rounded-xl border border-gray-200 dark:border-white/10 group-hover:border-gray-300 dark:group-hover:border-white/20 transition-colors" />
                     )}
-                    <p className="text-sm font-bold text-gray-900 dark:text-white" style={{ color: t.id === templateId ? currentColor.primary : undefined }}>{t.name}</p>
+                    <p
+                      className="text-sm font-bold text-gray-900 dark:text-white"
+                      style={{ color: t.id === templateId ? currentColor.primary : undefined }}
+                    >
+                      {t.name}
+                    </p>
                     <p className="text-xs text-gray-400 mt-0.5 leading-tight">{t.description}</p>
                   </button>
                 ))}
@@ -373,10 +436,11 @@ function InvoiceDetail() {
             {/* Colors */}
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
-                <Palette className="w-3.5 h-3.5" />Colour
+                <Palette className="w-3.5 h-3.5" />
+                Colour
               </p>
               <div className="flex flex-wrap gap-2">
-                {COLOR_PALETTES.map(c => (
+                {COLOR_PALETTES.map((c) => (
                   <button
                     key={c.id}
                     onClick={() => selectColor(c.id)}
@@ -388,9 +452,17 @@ function InvoiceDetail() {
                       color: c.id === colorId ? c.primary : '#6b7280',
                     }}
                   >
-                    <div className="w-4 h-4 rounded-full flex-shrink-0 ring-2 ring-white dark:ring-gray-900" style={{ background: c.primary }} />
+                    <div
+                      className="w-4 h-4 rounded-full flex-shrink-0 ring-2 ring-white dark:ring-gray-900"
+                      style={{ background: c.primary }}
+                    />
                     {c.name}
-                    {c.id !== colorId && <div className="absolute inset-0 rounded-xl border border-gray-200 dark:border-white/10" style={{ position: 'relative' }} />}
+                    {c.id !== colorId && (
+                      <div
+                        className="absolute inset-0 rounded-xl border border-gray-200 dark:border-white/10"
+                        style={{ position: 'relative' }}
+                      />
+                    )}
                   </button>
                 ))}
               </div>
@@ -413,7 +485,8 @@ function InvoiceDetail() {
             <Card.Title>Payments</Card.Title>
             {['sent', 'overdue'].includes(invoice.status) && (
               <Button size="sm" variant="secondary" onClick={() => setShowPaymentModal(true)}>
-                <Plus className="w-4 h-4 mr-1.5" />Record Payment
+                <Plus className="w-4 h-4 mr-1.5" />
+                Record Payment
               </Button>
             )}
           </Card.Header>
@@ -425,15 +498,18 @@ function InvoiceDetail() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-gray-400">Still due</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">{formatCurrency(invoice.amount_due)}</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {formatCurrency(invoice.amount_due)}
+                </p>
               </div>
             </div>
             {invoice.payments?.length > 0 ? (
               <ul className="divide-y divide-gray-100 dark:divide-white/8 text-sm">
-                {invoice.payments.map(payment => (
+                {invoice.payments.map((payment) => (
                   <li key={payment.id} className="flex items-center justify-between py-2">
                     <span className="text-gray-600 dark:text-gray-400">
-                      {formatDate(payment.paid_on)} · {Number(payment.amount) < 0 ? 'refund' : payment.method}{payment.notes && Number(payment.amount) > 0 ? ` · ${payment.notes}` : ''}
+                      {formatDate(payment.paid_on)} · {Number(payment.amount) < 0 ? 'refund' : payment.method}
+                      {payment.notes && Number(payment.amount) > 0 ? ` · ${payment.notes}` : ''}
                     </span>
                     <span className={`font-medium ${Number(payment.amount) < 0 ? 'text-red-600' : ''}`}>
                       {formatCurrency(payment.amount)}
@@ -449,8 +525,12 @@ function InvoiceDetail() {
       )}
 
       {/* ── Record Payment Modal ─────────────────────── */}
-      <Modal isOpen={showPaymentModal} onClose={() => setShowPaymentModal(false)} title="Record Payment"
-        description={`${formatCurrency(invoice.amount_due)} still due on ${invoice.invoice_number}.`}>
+      <Modal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        title="Record Payment"
+        description={`${formatCurrency(invoice.amount_due)} still due on ${invoice.invoice_number}.`}
+      >
         <div className="space-y-4">
           <Input
             label="Amount"
@@ -480,19 +560,29 @@ function InvoiceDetail() {
           />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>Cancel</Button>
-          <Button onClick={handleRecordPayment} loading={actionLoading === 'payment'}>Record Payment</Button>
+          <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleRecordPayment} loading={actionLoading === 'payment'}>
+            Record Payment
+          </Button>
         </div>
       </Modal>
 
       {/* ── Delete Modal ─────────────────────────────── */}
-      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Invoice"
-        description="This action cannot be undone.">
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Invoice"
+        description="This action cannot be undone."
+      >
         <p className="text-gray-600 dark:text-gray-400 mb-6">
           Are you sure you want to delete invoice <strong>{invoice?.invoice_number}</strong>?
         </p>
         <div className="flex justify-end gap-3">
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
           <Button variant="danger" onClick={handleDelete} loading={actionLoading === 'delete'}>
             Delete Invoice
           </Button>

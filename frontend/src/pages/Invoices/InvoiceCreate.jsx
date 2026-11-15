@@ -24,7 +24,15 @@ function InvoiceCreate() {
 
   const now = new Date()
 
-  const { register, control, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm({
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       // "Create invoice" from a client page arrives as ?client=<id> (BUG-12).
       client: searchParams.get('client') || '',
@@ -34,8 +42,8 @@ function InvoiceCreate() {
       discount_amount: 0,
       tax_rate: 0,
       notes: '',
-      items: [{ description: '', quantity: 1, rate: 0 }]
-    }
+      items: [{ description: '', quantity: 1, rate: 0 }],
+    },
   })
 
   function toDateTimeLocal(value) {
@@ -55,7 +63,7 @@ function InvoiceCreate() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'items'
+    name: 'items',
   })
 
   const items = watch('items')
@@ -67,7 +75,7 @@ function InvoiceCreate() {
       try {
         // Every client, not just the first page: client #21 could not be selected (BUG-7).
         const clientData = await fetchAllPages(clientApi.list)
-        setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
+        setClients(clientData.map((c) => ({ value: c.id, label: c.name || c.company_name })))
         // The <select> drops a value whose option did not exist yet, so re-apply it here (BUG-12).
         const preselected = searchParams.get('client')
         if (preselected && !isEditing) setValue('client', preselected)
@@ -89,15 +97,16 @@ function InvoiceCreate() {
           discount_amount: invoice.discount_amount ?? 0,
           tax_rate: invoice.tax_rate ?? 0,
           notes: invoice.notes || '',
-          items: invoice.items?.length > 0
-            ? invoice.items.map((item) => ({
-                description: item.description,
-                quantity: Number(item.quantity),
-                rate: item.rate ?? item.unit_price ?? 0,
-              }))
-            : [{ description: '', quantity: 1, rate: 0 }],
+          items:
+            invoice.items?.length > 0
+              ? invoice.items.map((item) => ({
+                  description: item.description,
+                  quantity: Number(item.quantity),
+                  rate: item.rate ?? item.unit_price ?? 0,
+                }))
+              : [{ description: '', quantity: 1, rate: 0 }],
         })
-      } catch (error) {
+      } catch {
         toast.error('Failed to load invoice')
         navigate('/invoices')
       } finally {
@@ -140,9 +149,7 @@ function InvoiceCreate() {
       return
     }
 
-    const validItems = data.items.filter(
-      (item) => item.description?.trim() && Number(item.rate) >= 0
-    )
+    const validItems = data.items.filter((item) => item.description?.trim() && Number(item.rate) >= 0)
     if (validItems.length === 0) {
       toast.error('Add at least one line item with a description and rate')
       return
@@ -230,7 +237,7 @@ function InvoiceCreate() {
             {/* Client & Dates */}
             <Card>
               <Card.Content>
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4 xl:gap-6">
                   <Select
                     label="Client"
                     options={clientList}
@@ -238,11 +245,7 @@ function InvoiceCreate() {
                     error={errors.client?.message}
                     {...register('client', { required: 'Client is required' })}
                   />
-                  <Input
-                    label="Reference Number"
-                    placeholder="REF-0001"
-                    {...register('reference_number')}
-                  />
+                  <Input label="Reference Number" placeholder="REF-0001" {...register('reference_number')} />
                   <Input
                     label="Invoice Date"
                     type="datetime-local"
@@ -251,37 +254,33 @@ function InvoiceCreate() {
                     {...register('issue_date', { required: 'Issue date is required' })}
                   />
                   <Input
-                    label="Payment Date"
+                    label="Due Date"
                     type="datetime-local"
                     step="1"
                     error={errors.due_date?.message}
                     {...register('due_date', { required: 'Due date is required' })}
                   />
-                  <Input
-                    label="Discount"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...register('discount_amount')}
-                  />
-                  <Input
-                    label="VAT / Tax (%)"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    {...register('tax_rate')}
-                  />
+                  <Input label="Discount" type="number" step="0.01" min="0" {...register('discount_amount')} />
+                  <Input label="VAT / Tax (%)" type="number" step="0.01" min="0" max="100" {...register('tax_rate')} />
                 </div>
               </Card.Content>
             </Card>
 
-            <LineItemsEditor register={register} fields={fields} append={append} remove={remove} items={items} formatCents={formatCents} />
+            <LineItemsEditor
+              register={register}
+              fields={fields}
+              append={append}
+              remove={remove}
+              items={items}
+              formatCents={formatCents}
+            />
 
             {/* Notes */}
             <Card>
               <Card.Content>
-                <label htmlFor="invoice-notes" className="label">Notes</label>
+                <label htmlFor="invoice-notes" className="label">
+                  Notes
+                </label>
                 <textarea
                   id="invoice-notes"
                   {...register('notes')}

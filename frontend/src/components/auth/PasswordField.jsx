@@ -8,7 +8,9 @@ const PasswordField = forwardRef(({ label, error, hint, ...props }, ref) => {
 
   return (
     <div>
-      <label htmlFor={id} className="label">{label}</label>
+      <label htmlFor={id} className="label">
+        {label}
+      </label>
       <div className="relative">
         <input
           id={id}
@@ -29,7 +31,9 @@ const PasswordField = forwardRef(({ label, error, hint, ...props }, ref) => {
         </button>
       </div>
       {error ? (
-        <p role="alert" className="mt-1.5 text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p role="alert" className="mt-1.5 text-sm text-red-600 dark:text-red-400">
+          {error}
+        </p>
       ) : hint ? (
         <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{hint}</p>
       ) : null}
