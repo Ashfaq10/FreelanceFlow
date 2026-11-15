@@ -17,7 +17,7 @@ celery>=5.3.0
 redis>=5.0.0
 
 # PDF Generation
-weasyprint>=60.0
+weasyprint>=70.0
 
 # Stripe
 stripe>=8.0.0
