@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Plus, Search, FileText, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Table, Badge, Button, EmptyState, ErrorState, Skeleton, Pagination } from '../../components/ui'
+import { Card, Table, Button, EmptyState, ErrorState, Skeleton, Pagination, StatusBadge } from '../../components/ui'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -107,16 +107,6 @@ function InvoiceList() {
     }
   }
 
-  const getStatusBadge = (status) => {
-    const variants = {
-      draft: 'gray',
-      sent: 'info',
-      overdue: 'danger',
-      paid: 'success',
-      cancelled: 'gray',
-    }
-    return <Badge variant={variants[status]}>{status}</Badge>
-  }
 
   const statusOptions = [
     { value: '', label: 'All Status' },
@@ -224,7 +214,7 @@ function InvoiceList() {
                   <Table.Cell>
                     <span className="font-semibold">{formatMoney(invoice.total, invoice.currency || currency)}</span>
                   </Table.Cell>
-                  <Table.Cell>{getStatusBadge(invoice.status)}</Table.Cell>
+                  <Table.Cell><StatusBadge status={invoice.status} /></Table.Cell>
                   <Table.Cell className="text-right">
                     <button
                       type="button"

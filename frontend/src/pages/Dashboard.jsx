@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { DollarSign, Clock, AlertTriangle, TrendingUp, ArrowRight, FileText, Users, Plus } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { Card, Badge, StatsCard, Skeleton, ErrorState } from '../components/ui'
+import { Card, StatsCard, Skeleton, ErrorState, StatusBadge } from '../components/ui'
 import { dashboard, invoices } from '../api/endpoints'
 import { formatCurrency as formatMoney } from '../utils/formatters'
 import { useCurrency } from '../hooks/useCurrency'
@@ -41,16 +41,6 @@ function Dashboard() {
   const formatCurrency = (amount) =>
     formatMoney(amount, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
-  const getStatusBadge = (status) => {
-    const variants = {
-      draft: 'gray',
-      sent: 'info',
-      overdue: 'danger',
-      paid: 'success',
-      cancelled: 'gray',
-    }
-    return <Badge variant={variants[status] || 'gray'}>{status}</Badge>
-  }
 
   if (loading) {
     return (
@@ -228,7 +218,7 @@ function Dashboard() {
                       {formatMoney(invoice.total, invoice.currency || currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                     <div className="mt-0.5">
-                      {getStatusBadge(invoice.status)}
+                      <StatusBadge status={invoice.status} />
                     </div>
                   </div>
                 </Link>

@@ -11,7 +11,7 @@ import {
   MoreVertical
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Badge, Button, Modal, Skeleton, Table } from '../../components/ui'
+import { Card, Button, Modal, Skeleton, Table, StatusBadge } from '../../components/ui'
 import { clients as clientApi, invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -77,16 +77,6 @@ function ClientDetail() {
     })
   }
 
-  const getStatusBadge = (status) => {
-    const variants = {
-      draft: 'gray',
-      sent: 'info',
-      overdue: 'danger',
-      paid: 'success',
-      cancelled: 'gray',
-    }
-    return <Badge variant={variants[status]}>{status}</Badge>
-  }
 
   if (loading) {
     return (
@@ -294,7 +284,7 @@ function ClientDetail() {
                       <Table.Cell>
                         <span className="font-semibold">{formatCurrency(invoice.total)}</span>
                       </Table.Cell>
-                      <Table.Cell>{getStatusBadge(invoice.status)}</Table.Cell>
+                      <Table.Cell><StatusBadge status={invoice.status} /></Table.Cell>
                     </Table.Row>
                   ))}
                 </Table.Body>

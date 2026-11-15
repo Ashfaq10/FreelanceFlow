@@ -74,6 +74,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Dropped `libgdk-pixbuf2.0-0` from the CI test job and `backend/Dockerfile`: the package is gone from Ubuntu 26.04 and the slim base image, and WeasyPrint 60 does not use it (OPS-1).
 
 ### Removed
+- Frontend dead code removed: one shared `StatusBadge` instead of four copies, an unused hook, API helpers that called endpoints that do not exist, an unused dev proxy and alias, and the duplicate Inter font request (LEAN-4).
 - Dead backend helpers removed: `format_currency`, the `abs_value` template filter, `Invoice.days_until_due` and Celery's `debug_task` (LEAN-3).
 - Unused packages: `sendgrid` (mail goes through SMTP), `@types/react` and `@types/react-dom` (no TypeScript) (LEAN-2).
 - The unused server-rendered Django UI is deleted (about 1,000 lines), along with allauth and crispy forms. Those pages answered 500 because their templates never existed. The Stripe webhook is now `POST /api/payments/webhook/` — update the URL in the Stripe dashboard (LEAN-1).

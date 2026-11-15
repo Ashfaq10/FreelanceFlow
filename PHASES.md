@@ -18,7 +18,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
-| 4 | Code health, performance, UX & a11y | 🟡 In progress | 3 / 16 |
+| 4 | Code health, performance, UX & a11y | 🟡 In progress | 4 / 16 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
 
@@ -122,7 +122,7 @@ flowchart LR
 - [x] Delete the server-rendered UI, crispy, unused allauth URLs; move the webhook under `/api/` ([LEAN-1](docs/AUDIT.md#lean-1), [ADR-0001](docs/adr/0001-api-only-backend.md)) — **M**
 - [x] Remove unused dependencies ([LEAN-2](docs/AUDIT.md#lean-2)) — **S**
 - [x] Remove dead backend helpers ([LEAN-3](docs/AUDIT.md#lean-3)) — **S**
-- [ ] Remove dead frontend code; one shared `formatCurrency`/`StatusBadge` ([LEAN-4](docs/AUDIT.md#lean-4)) — **S**
+- [x] Remove dead frontend code; one shared `formatCurrency`/`StatusBadge` ([LEAN-4](docs/AUDIT.md#lean-4)) — **S**
 - [ ] Split `InvoicePreview` (one file per template), `InvoiceCreate`, `TimeTracker`, `Settings` by job ([LEAN-5](docs/AUDIT.md#lean-5)) — **M**
 - [ ] Annotate client aggregates (61 → 2 queries per page) ([PERF-1](docs/AUDIT.md#perf-1)) — **S**
 - [ ] Route-level code splitting ([PERF-2](docs/AUDIT.md#perf-2)) — **S**

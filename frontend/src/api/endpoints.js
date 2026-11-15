@@ -1,10 +1,6 @@
 import api from './client'
 
 export const auth = {
-  login: (data) => api.post('/api/auth/login/', data),
-  signup: (data) => api.post('/api/auth/signup/', data),
-  logout: () => api.post('/api/auth/logout/'),
-  getUser: () => api.get('/api/auth/user/'),
   updateProfile: (data) => api.patch('/api/auth/user/', data),
   resetPassword: (email) => api.post('/api/auth/password/reset/', { email }),
   confirmPasswordReset: (data) => api.post('/api/auth/password/reset/confirm/', data),
@@ -37,7 +33,6 @@ export const clients = {
 
 export const timeLogs = {
   list: (params) => api.get('/api/time-logs/', { params }),
-  get: (id) => api.get(`/api/time-logs/${id}/`),
   create: (data) => api.post('/api/time-logs/', data),
   update: (id, data) => api.patch(`/api/time-logs/${id}/`, data),
   delete: (id) => api.delete(`/api/time-logs/${id}/`),
@@ -50,8 +45,6 @@ export const dashboard = {
 }
 
 export const settings = {
-  get: () => api.get('/api/settings/'),
-  update: (data) => api.patch('/api/settings/', data),
   uploadLogo: (file) => {
     const formData = new FormData()
     formData.append('logo', file)

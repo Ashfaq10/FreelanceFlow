@@ -6,7 +6,7 @@ import {
   Link as LinkIcon
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Badge, Button, Modal, Skeleton, Input, Select } from '../../components/ui'
+import { Card, Button, Modal, Skeleton, Input, Select, StatusBadge } from '../../components/ui'
 import InvoicePreview, { TEMPLATES, COLOR_PALETTES } from '../../components/ui/InvoicePreview'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
@@ -207,10 +207,6 @@ function InvoiceDetail() {
     } finally { setActionLoading(''); setShowDeleteModal(false) }
   }
 
-  const getStatusBadge = (status) => {
-    const variants = { draft: 'gray', sent: 'info', overdue: 'danger', paid: 'success', cancelled: 'gray' }
-    return <Badge variant={variants[status]}>{status}</Badge>
-  }
 
   const currentColor = COLOR_PALETTES.find(c => c.id === colorId) || COLOR_PALETTES[0]
 
@@ -240,7 +236,7 @@ function InvoiceDetail() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{invoice.invoice_number}</h1>
-              {getStatusBadge(invoice.status)}
+              <StatusBadge status={invoice.status} />
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{invoice.client_name}</p>
           </div>
