@@ -17,5 +17,5 @@ isort>=5.13.0
 pre-commit>=4.0.0
 
 # Type Checking
-mypy>=1.8.0
+mypy>=2.4.1
 django-stubs>=4.2.0
