@@ -4,6 +4,8 @@ Test settings for FreelanceFlow (pytest.ini points here).
 SQLite in memory unless TEST_DATABASE_URL is set (CI sets it to Postgres).
 """
 import os
+import tempfile
+from pathlib import Path
 
 import dj_database_url
 
@@ -19,6 +21,7 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+MEDIA_ROOT = Path(tempfile.gettempdir()) / 'freelanceflow-test-media'
 
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True

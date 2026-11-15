@@ -1,12 +1,13 @@
 import json
 import pytest
+import stripe
 from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from django.utils import timezone
 
 from apps.invoices.models import Invoice
 from apps.payments.models import Payment
-from .factories import InvoiceFactory, PaymentFactory
+from .factories import InvoiceFactory, InvoiceItemFactory, PaymentFactory
 
 
 @pytest.mark.django_db
@@ -24,8 +25,8 @@ class TestPaymentModel:
         assert payment.is_full_payment is True
 
     def test_partial_payment(self, invoice):
-        invoice.total = 100
-        invoice.save()
+        InvoiceItemFactory(invoice=invoice, quantity=1, unit_price=100)
+        invoice.refresh_from_db()
         
         payment = Payment.objects.create(
             invoice=invoice,
@@ -77,7 +78,9 @@ class TestStripeWebhook:
 
     @patch('apps.payments.views.stripe')
     def test_webhook_invalid_signature(self, mock_stripe, client):
-        mock_stripe.Webhook.construct_event.side_effect = Exception('Invalid signature')
+        # Patching the module also replaces stripe.error; keep the real exception class so `except` works.
+        mock_stripe.error.SignatureVerificationError = stripe.error.SignatureVerificationError
+        mock_stripe.Webhook.construct_event.side_effect = stripe.error.SignatureVerificationError('Invalid signature', 'invalid')
         
         response = client.post(
             reverse('payments:webhook'),

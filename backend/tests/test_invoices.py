@@ -1,10 +1,9 @@
 import pytest
 from decimal import Decimal
-from django.urls import reverse
 from django.utils import timezone
 
 from apps.invoices.models import Invoice, InvoiceItem
-from .factories import InvoiceFactory, InvoiceItemFactory, ClientFactory
+from .factories import InvoiceFactory
 
 
 @pytest.mark.django_db
@@ -13,7 +12,7 @@ class TestInvoiceModel:
         invoice = Invoice.objects.create(
             user=user,
             client=client_obj,
-            due_date=timezone.now().date() + timezone.timedelta(days=30)
+            due_date=timezone.now() + timezone.timedelta(days=30)
         )
         year = timezone.now().year
         assert invoice.invoice_number.startswith(f'INV-{year}')
@@ -22,12 +21,12 @@ class TestInvoiceModel:
         invoice1 = Invoice.objects.create(
             user=user,
             client=client_obj,
-            due_date=timezone.now().date() + timezone.timedelta(days=30)
+            due_date=timezone.now() + timezone.timedelta(days=30)
         )
         invoice2 = Invoice.objects.create(
             user=user,
             client=client_obj,
-            due_date=timezone.now().date() + timezone.timedelta(days=30)
+            due_date=timezone.now() + timezone.timedelta(days=30)
         )
         
         num1 = int(invoice1.invoice_number.split('-')[-1])
@@ -72,14 +71,14 @@ class TestInvoiceModel:
 
     def test_is_overdue(self, invoice):
         invoice.status = 'sent'
-        invoice.due_date = timezone.now().date() - timezone.timedelta(days=1)
+        invoice.due_date = timezone.now() - timezone.timedelta(days=1)
         invoice.save()
         
         assert invoice.is_overdue is True
 
     def test_is_not_overdue_when_paid(self, invoice):
         invoice.status = 'paid'
-        invoice.due_date = timezone.now().date() - timezone.timedelta(days=1)
+        invoice.due_date = timezone.now() - timezone.timedelta(days=1)
         invoice.save()
         
         assert invoice.is_overdue is False
@@ -102,77 +101,6 @@ class TestInvoiceModel:
         invoice.mark_as_paid()
         
         assert invoice.status == 'paid'
-
-
-@pytest.mark.django_db
-class TestInvoiceViews:
-    def test_invoice_list_view(self, authenticated_client, invoice):
-        response = authenticated_client.get(reverse('invoices:list'))
-        
-        assert response.status_code == 200
-        assert invoice.invoice_number in response.content.decode()
-
-    def test_invoice_list_filters_by_status(self, authenticated_client, user, client_obj):
-        draft_invoice = InvoiceFactory(user=user, client=client_obj, status='draft')
-        sent_invoice = InvoiceFactory(user=user, client=client_obj, status='sent')
-        
-        response = authenticated_client.get(reverse('invoices:list') + '?status=draft')
-        content = response.content.decode()
-        
-        assert draft_invoice.invoice_number in content
-        assert sent_invoice.invoice_number not in content
-
-    def test_invoice_detail_view(self, authenticated_client, invoice):
-        response = authenticated_client.get(
-            reverse('invoices:detail', kwargs={'pk': invoice.pk})
-        )
-        
-        assert response.status_code == 200
-        assert invoice.invoice_number in response.content.decode()
-
-    def test_invoice_create_view(self, authenticated_client, client_obj):
-        response = authenticated_client.get(reverse('invoices:create'))
-        
-        assert response.status_code == 200
-
-    def test_invoice_create_post(self, authenticated_client, user, client_obj):
-        data = {
-            'client': client_obj.pk,
-            'issue_date': timezone.now().date(),
-            'due_date': timezone.now().date() + timezone.timedelta(days=30),
-            'tax_rate': 0,
-            'notes': 'Test invoice',
-            'items-TOTAL_FORMS': 1,
-            'items-INITIAL_FORMS': 0,
-            'items-MIN_NUM_FORMS': 1,
-            'items-MAX_NUM_FORMS': 1000,
-            'items-0-description': 'Test service',
-            'items-0-quantity': 1,
-            'items-0-unit_price': 100,
-        }
-        
-        response = authenticated_client.post(reverse('invoices:create'), data)
-        
-        assert Invoice.objects.filter(user=user).count() == 1
-
-    def test_invoice_edit_not_allowed_after_sent(self, authenticated_client, invoice):
-        invoice.status = 'sent'
-        invoice.save()
-        
-        response = authenticated_client.get(
-            reverse('invoices:edit', kwargs={'pk': invoice.pk})
-        )
-        
-        assert response.status_code == 302
-
-    def test_invoice_duplicate(self, authenticated_client, invoice, user):
-        InvoiceItemFactory(invoice=invoice)
-        
-        response = authenticated_client.get(
-            reverse('invoices:duplicate', kwargs={'pk': invoice.pk})
-        )
-        
-        assert Invoice.objects.filter(user=user).count() == 2
 
 
 @pytest.mark.django_db

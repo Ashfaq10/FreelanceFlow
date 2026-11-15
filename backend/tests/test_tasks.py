@@ -20,14 +20,14 @@ class TestCheckOverdueInvoices:
             user=user,
             client=client_obj,
             status='sent',
-            due_date=timezone.now().date() - timezone.timedelta(days=1)
+            due_date=timezone.now() - timezone.timedelta(days=1)
         )
         
         not_overdue = InvoiceFactory(
             user=user,
             client=client_obj,
             status='sent',
-            due_date=timezone.now().date() + timezone.timedelta(days=1)
+            due_date=timezone.now() + timezone.timedelta(days=1)
         )
         
         with patch('apps.invoices.tasks.send_overdue_reminder') as mock_reminder:
@@ -46,7 +46,7 @@ class TestCheckOverdueInvoices:
             user=user,
             client=client_obj,
             status='paid',
-            due_date=timezone.now().date() - timezone.timedelta(days=1)
+            due_date=timezone.now() - timezone.timedelta(days=1)
         )
         
         with patch('apps.invoices.tasks.send_overdue_reminder'):
@@ -63,14 +63,14 @@ class TestSendDueSoonReminders:
             user=user,
             client=client_obj,
             status='sent',
-            due_date=timezone.now().date() + timezone.timedelta(days=3)
+            due_date=timezone.now() + timezone.timedelta(days=3)
         )
         
         not_due_soon = InvoiceFactory(
             user=user,
             client=client_obj,
             status='sent',
-            due_date=timezone.now().date() + timezone.timedelta(days=10)
+            due_date=timezone.now() + timezone.timedelta(days=10)
         )
         
         with patch('apps.invoices.tasks.send_due_soon_email') as mock_email:
@@ -89,7 +89,8 @@ class TestSendInvoiceEmail:
         mock_email = MagicMock()
         mock_email_class.return_value = mock_email
         
-        with patch('apps.invoices.tasks.generate_pdf') as mock_pdf:
+        # tasks.py imports generate_pdf inside the function, so patch it where it is defined.
+        with patch('apps.invoices.utils.generate_pdf') as mock_pdf:
             mock_pdf.return_value = b'PDF content'
             result = send_invoice_email(str(invoice.id))
         
@@ -109,7 +110,7 @@ class TestGenerateAndStorePDF:
     def test_generates_and_stores_pdf(self, invoice):
         InvoiceItemFactory(invoice=invoice)
         
-        with patch('apps.invoices.tasks.generate_pdf') as mock_pdf:
+        with patch('apps.invoices.utils.generate_pdf') as mock_pdf:
             mock_pdf.return_value = b'PDF content'
             result = generate_and_store_pdf(str(invoice.id))
         

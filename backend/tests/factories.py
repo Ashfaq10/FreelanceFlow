@@ -45,7 +45,7 @@ class InvoiceFactory(DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory)
     client = factory.SubFactory(ClientFactory)
-    due_date = factory.LazyFunction(lambda: timezone.now().date() + timezone.timedelta(days=30))
+    due_date = factory.LazyFunction(lambda: timezone.now() + timezone.timedelta(days=30))
     status = 'draft'
     tax_rate = 0
     notes = factory.Faker('paragraph')
