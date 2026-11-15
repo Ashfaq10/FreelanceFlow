@@ -49,11 +49,14 @@ DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-INSTALLED_APPS += [
-    'debug_toolbar',
-]
-
-MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+# Dev-only dependency (SEC-7): it is absent from the production image, and urls.py already guards its routes.
+try:
+    import debug_toolbar  # noqa: F401
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 INTERNAL_IPS = ['127.0.0.1']
 
