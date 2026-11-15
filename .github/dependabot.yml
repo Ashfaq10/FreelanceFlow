@@ -1,23 +1,45 @@
 version: 2
 updates:
+  # One grouped PR per ecosystem per month: the first ungrouped run opened 17 PRs at once.
   - package-ecosystem: pip
     directory: /backend
     schedule:
       interval: monthly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 2
+    groups:
+      backend:
+        patterns: ['*']
+    ignore:
+      # Django and allauth majors need their own migration work; crispy is being deleted (LEAN-1/LEAN-2).
+      - dependency-name: Django
+        update-types: [version-update:semver-major]
+      - dependency-name: django-allauth
+      - dependency-name: django-crispy-forms
+      - dependency-name: crispy-tailwind
 
   - package-ecosystem: npm
     directory: /frontend
     schedule:
       interval: monthly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 2
+    groups:
+      frontend:
+        patterns: ['*']
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns: ['*']
 
   - package-ecosystem: docker
     directory: /backend
     schedule:
       interval: monthly
+    open-pull-requests-limit: 1
+    ignore:
+      # The Python version is pinned deliberately (.python-version); Django 4.2 supports up to 3.12.
+      - dependency-name: python
