@@ -10,7 +10,7 @@ Rules:
 
 ## Now
 
-- [ ] Pagination controls and server-side totals — [BUG-7](docs/AUDIT.md#bug-7)
+- [ ] Client search filters on the backend — [BUG-11](docs/AUDIT.md#bug-11)
 - [ ] Single send pipeline; UI shows queued state — [BUG-9](docs/AUDIT.md#bug-9)
 - [ ] Delete only on drafts; show API error messages — [BUG-10](docs/AUDIT.md#bug-10)
 

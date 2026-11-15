@@ -135,7 +135,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'config.pagination.DefaultPagination',
     'PAGE_SIZE': 20,
     # Brute-force budget for the unauthenticated auth endpoints (SEC-4).
     'DEFAULT_THROTTLE_RATES': {

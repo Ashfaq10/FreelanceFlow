@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Users, Mail, Phone } from 'lucide-react'
-import { Card, Button, EmptyState, Skeleton } from '../../components/ui'
+import { Card, Button, EmptyState, Skeleton, Pagination } from '../../components/ui'
 import { clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -10,7 +10,9 @@ function ClientList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [clientList, setClients] = useState([])
+  const [count, setCount] = useState(0)
   const [search, setSearch] = useState(searchParams.get('search') || '')
+  const page = Number(searchParams.get('page')) || 1
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -18,9 +20,11 @@ function ClientList() {
       try {
         const params = {
           search: searchParams.get('search'),
+          page: Number(searchParams.get('page')) || 1,
         }
         const response = await clientApi.list(params)
         setClients(response.data.results || response.data || [])
+        setCount(response.data.count ?? (response.data.results || response.data || []).length)
       } catch (error) {
         console.error('Failed to fetch clients:', error)
       } finally {
@@ -29,6 +33,13 @@ function ClientList() {
     }
     fetchClients()
   }, [searchParams])
+
+  const goToPage = (next) => {
+    const params = new URLSearchParams(searchParams)
+    if (next > 1) params.set('page', String(next))
+    else params.delete('page')
+    setSearchParams(params)
+  }
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -145,6 +156,7 @@ function ClientList() {
             onAction={() => window.location.href = '/clients/new'}
           />
         )}
+        <Pagination page={page} count={count} onPageChange={goToPage} />
       </Card>
     </div>
   )

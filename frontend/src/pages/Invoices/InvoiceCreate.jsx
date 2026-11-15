@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 import { invoices as invoiceApi, clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { fromCents, lineTotalCents, previewTotalsCents } from '../../utils/money'
+import { fetchAllPages } from '../../utils/pagination'
 
 function InvoiceCreate() {
   const { id } = useParams()
@@ -60,8 +61,8 @@ function InvoiceCreate() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await clientApi.list()
-        const clientData = response.data.results || response.data || []
+        // Every client, not just the first page: client #21 could not be selected (BUG-7).
+        const clientData = await fetchAllPages(clientApi.list)
         setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
       } catch (error) {
         console.error('Failed to fetch clients:', error)

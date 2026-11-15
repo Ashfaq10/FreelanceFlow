@@ -164,7 +164,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Django `PasswordResetForm` with a link to `/reset-password/:uid/:token`; confirm endpoint with `default_token_generator` + `SetPasswordForm`; throttle (SEC-4); same response whether or not the email exists.
 
 ### <a id="bug-7"></a>BUG-7 — Pagination ignored: only the first 20 records ever load
-`Must` · Phase 2 · `InvoiceCreate.jsx:L67-69`, `TimeTracker.jsx:L47-48,L174-177`, `InvoiceList.jsx`, `ClientList.jsx`, `Dashboard.jsx:L22`
+`Must` · Phase 2 · `InvoiceCreate.jsx:L67-69`, `TimeTracker.jsx:L47-48,L174-177`, `InvoiceList.jsx`, `ClientList.jsx`, `Dashboard.jsx:L22` · **Done 2026-11-15**: `config.pagination.DefaultPagination` adds `?page_size=` (max 200); lists have page controls bound to `?page=`; selects and time-log totals use `utils/pagination.fetchAllPages`; the Dashboard asks for `page_size=5`. The client select is still a plain `<select>`, not a search box.
 **Problem:** DRF pages at 20; the SPA reads `results` and ignores `next`. Client #21 cannot be picked on a new invoice; "Total Hours" sums only 20 logs; Dashboard's `{limit: 5}` is ignored.
 **Fix:** Pagination controls on lists; `page_size_query_param` on the backend; searchable client select; totals computed server-side.
 

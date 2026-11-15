@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Plus, Search, FileText, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Table, Badge, Button, EmptyState, Skeleton } from '../../components/ui'
+import { Card, Table, Badge, Button, EmptyState, Skeleton, Pagination } from '../../components/ui'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -13,8 +13,10 @@ function InvoiceList() {
   const [loading, setLoading] = useState(true)
   const [downloadingId, setDownloadingId] = useState(null)
   const [invoiceList, setInvoices] = useState([])
+  const [count, setCount] = useState(0)
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
+  const page = Number(searchParams.get('page')) || 1
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -23,9 +25,11 @@ function InvoiceList() {
         const params = {
           search: searchParams.get('search'),
           status: searchParams.get('status'),
+          page: Number(searchParams.get('page')) || 1,
         }
         const response = await invoiceApi.list(params)
         setInvoices(response.data.results || response.data || [])
+        setCount(response.data.count ?? (response.data.results || response.data || []).length)
       } catch (error) {
         console.error('Failed to fetch invoices:', error)
       } finally {
@@ -34,6 +38,13 @@ function InvoiceList() {
     }
     fetchInvoices()
   }, [searchParams])
+
+  const goToPage = (next) => {
+    const params = new URLSearchParams(searchParams)
+    if (next > 1) params.set('page', String(next))
+    else params.delete('page')
+    setSearchParams(params)
+  }
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -236,6 +247,7 @@ function InvoiceList() {
             onAction={() => window.location.href = '/invoices/new'}
           />
         )}
+        <Pagination page={page} count={count} onPageChange={goToPage} />
       </Card>
     </div>
   )

@@ -21,7 +21,7 @@ function Dashboard() {
     try {
       const [summaryRes, invoicesRes, revenueRes] = await Promise.all([
         dashboard.getSummary(),
-        invoices.list({ limit: 5 }),
+        invoices.list({ page_size: 5 }),
         dashboard.getMonthlyRevenue(12)
       ])
 

@@ -6,6 +6,7 @@ import { Card, Button, Input, Select, Table, EmptyState, Modal } from '../../com
 import { timeLogs as timeLogApi, clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
+import { fetchAllPages } from '../../utils/pagination'
 
 function TimeTracker() {
   const [loading, setLoading] = useState(true)
@@ -46,8 +47,8 @@ function TimeTracker() {
 
   const fetchTimeLogs = async () => {
     try {
-      const response = await timeLogApi.list()
-      setTimeLogs(response.data.results || response.data || [])
+      // Totals below sum these rows, so they must be all of them, not page one (BUG-7).
+      setTimeLogs(await fetchAllPages(timeLogApi.list))
     } catch (error) {
       console.error('Failed to fetch time logs:', error)
     } finally {
@@ -57,8 +58,7 @@ function TimeTracker() {
 
   const fetchClients = async () => {
     try {
-      const response = await clientApi.list()
-      const clientData = response.data.results || response.data || []
+      const clientData = await fetchAllPages(clientApi.list)
       setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
     } catch (error) {
       console.error('Failed to fetch clients:', error)
