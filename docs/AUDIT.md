@@ -93,12 +93,12 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `transaction.atomic` on `create`/`update`; `bulk_create` items; call `calculate_totals()` once; drop the per-item signal; wrap the numbering retry in `Invoice.save` in a savepoint.
 
 ### <a id="data-5"></a>DATA-5 — Item/amount validation is wrong on both sides
-`Must` · Phase 1 · `apps/invoices/serializers.py:L19`, `apps/invoices/models.py`, `frontend/src/pages/Invoices/InvoiceCreate.jsx:L177,L307-316`
+`Must` · Phase 1 · `apps/invoices/serializers.py:L19`, `apps/invoices/models.py`, `frontend/src/pages/Invoices/InvoiceCreate.jsx:L177,L307-316` · **Done 2026-11-15**: `tests/test_invoice_validation.py`; SPA sends decimal strings with `step="0.01"`.
 **Problem:** Backend `quantity min_value=1` rejects 1.5 hours; SPA forces `step="1"` and `parseInt`, so 2.5 h × $100 is saved as $200 while the live total showed $250. Negative `discount_amount`/`tax_rate` are accepted (`-50` discount *adds* 50; the PDF hides the row).
 **Fix:** `min_value=Decimal('0.01')` on quantity; `MinValueValidator(0)` on discount/tax, tax ≤ 100, discount ≤ subtotal; SPA uses `step="0.01"` and sends decimal strings.
 
 ### <a id="data-6"></a>DATA-6 — Editing a draft silently overwrites its dates
-`Must` · Phase 1 · `frontend/src/pages/Invoices/InvoiceCreate.jsx:L80-83`
+`Must` · Phase 1 · `frontend/src/pages/Invoices/InvoiceCreate.jsx:L80-83` · **Done 2026-11-15**: the edit form pre-fills from the saved dates.
 **Problem:** `fetchInvoice` resets the form with `issue_date = now` and `due_date = now + 30d`, ignoring the saved values. A draft dated Nov 1/Dec 1 edited on Nov 15 is saved as Nov 15/Dec 15.
 **Fix:** Pre-fill from `invoice.issue_date` / `invoice.due_date`.
 

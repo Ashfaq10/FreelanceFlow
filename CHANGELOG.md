@@ -20,6 +20,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `config.settings.production` refuses to start without `SECRET_KEY` and `ALLOWED_HOSTS` (no more published-default fallback) and trusts `X-Forwarded-Proto`, so `SECURE_SSL_REDIRECT` cannot loop behind a TLS proxy (SEC-2).
 
 ### Changed
+- Line quantities accept fractions (0.5 h is valid; `0` is not). Discounts must be between zero and the subtotal, tax between 0 and 100%, and the SPA sends decimal strings with `step="0.01"` instead of `parseInt`-ing quantities down (DATA-5).
 - The SPA previews unsaved drafts in integer cents (`utils/money.js`) and displays the server's `line_total` for saved items, so the live total and the saved invoice agree to the cent (DATA-3, frontend half).
 - Invoice create and update run in one transaction and insert items with `bulk_create`; a failed item write no longer leaves a numbered invoice with no items or a zero total. Totals are recomputed once per write instead of once per item, and the `InvoiceItem` signals are gone (DATA-4).
 - Money is quantized to the cent with `ROUND_HALF_UP` before it is stored (`to_cents`), so `subtotal - discount + tax == total` always holds; Django's half-even rounding on save no longer loses a cent (DATA-3, backend half).
@@ -34,6 +35,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Single root `.env.example` covering SQLite/Postgres, SMTP/SendGrid, Stripe and S3 (OPS-6).
 
 ### Fixed
+- Editing a draft keeps its saved issue and due dates instead of resetting them to today and today + 30 days (DATA-6).
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).
 - `ClientFactory.phone` stays within `Client.phone`'s `max_length=20`; Postgres rejected the longer Faker values that SQLite accepted (TEST-1).
 - Dropped `libgdk-pixbuf2.0-0` from the CI test job and `backend/Dockerfile`: the package is gone from Ubuntu 26.04 and the slim base image, and WeasyPrint 60 does not use it (OPS-1).

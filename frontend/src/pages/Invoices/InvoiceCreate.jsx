@@ -73,12 +73,11 @@ function InvoiceCreate() {
       try {
         const response = await invoiceApi.get(id)
         const invoice = response.data
-        const editNow = new Date()
         reset({
           client: invoice.client,
           reference_number: invoice.reference_number || '',
-          issue_date: toDateTimeLocal(editNow),
-          due_date: toDateTimeLocal(new Date(editNow.getTime() + 30 * 24 * 60 * 60 * 1000)),
+          issue_date: toDateTimeLocal(new Date(invoice.issue_date)),
+          due_date: toDateTimeLocal(new Date(invoice.due_date)),
           discount_amount: invoice.discount_amount ?? 0,
           tax_rate: invoice.tax_rate ?? 0,
           notes: invoice.notes || '',
@@ -148,14 +147,14 @@ function InvoiceCreate() {
         reference_number: data.reference_number || '',
         issue_date: toApiDateTime(data.issue_date),
         due_date: toApiDateTime(data.due_date),
-        discount_amount: parseFloat(data.discount_amount) || 0,
-        tax_rate: parseFloat(data.tax_rate) || 0,
+        // Decimal strings, not floats: the server stores Decimals and 0.1 + 0.2 must not creep in (DATA-3).
+        discount_amount: String(data.discount_amount || 0),
+        tax_rate: String(data.tax_rate || 0),
         notes: data.notes || '',
-        status: 'draft',
         items: validItems.map((item) => ({
           description: item.description.trim(),
-          quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
-          rate: parseFloat(item.rate) || 0,
+          quantity: String(item.quantity),
+          rate: String(item.rate || 0),
         })),
       }
 
@@ -261,6 +260,7 @@ function InvoiceCreate() {
                     type="number"
                     step="0.01"
                     min="0"
+                    max="100"
                     {...register('tax_rate')}
                   />
                 </div>
@@ -294,11 +294,11 @@ function InvoiceCreate() {
                       <div className="col-span-4 md:col-span-2">
                         <input
                           type="number"
-                          min="1"
-                          step="1"
-                          {...register(`items.${index}.quantity`, { 
+                          min="0.01"
+                          step="0.01"
+                          {...register(`items.${index}.quantity`, {
                             required: 'Required',
-                            min: { value: 1, message: 'Min 1' }
+                            min: { value: 0.01, message: 'Min 0.01' }
                           })}
                           placeholder="Qty"
                           className="input"

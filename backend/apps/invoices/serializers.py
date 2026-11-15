@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import transaction
 from django.utils import timezone
 
@@ -19,7 +21,8 @@ class InvoiceItemWriteSerializer(serializers.Serializer):
     """Accepts `rate` from the React frontend (maps to model `unit_price`)."""
 
     description = serializers.CharField(max_length=500)
-    quantity = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=1)
+    # 0.01 and not 1: half-hour and fractional-unit lines are normal (DATA-5).
+    quantity = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0.01'))
     rate = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
 
     def to_internal_value(self, data):
@@ -63,6 +66,10 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
     issue_date = serializers.DateTimeField(required=False, default=timezone.now)
     due_date = serializers.DateTimeField(required=False, default=lambda: timezone.now() + timezone.timedelta(days=30))
     items = InvoiceItemWriteSerializer(many=True)
+    discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0'), required=False)
+    tax_rate = serializers.DecimalField(
+        max_digits=5, decimal_places=2, min_value=Decimal('0'), max_value=Decimal('100'), required=False
+    )
 
     class Meta:
         model = Invoice
@@ -92,6 +99,18 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError('At least one line item is required.')
         return value
+
+    def validate(self, attrs):
+        """A discount larger than the subtotal would otherwise silently become a zero total."""
+        items = attrs.get('items')
+        discount = attrs.get('discount_amount')
+        if items and discount is not None:
+            subtotal = sum(item['quantity'] * item['rate'] for item in items)
+            if discount > subtotal:
+                raise serializers.ValidationError(
+                    {'discount_amount': f'Discount cannot exceed the subtotal of {subtotal:.2f}.'}
+                )
+        return attrs
 
     @transaction.atomic
     def create(self, validated_data):

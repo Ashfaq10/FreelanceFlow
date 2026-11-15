@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] Fractional quantities; non-negative discount/tax — [DATA-5](docs/AUDIT.md#data-5)
-- [ ] Editing a draft keeps its saved dates — [DATA-6](docs/AUDIT.md#data-6)
+- [ ] Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
+- [ ] Validate logo uploads with Pillow — [SEC-3](docs/AUDIT.md#sec-3)
 - [ ] `PROTECT` invoices from client deletion; archive in the UI — [DATA-1](docs/AUDIT.md#data-1)
 
 ## Next
@@ -41,4 +41,5 @@ Rules:
 - [x] 2026-11-15 — Production refuses the published default `SECRET_KEY`; `ALLOWED_HOSTS` required; proxy TLS header (SEC-2)
 - [x] 2026-11-15 — SPA money matches the server to the cent (DATA-3, frontend half)
 - [x] 2026-11-15 — Invoice writes are one transaction; totals computed once (DATA-4)
+- [x] 2026-11-15 — Fractional quantities and bounded discount/tax end to end (DATA-5); editing a draft keeps its dates (DATA-6)
 - [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)

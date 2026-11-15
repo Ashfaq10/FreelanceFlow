@@ -3,6 +3,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -35,8 +36,16 @@ class Invoice(models.Model):
     issue_date = models.DateTimeField(default=timezone.now)
     due_date = models.DateTimeField(default=default_due_date)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # Validators run in the admin and on full_clean(); the API enforces the same bounds in the serializer.
+    tax_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
+    )
+    discount_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(Decimal('0'))]
+    )
     notes = models.TextField(blank=True, help_text='Payment terms or additional notes')
     pdf_file = models.FileField(upload_to='invoices/pdfs/', blank=True, null=True)
     stripe_payment_url = models.URLField(blank=True)
@@ -150,8 +159,10 @@ class InvoiceItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
     description = models.CharField(max_length=500)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1)
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(
+        max_digits=10, decimal_places=2, default=1, validators=[MinValueValidator(Decimal('0.01'))]
+    )
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
     line_total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
 
     class Meta:

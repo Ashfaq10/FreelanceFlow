@@ -70,8 +70,8 @@ flowchart LR
 - [x] Quantize `line_total`, `tax_amount`, `total` (`ROUND_HALF_UP`) ([DATA-3](docs/AUDIT.md#data-3), backend half) — **S**
 - [x] SPA shows server-computed money; integer-cent preview for unsaved drafts ([DATA-3](docs/AUDIT.md#data-3), frontend half) — **M**
 - [x] Atomic invoice create/update; `bulk_create` items; one totals calculation; drop the per-item signal ([DATA-4](docs/AUDIT.md#data-4)) — **M**
-- [ ] Fractional quantities end-to-end; non-negative discount/tax; tax ≤ 100 ([DATA-5](docs/AUDIT.md#data-5)) — **S**
-- [ ] Editing a draft keeps its saved dates ([DATA-6](docs/AUDIT.md#data-6)) — **S**
+- [x] Fractional quantities end-to-end; non-negative discount/tax; tax ≤ 100 ([DATA-5](docs/AUDIT.md#data-5)) — **S**
+- [x] Editing a draft keeps its saved dates ([DATA-6](docs/AUDIT.md#data-6)) — **S**
 - [ ] Idempotent Stripe webhook with amount/status checks and `Decimal` amounts ([PAY-1](docs/AUDIT.md#pay-1)) — **M**
 
 ## Phase 2 — Fix broken user flows
