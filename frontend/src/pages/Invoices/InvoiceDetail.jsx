@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Edit, Send, Download, CheckCircle, Trash2,
-  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard, Plus
+  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard, Plus, Copy, Bell, Ban
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Badge, Button, Modal, Skeleton, Input, Select } from '../../components/ui'
@@ -13,6 +13,21 @@ import { parseDateOnly } from '../../utils/dates'
 
 const STORAGE_KEY_TEMPLATE = 'invoice_template'
 
+
+function MenuItem({ icon: Icon, label, onClick, danger }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center w-full px-4 py-2.5 text-sm transition-colors ${
+        danger
+          ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/8'
+          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'
+      }`}
+    >
+      <Icon className="w-4 h-4 mr-3" />{label}
+    </button>
+  )
+}
 
 function InvoiceDetail() {
   const { id } = useParams()
@@ -88,8 +103,40 @@ function InvoiceDetail() {
       await invoiceApi.markPaid(id)
       toast.success('Invoice marked as paid')
       fetchInvoice()
-    } catch { toast.error('Failed to mark as paid') }
+    } catch (error) { toast.error(apiError(error, 'Failed to mark as paid')) }
     finally { setActionLoading('') }
+  }
+
+  const handleDuplicate = async () => {
+    setShowDropdown(false)
+    try {
+      const { data } = await invoiceApi.duplicate(id)
+      toast.success(`${data.invoice_number} created as a draft`)
+      navigate(`/invoices/${data.id}`)
+    } catch (error) {
+      toast.error(apiError(error, 'Could not duplicate this invoice'))
+    }
+  }
+
+  const handleRemind = async () => {
+    setShowDropdown(false)
+    try {
+      await invoiceApi.remind(id)
+      toast.success('Queued — a reminder is on its way')
+    } catch (error) {
+      toast.error(apiError(error, 'Could not send a reminder'))
+    }
+  }
+
+  const handleCancel = async () => {
+    setShowDropdown(false)
+    try {
+      const { data } = await invoiceApi.cancel(id)
+      setInvoice(data)
+      toast.success('Invoice cancelled')
+    } catch (error) {
+      toast.error(apiError(error, 'Could not cancel this invoice'))
+    }
   }
 
   // Stripe Checkout link for the client; the freelancer copies or opens it (PAY-2).
@@ -214,28 +261,34 @@ function InvoiceDetail() {
             <Download className="w-4 h-4 mr-1.5" />Download PDF
           </Button>
 
-          {/* More menu: only drafts can be deleted, so hide it otherwise (BUG-10) */}
-          {invoice.status === 'draft' && (
-            <div className="relative">
-              <Button variant="ghost" size="sm" onClick={() => setShowDropdown(!showDropdown)}>
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-              {showDropdown && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
-                  <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
-                    style={{ backdropFilter: 'blur(16px)' }}>
-                    <button
-                      onClick={() => { setShowDropdown(false); setShowDeleteModal(true) }}
-                      className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/8 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 mr-3" />Delete Invoice
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+          {/* More menu: whatever this invoice's status allows (FEAT-2, BUG-10) */}
+          <div className="relative">
+            <Button variant="ghost" size="sm" onClick={() => setShowDropdown(!showDropdown)}>
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+            {showDropdown && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
+                  style={{ backdropFilter: 'blur(16px)' }}>
+                  <MenuItem icon={Copy} label="Duplicate" onClick={handleDuplicate} />
+                  {['sent', 'overdue'].includes(invoice.status) && (
+                    <>
+                      <MenuItem icon={Send} label="Send again" onClick={handleSend} />
+                      <MenuItem icon={Bell} label="Send reminder" onClick={handleRemind} />
+                    </>
+                  )}
+                  {['draft', 'sent', 'overdue'].includes(invoice.status) && (
+                    <MenuItem icon={Ban} label="Cancel invoice" onClick={handleCancel} danger />
+                  )}
+                  {invoice.status === 'draft' && (
+                    <MenuItem icon={Trash2} label="Delete invoice" danger
+                      onClick={() => { setShowDropdown(false); setShowDeleteModal(true) }} />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

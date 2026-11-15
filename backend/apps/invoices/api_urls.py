@@ -9,4 +9,6 @@ urlpatterns = [
     path('invoices/<uuid:pk>/mark-paid/', api_views.InvoiceMarkPaidView.as_view(), name='api-invoice-mark-paid'),
     path('invoices/<uuid:pk>/cancel/', api_views.InvoiceCancelView.as_view(), name='api-invoice-cancel'),
     path('invoices/<uuid:pk>/pdf/', api_views.InvoicePDFView.as_view(), name='api-invoice-pdf'),
+    path('invoices/<uuid:pk>/duplicate/', api_views.InvoiceDuplicateView.as_view(), name='api-invoice-duplicate'),
+    path('invoices/<uuid:pk>/remind/', api_views.InvoiceRemindView.as_view(), name='api-invoice-remind'),
 ]

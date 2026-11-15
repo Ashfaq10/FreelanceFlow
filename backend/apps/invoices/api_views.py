@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.http import FileResponse, HttpResponse
 
 from kombu.exceptions import OperationalError
@@ -7,14 +7,14 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Invoice
+from .models import Invoice, InvoiceItem
 from .serializers import (
     InvoiceDetailSerializer,
     InvoiceFilterSerializer,
     InvoiceSerializer,
     InvoiceWriteSerializer,
 )
-from .tasks import send_invoice
+from .tasks import send_invoice, send_reminder
 from .utils import generate_pdf
 
 
@@ -93,7 +93,7 @@ class InvoiceSendView(APIView):
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if invoice.status not in ['draft', 'sent']:
+        if invoice.status not in ['draft', 'sent', 'overdue']:
             return Response({'error': 'This invoice cannot be sent.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not invoice.items.exists():
@@ -181,3 +181,71 @@ class InvoiceCancelView(APIView):
 
         serializer = InvoiceDetailSerializer(invoice, context={'request': request})
         return Response(serializer.data)
+
+
+class InvoiceDuplicateView(APIView):
+    """Copy an invoice into a fresh draft (FEAT-2)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            invoice = Invoice.objects.prefetch_related('items').get(pk=pk, user=request.user)
+        except Invoice.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        with transaction.atomic():
+            copy = Invoice.objects.create(
+                user=invoice.user,
+                client=invoice.client,
+                reference_number=invoice.reference_number,
+                discount_amount=invoice.discount_amount,
+                tax_rate=invoice.tax_rate,
+                notes=invoice.notes,
+                currency=invoice.currency,
+                pdf_color=invoice.pdf_color,
+            )
+            InvoiceItem.objects.bulk_create(
+                [
+                    InvoiceItem(
+                        invoice=copy,
+                        description=item.description,
+                        quantity=item.quantity,
+                        unit_price=item.unit_price,
+                        line_total=item.line_total,
+                    )
+                    for item in invoice.items.all()
+                ]
+            )
+            copy.save()  # recalculates totals from the copied items
+
+        serializer = InvoiceDetailSerializer(copy, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class InvoiceRemindView(APIView):
+    """Chase a sent or overdue invoice by hand (FEAT-2)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            invoice = Invoice.objects.get(pk=pk, user=request.user)
+        except Invoice.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if invoice.status not in ('sent', 'overdue'):
+            return Response(
+                {'error': 'Only sent or overdue invoices can be chased.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            send_reminder.delay(str(invoice.id))
+        except OperationalError:
+            return Response(
+                {'error': 'Reminders are temporarily unavailable. Please try again shortly.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response({'status': 'queued', 'message': 'Reminder is being sent.'})

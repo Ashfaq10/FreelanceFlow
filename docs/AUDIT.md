@@ -222,7 +222,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Should` · Phase 3 · `TimeLog.is_billed`, `TimeLog.link_to_invoice` (unused), no SPA flow · **Done 2026-11-15**: `POST /api/time-logs/bill/` turns selected logs into one draft invoice (or appends to an existing draft for the same client), marks them billed and links them; the time tracker has checkboxes and a "Bill N entries" button. Logs without an hourly rate, already-billed logs and mixed clients are refused (`tests/test_time_billing.py`).
 
 ### <a id="feat-2"></a>FEAT-2 — Invoice actions missing from the API
-`Should` · Phase 3 · duplicate (only the dead view has it, and it mutates on GET), cancel/void, re-send and manual reminder for overdue invoices (`InvoiceSendView` rejects `overdue`).
+`Should` · Phase 3 · duplicate (only the dead view has it, and it mutates on GET), cancel/void, re-send and manual reminder for overdue invoices (`InvoiceSendView` rejects `overdue`) · **Done 2026-11-15**: `POST /{id}/duplicate/` copies lines and terms into a new draft, `/{id}/remind/` queues the overdue or due-soon email by status, and `/{id}/send/` accepts `overdue` without resetting it to `sent`. `/{id}/cancel/` arrived with [DATA-2](#data-2); all four are in the invoice menu (`tests/test_invoice_actions.py`).
 
 ### <a id="feat-3"></a>FEAT-3 — Public, tokenized invoice page for clients
 `Should` · Phase 3 · Clients currently have no way to view or pay an invoice except the PDF attachment.

@@ -85,6 +85,23 @@ def send_overdue_reminder(invoice_id):
 
 
 @shared_task
+def send_reminder(invoice_id):
+    """Chase one invoice by hand: overdue notice if it is late, due-soon notice otherwise (FEAT-2)."""
+    from .models import Invoice
+
+    try:
+        invoice = Invoice.objects.select_related('client', 'user').get(id=invoice_id)
+    except Invoice.DoesNotExist:
+        return f'Invoice {invoice_id} not found'
+
+    if invoice.status == 'overdue':
+        return send_overdue_reminder(invoice_id)
+
+    send_due_soon_email(invoice)
+    return f'Reminder sent for {invoice.invoice_number}'
+
+
+@shared_task
 def send_invoice(invoice_id, custom_message=''):
     """Mark sent, render the PDF for that state, then email it — in that order (BUG-9)."""
     from django.core.files.base import ContentFile
@@ -97,7 +114,9 @@ def send_invoice(invoice_id, custom_message=''):
     except Invoice.DoesNotExist:
         return f'Invoice {invoice_id} not found'
 
-    invoice.mark_as_sent()
+    if invoice.status != 'overdue':
+        # Re-sending an overdue invoice must not quietly make it look current again (FEAT-2).
+        invoice.mark_as_sent()
 
     pdf_bytes = generate_pdf(invoice)
     invoice.pdf_file.save(f'{invoice.invoice_number}.pdf', ContentFile(pdf_bytes), save=True)

@@ -21,6 +21,9 @@ export const invoices = {
   getPdf: (id, params = {}) => api.get(`/api/invoices/${id}/pdf/`, { responseType: 'blob', params }),
   checkout: (id) => api.post(`/api/invoices/${id}/checkout/`),
   recordPayment: (id, data) => api.post(`/api/invoices/${id}/payments/`, data),
+  cancel: (id) => api.post(`/api/invoices/${id}/cancel/`),
+  duplicate: (id) => api.post(`/api/invoices/${id}/duplicate/`),
+  remind: (id) => api.post(`/api/invoices/${id}/remind/`),
 }
 
 export const clients = {

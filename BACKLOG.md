@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] API: duplicate, cancel/void, re-send, manual reminder — [FEAT-2](docs/AUDIT.md#feat-2)
 - [ ] Public tokenized invoice page with Pay button — [FEAT-3](docs/AUDIT.md#feat-3)
+- [ ] Email tasks retry with backoff — [OPS-9](docs/AUDIT.md#ops-9)
 
 ## Next
 
