@@ -8,7 +8,7 @@ factory-boy>=3.3.0
 
 # Development
 django-debug-toolbar>=4.3.0
-ipython>=8.0.0
+ipython>=9.18.1
 
 # Code Quality
 flake8>=7.0.0
