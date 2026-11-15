@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Edit, Send, Download, CheckCircle, Trash2,
-  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp
+  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Badge, Button, Modal, Skeleton } from '../../components/ui'
@@ -82,6 +82,20 @@ function InvoiceDetail() {
       fetchInvoice()
     } catch { toast.error('Failed to mark as paid') }
     finally { setActionLoading('') }
+  }
+
+  // Stripe Checkout link for the client; the freelancer copies or opens it (PAY-2).
+  const handlePayLink = async () => {
+    setActionLoading('paylink')
+    try {
+      const { data } = await invoiceApi.checkout(id)
+      await navigator.clipboard.writeText(data.url).catch(() => {})
+      window.open(data.url, '_blank', 'noopener')
+      toast.success('Payment link copied and opened')
+      fetchInvoice()
+    } catch (error) {
+      toast.error(apiError(error, 'Could not create a payment link'))
+    } finally { setActionLoading('') }
   }
 
   const handleDownload = async () => {
@@ -166,9 +180,14 @@ function InvoiceDetail() {
             </>
           )}
           {['sent', 'overdue'].includes(invoice.status) && (
-            <Button size="sm" onClick={handleMarkPaid} loading={actionLoading === 'paid'}>
-              <CheckCircle className="w-4 h-4 mr-1.5" />Mark Paid
-            </Button>
+            <>
+              <Button size="sm" onClick={handleMarkPaid} loading={actionLoading === 'paid'}>
+                <CheckCircle className="w-4 h-4 mr-1.5" />Mark Paid
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handlePayLink} loading={actionLoading === 'paylink'}>
+                <CreditCard className="w-4 h-4 mr-1.5" />Payment Link
+              </Button>
+            </>
           )}
           <Button variant="secondary" size="sm" onClick={handleDownload} loading={actionLoading === 'download'}>
             <Download className="w-4 h-4 mr-1.5" />Download PDF

@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/', include('apps.clients.api_urls')),
     path('api/', include('apps.time_tracker.api_urls')),
     path('api/', include('apps.dashboard.api_urls')),
+    path('api/', include('apps.payments.api_urls')),
 ]
 
 if settings.DEBUG:

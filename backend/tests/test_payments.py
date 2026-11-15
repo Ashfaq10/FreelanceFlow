@@ -1,6 +1,6 @@
 import pytest
 import stripe
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from django.urls import reverse
 from django.utils import timezone
 
@@ -50,35 +50,5 @@ class TestStripeWebhook:
             content_type='application/json',
             HTTP_STRIPE_SIGNATURE='invalid'
         )
-        
+
         assert response.status_code == 400
-
-
-@pytest.mark.django_db
-class TestCreateCheckoutSession:
-    @patch('apps.payments.views.stripe')
-    def test_create_checkout_session(self, mock_stripe, authenticated_client, invoice):
-        mock_session = MagicMock()
-        mock_session.id = 'cs_test123'
-        mock_session.url = 'https://checkout.stripe.com/test'
-        mock_stripe.checkout.Session.create.return_value = mock_session
-        
-        response = authenticated_client.get(
-            reverse('payments:checkout', kwargs={'invoice_id': invoice.pk})
-        )
-        
-        assert response.status_code == 302
-        assert response.url == 'https://checkout.stripe.com/test'
-        
-        invoice.refresh_from_db()
-        assert invoice.stripe_session_id == 'cs_test123'
-
-    def test_checkout_not_allowed_for_paid_invoice(self, authenticated_client, invoice):
-        invoice.status = 'paid'
-        invoice.save()
-        
-        response = authenticated_client.get(
-            reverse('payments:checkout', kwargs={'invoice_id': invoice.pk})
-        )
-        
-        assert response.status_code == 404

@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -5,7 +7,11 @@ from django.utils import timezone
 
 from celery import shared_task
 
+from apps.payments.services import CheckoutUnavailable, payment_link
+
 from .utils import get_currency_symbol
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -95,6 +101,12 @@ def send_invoice(invoice_id, custom_message=''):
 
     pdf_bytes = generate_pdf(invoice)
     invoice.pdf_file.save(f'{invoice.invoice_number}.pdf', ContentFile(pdf_bytes), save=True)
+
+    # The email's "Pay now" block needs a link; an unconfigured or unhappy Stripe must not stop the send.
+    try:
+        payment_link(invoice)
+    except CheckoutUnavailable as exc:
+        logger.warning('No pay link for invoice %s: %s', invoice.invoice_number, exc)
 
     subject = f'Invoice {invoice.invoice_number} from {invoice.user.get_display_name()}'
     html_content = render_to_string(

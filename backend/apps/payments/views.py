@@ -20,40 +20,6 @@ logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-def create_checkout_session(request, invoice_id):
-    """Create a Stripe Checkout session for an invoice."""
-    invoice = get_object_or_404(Invoice, pk=invoice_id, user=request.user, status__in=['draft', 'sent', 'overdue'])
-
-    checkout_session = stripe.checkout.Session.create(
-        payment_method_types=['card'],
-        line_items=[
-            {
-                'price_data': {
-                    'currency': invoice.user.currency.lower(),
-                    'unit_amount': int(invoice.total * 100),
-                    'product_data': {
-                        'name': f'Invoice {invoice.invoice_number}',
-                        'description': f'Payment for invoice from {invoice.user.get_display_name()}',
-                    },
-                },
-                'quantity': 1,
-            }
-        ],
-        mode='payment',
-        success_url=f'{settings.SITE_URL}/invoices/{invoice.id}/?payment=success',
-        cancel_url=f'{settings.SITE_URL}/invoices/{invoice.id}/?payment=cancelled',
-        metadata={
-            'invoice_id': str(invoice.id),
-        },
-    )
-
-    invoice.stripe_session_id = checkout_session.id
-    invoice.stripe_payment_url = checkout_session.url
-    invoice.save(update_fields=['stripe_session_id', 'stripe_payment_url'])
-
-    return redirect(checkout_session.url)
-
-
 @csrf_exempt
 @require_POST
 def stripe_webhook(request):

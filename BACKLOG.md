@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] Phase 3: authenticated Stripe checkout from the SPA — [PAY-2](docs/AUDIT.md#pay-2)
 - [ ] Per-invoice currency with a data migration — [DATA-7](docs/AUDIT.md#data-7)
+- [ ] Multiple/partial payments with `amount_due` — [PAY-3](docs/AUDIT.md#pay-3)
 
 ## Next
 

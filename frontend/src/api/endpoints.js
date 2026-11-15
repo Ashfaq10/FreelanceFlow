@@ -19,6 +19,7 @@ export const invoices = {
   send: (id) => api.post(`/api/invoices/${id}/send/`),
   markPaid: (id) => api.post(`/api/invoices/${id}/mark-paid/`),
   getPdf: (id, params = {}) => api.get(`/api/invoices/${id}/pdf/`, { responseType: 'blob', params }),
+  checkout: (id) => api.post(`/api/invoices/${id}/checkout/`),
 }
 
 export const clients = {

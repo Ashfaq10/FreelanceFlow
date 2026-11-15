@@ -60,13 +60,13 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | GET | `/api/dashboard/summary/` | Totals: billed, paid, outstanding, overdue, counts | |
 | GET | `/api/dashboard/monthly-revenue/` | Revenue per month; `?months=N` (1–120, default 12; 400 otherwise) | |
 
-## Payments — `apps/payments/urls.py` (not under `/api/`)
+## Payments — `apps/payments/api_urls.py` (checkout) and `apps/payments/urls.py` (webhook)
 
 | Method | Path | Description | Known issues |
 |---|---|---|---|
-| POST | `/payments/webhook/` | Stripe webhook (signature-verified, no auth) | [PAY-1](AUDIT.md#pay-1) |
-| GET | `/payments/checkout/{invoice_id}/` | Creates a Stripe Checkout session — **not reachable from the SPA, no auth check** | [PAY-2](AUDIT.md#pay-2) |
-| GET | `/payments/success/{invoice_id}/`, `/payments/cancelled/{invoice_id}/` | Redirect targets for Checkout (render dead templates) | [PAY-2](AUDIT.md#pay-2), [LEAN-1](AUDIT.md#lean-1) |
+| POST | `/api/invoices/{id}/checkout/` | Stripe Checkout link for your own sent/overdue invoice: `{url}`. Reuses the open session; 400 on a draft, 503 when Stripe is unconfigured or refuses | |
+| POST | `/payments/webhook/` | Stripe webhook (signature-verified, no auth) | |
+| GET | `/payments/success/{invoice_id}/`, `/payments/cancelled/{invoice_id}/` | Legacy redirect targets; Checkout now returns to the SPA at `/invoices/{id}?payment=success\|cancelled` | [LEAN-1](AUDIT.md#lean-1) |
 
 Local webhook testing:
 
@@ -81,7 +81,6 @@ stripe listen --forward-to localhost:8000/payments/webhook/
 | `check_overdue_invoices` | Celery Beat, daily 08:00 UTC | `sent` + past due → `overdue`, queues `send_overdue_reminder` |
 | `send_overdue_reminder` | queued by the task above | Emails the client an overdue notice |
 | `send_due_soon_reminders` | Celery Beat, daily 08:30 UTC | Emails clients whose invoice is due in 3 days |
-| `generate_and_store_pdf` | `POST /send/` | Renders the WeasyPrint PDF and stores it in `pdf_file` |
-| `send_invoice_email` | `POST /send/` | Emails the PDF to the client, then marks the invoice `sent` |
+| `send_invoice` | `POST /send/` | Marks the invoice `sent`, renders and stores the PDF, creates the Stripe pay link, then emails the PDF to the client |
 
 Schedules are defined in `backend/config/celery.py` and synced into `django_celery_beat` (editable in the admin).

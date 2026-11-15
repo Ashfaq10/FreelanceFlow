@@ -117,7 +117,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `transaction.atomic` + `select_for_update`; return 200 early if already paid; `update_or_create`; `Decimal(amount_total) / 100`; verify `payment_status` and amount; log mismatches.
 
 ### <a id="pay-2"></a>PAY-2 — Stripe checkout is unreachable from the product
-`Must` · Phase 3 · `apps/payments/views.py:L15-50`, `config/urls.py:L16`
+`Must` · Phase 3 · `apps/payments/views.py:L15-50`, `config/urls.py:L16` · **Done 2026-11-15**: authenticated `POST /api/invoices/{id}/checkout/` returns `{url}` for your own sent/overdue invoices; `apps/payments/services.py` reuses an open session, charges `to_cents(total)`, and points success/cancel at the SPA. `send_invoice` creates the link before emailing, so the "Pay now" block renders; Stripe being down logs and still sends. The anonymous template-side `create_checkout_session` is deleted.
 **Problem:** Only the dead template side creates checkout sessions; nothing in the SPA calls it. `create_checkout_session` has no auth (anonymous GET → 500). `success_url` points to a dead template page. `stripe_payment_url` is never set, so the "Pay now" block in emails never renders.
 **Fix:** Authenticated `POST /api/invoices/{id}/checkout/` returning `{url}`; create the session when the invoice is sent so the email carries the link; success/cancel URLs point to the SPA (or the public invoice page, [FEAT-3](#feat-3)).
 
@@ -231,7 +231,6 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 
 ### <a id="feat-4"></a>FEAT-4 — Growth features
 `Nice` · Phase 6 · recurring invoices, quotes/estimates, credit notes, CSV export, per-line and multiple taxes, percentage discounts, per-user invoice prefix, activity/audit log, notification settings, GDPR export/delete, email verification, i18n.
-
 ---
 
 ## Performance
