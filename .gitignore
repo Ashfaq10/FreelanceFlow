@@ -69,3 +69,7 @@ Thumbs.db
 *.pem
 *.key
 credentials.json
+
+# Local, personal agent notes
+CLAUDE.local.md
+.claude/settings.local.json

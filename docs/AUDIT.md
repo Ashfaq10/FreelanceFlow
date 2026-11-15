@@ -1,0 +1,392 @@
+# Codebase Audit — 2026-11-15
+
+Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Every finding has a stable ID used by [PHASES.md](../PHASES.md), commit messages and PRs (`fix(invoices): quantize tax (DATA-3)`).
+
+- **Severity:** `Must` = security hole, data loss, or a core flow broken for every user. `Should` = wrong behaviour in a common case, missing test on risky code, real slowness. `Nice` = polish.
+- **Status:** a finding is closed when its PHASES.md checkbox is ticked *and* a regression test covers it (where testable). Do not delete closed findings; strike them through and note the PR.
+- Line numbers are from commit `eb7b16e` and drift as code changes; search by symbol.
+
+## Baseline measured during the audit
+
+| Check | Result |
+|---|---|
+| `pytest` (backend, SQLite) | **9 failed / 23 passed** — see [TEST-1](#test-1) |
+| `npm run lint` (frontend) | **16 errors, 12 warnings** — see [OPS-2](#ops-2) |
+| `black` / `isort` / `flake8` (backend `apps/`) | **64 files to reformat / 14 import-order errors / 154 issues** — see [OPS-2](#ops-2) |
+| `npm run build` | passes; single 812 KB JS chunk — see [PERF-2](#perf-2) |
+| GitHub Actions CI | cannot pass as written — see [OPS-1](#ops-1) |
+| Frontend tests | none exist — see [TEST-4](#test-4) |
+
+## Architecture facts that drive many findings
+
+1. **The SPA is the only real UI.** `frontend/src/api/endpoints.js` calls only `/api/...`. The server-rendered Django views (`views.py`, `urls.py`, `forms.py` in every app) render templates that do not exist (only `invoice_pdf.html` and 3 email templates exist), so every non-API page returns `TemplateDoesNotExist`. ~1,000 lines of dead duplicate code — [LEAN-1](#lean-1).
+2. **Stripe checkout lives only on that dead side.** Nothing in the SPA can create a payment link — [PAY-2](#pay-2).
+3. **Money is `Decimal` on the backend but recomputed with JS floats in the SPA** — [DATA-3](#data-3).
+4. **Settings modules differ per entry point:** `manage.py` → `local`, `wsgi.py` → `production`, `config/celery.py` → `production`. A locally started Celery worker therefore runs with production settings (S3 storage, SSL redirect) — [OPS-12](#ops-12).
+
+---
+
+## Security
+
+### <a id="sec-1"></a>SEC-1 — Cross-tenant foreign keys on invoice and time-log writes
+`Must` · Phase 1 · `apps/invoices/serializers.py` (`InvoiceWriteSerializer.client`), `apps/time_tracker/serializers.py` (`client`, `invoice`)
+**Problem:** `client`/`invoice` are default `PrimaryKeyRelatedField`s over `.objects.all()`. User A can POST an invoice with user B's client UUID; the response then returns B's client email/phone/address and "Send" would email B's client.
+**Fix:** In the serializer `__init__`, restrict `fields['client'].queryset` to `request.user.clients.all()` and `fields['invoice'].queryset` to `request.user.invoices.all()`. Test: cross-user POST returns 400.
+
+### <a id="sec-2"></a>SEC-2 — Production can boot with the public default `SECRET_KEY`
+`Must` · Phase 1 · `config/settings/base.py:L14`, `config/settings/production.py`
+**Problem:** Missing `SECRET_KEY` falls back to `'django-insecure-change-me-in-production'` (published in the repo) → forged sessions and password-reset tokens. No `SECURE_PROXY_SSL_HEADER`, so `SECURE_SSL_REDIRECT=True` behind a TLS-terminating proxy redirects forever.
+**Fix:** `SECRET_KEY = os.environ['SECRET_KEY']` in `production.py`; set `SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')`; parse `ALLOWED_HOSTS` from env with no default.
+
+### <a id="sec-3"></a>SEC-3 — Logo upload trusts the client-sent content type
+`Must` · Phase 1 · `apps/accounts/api_views.py` (`upload_logo_view`)
+**Problem:** Only `content_type.startswith('image/')` is checked; Pillow validation never runs. An SVG with `<script>` or an HTML file labelled `image/png` is stored and served from `/media/` or S3 → stored XSS / hosted phishing page. Old logos are never deleted.
+**Fix:** Validate with `django.forms.ImageField().clean(file)`; allow PNG/JPEG/WebP only; cap size; delete the previous file.
+
+### <a id="sec-4"></a>SEC-4 — Weak auth endpoints
+`Must` · Phase 1 · `apps/accounts/api_views.py:L13-75`, `config/settings/base.py` (`REST_FRAMEWORK`)
+**Problem:** No throttling on login/signup/reset (brute force). Signup only checks `len >= 8` and skips `AUTH_PASSWORD_VALIDATORS` ("password1" accepted). Emails are not lower-cased, so `Bob@x.com` and `bob@x.com` become two accounts. The exists-then-create race returns 500.
+**Fix:** `ScopedRateThrottle` on auth views; `validate_password()`; lower-case email on signup and login; catch `IntegrityError` → 400.
+
+### <a id="sec-5"></a>SEC-5 — Non-expiring tokens stored in `localStorage`
+`Should` · Phase 5 · `frontend/src/api/client.js`, `frontend/src/context/AuthContext.jsx`, DRF `TokenAuthentication`
+**Problem:** DRF tokens never expire. Any XSS or malicious dependency that reads `localStorage.token` gets permanent API access. "Remember me" on the login page is not wired to anything.
+**Fix:** See [ADR-0002](adr/0002-auth-session-cookies.md): HttpOnly `SameSite=Lax` session cookies + CSRF (already configured), or expiring tokens. Remove or implement "Remember me".
+
+### <a id="sec-6"></a>SEC-6 — S3 file URLs are unsigned
+`Should` · Phase 5 · `config/settings/production.py:L24`
+**Problem:** `AWS_S3_CUSTOM_DOMAIN` disables signed URLs. With a private bucket every PDF/logo link 403s; with a public bucket `invoices/pdfs/INV-2026-001.pdf` is guessable.
+**Fix:** Remove `AWS_S3_CUSTOM_DOMAIN`, keep the bucket private, use `querystring_auth` (default) with a short expiry.
+
+### <a id="sec-7"></a>SEC-7 — `django-debug-toolbar` ships in production requirements
+`Should` · Phase 1 · `backend/requirements.txt:L10`
+**Problem:** Listed in both `requirements.txt` and `requirements-dev.txt`; installed into the production image.
+**Fix:** Remove from `requirements.txt`.
+
+### <a id="sec-8"></a>SEC-8 — `default_currency` accepts any string
+`Must` · Phase 1 · `apps/accounts/serializers.py:L6`
+**Problem:** Declared as a plain `CharField(source='currency')`, which skips model `choices`. `PATCH {default_currency:'JPY'}` is saved and Stripe would charge `total*100` yen (100× too much, JPY is zero-decimal). `'ABCD'` overflows `varchar(3)` → 500 on Postgres.
+**Fix:** `serializers.ChoiceField(source='currency', choices=User.CURRENCY_CHOICES, required=False)`.
+
+---
+
+## Data integrity & money
+
+### <a id="data-1"></a>DATA-1 — Deleting a client deletes its paid invoices and payments
+`Must` · Phase 1 · `apps/invoices/models.py` (`Invoice.client` `on_delete=CASCADE`), `apps/clients/api_views.py`, `frontend/src/pages/Clients/ClientDetail.jsx`
+**Problem:** "Delete Client" removes every invoice (including paid), their `Payment` rows and time logs — accounting records gone. The SPA's `clients.archive` calls `/api/clients/{id}/archive/`, which does not exist.
+**Fix:** `on_delete=PROTECT` (migration); API delete returns 409 when invoices exist; replace the UI delete with archive (`PATCH {is_archived:true}` already works); add an archived filter.
+
+### <a id="data-2"></a>DATA-2 — Invoice status bypasses the state machine
+`Must` · Phase 1 · `apps/invoices/serializers.py` (`InvoiceWriteSerializer.status`), `apps/invoices/api_views.py` (`InvoiceMarkPaidView`)
+**Problem:** `status` is writable: `POST {status:'paid'}` creates a "paid" invoice with no `Payment` (counted as revenue); `{status:'sent'}` marks sent without emailing. `mark-paid` accepts `draft` and `cancelled`.
+**Fix:** Make `status` read-only. Allowed transitions: `draft→sent` (send), `sent|overdue→paid` (mark-paid / webhook), `draft|sent|overdue→cancelled` (new cancel endpoint). Enforce in model methods; test each illegal transition.
+
+### <a id="data-3"></a>DATA-3 — Tax and totals are not rounded explicitly; SPA recomputes with floats
+`Must` · Phase 1 · `apps/invoices/models.py` (`calculate_totals`, `InvoiceItem.save`), `frontend/src/components/ui/InvoicePreview.jsx`, `InvoiceCreate.jsx`
+**Problem:** `tax_amount = taxable * rate/100` is unquantized; Django rounds each field half-even on save, so subtotal + tax ≠ total (1.25 @ 10% → tax 0.12, total 1.38). The SPA multiplies `quantity * rate` in JS floats (`1.50 × 0.33` → `$0.49` vs server `$0.50`).
+**Fix:** Quantize `line_total`, `tax_amount` to `0.01` with `ROUND_HALF_UP`, then `total = taxable + tax_amount`. SPA displays server `line_total`/`subtotal`/`total` and only previews unsaved drafts with integer-cent math.
+
+### <a id="data-4"></a>DATA-4 — Invoice create/update is not atomic
+`Must` · Phase 1 · `apps/invoices/serializers.py:L67-100`, `apps/invoices/signals.py`
+**Problem:** Invoice saved first, items after; `update` deletes all items before recreating. A failed item insert leaves a numbered invoice with no items or a 0 total. Each item save fires a signal that recomputes totals (n+1 queries).
+**Fix:** `transaction.atomic` on `create`/`update`; `bulk_create` items; call `calculate_totals()` once; drop the per-item signal; wrap the numbering retry in `Invoice.save` in a savepoint.
+
+### <a id="data-5"></a>DATA-5 — Item/amount validation is wrong on both sides
+`Must` · Phase 1 · `apps/invoices/serializers.py:L19`, `apps/invoices/models.py`, `frontend/src/pages/Invoices/InvoiceCreate.jsx:L177,L307-316`
+**Problem:** Backend `quantity min_value=1` rejects 1.5 hours; SPA forces `step="1"` and `parseInt`, so 2.5 h × $100 is saved as $200 while the live total showed $250. Negative `discount_amount`/`tax_rate` are accepted (`-50` discount *adds* 50; the PDF hides the row).
+**Fix:** `min_value=Decimal('0.01')` on quantity; `MinValueValidator(0)` on discount/tax, tax ≤ 100, discount ≤ subtotal; SPA uses `step="0.01"` and sends decimal strings.
+
+### <a id="data-6"></a>DATA-6 — Editing a draft silently overwrites its dates
+`Must` · Phase 1 · `frontend/src/pages/Invoices/InvoiceCreate.jsx:L80-83`
+**Problem:** `fetchInvoice` resets the form with `issue_date = now` and `due_date = now + 30d`, ignoring the saved values. A draft dated Nov 1/Dec 1 edited on Nov 15 is saved as Nov 15/Dec 15.
+**Fix:** Pre-fill from `invoice.issue_date` / `invoice.due_date`.
+
+### <a id="data-7"></a>DATA-7 — Currency lives on the user, not the invoice
+`Should` · Phase 3 · `apps/invoices/serializers.py` (`currency = CharField(source='user.currency')`), `apps/invoices/utils.py`, `apps/payments/views.py`
+**Problem:** Switching the account from USD to EUR re-renders and re-charges every past invoice in EUR with the same numbers.
+**Fix:** Add `Invoice.currency` (default from user at create) + data migration; read it everywhere.
+
+---
+
+## Payments
+
+### <a id="pay-1"></a>PAY-1 — Stripe webhook is not idempotent and trusts the event blindly
+`Must` · Phase 1 · `apps/payments/views.py:L78-100`
+**Problem:** `Payment` is OneToOne and the handler calls `Payment.objects.create`. A redelivered `checkout.session.completed`, or one for an invoice already marked paid manually, raises `IntegrityError` → 500, so Stripe retries for days. No check of `payment_status == 'paid'` or amount vs `total`; amount stored as float (`amount_total / 100`).
+**Fix:** `transaction.atomic` + `select_for_update`; return 200 early if already paid; `update_or_create`; `Decimal(amount_total) / 100`; verify `payment_status` and amount; log mismatches.
+
+### <a id="pay-2"></a>PAY-2 — Stripe checkout is unreachable from the product
+`Must` · Phase 3 · `apps/payments/views.py:L15-50`, `config/urls.py:L16`
+**Problem:** Only the dead template side creates checkout sessions; nothing in the SPA calls it. `create_checkout_session` has no auth (anonymous GET → 500). `success_url` points to a dead template page. `stripe_payment_url` is never set, so the "Pay now" block in emails never renders.
+**Fix:** Authenticated `POST /api/invoices/{id}/checkout/` returning `{url}`; create the session when the invoice is sent so the email carries the link; success/cancel URLs point to the SPA (or the public invoice page, [FEAT-3](#feat-3)).
+
+### <a id="pay-3"></a>PAY-3 — No partial or multiple payments
+`Should` · Phase 3 · `apps/payments/models.py` (`invoice = OneToOneField`)
+**Problem:** One payment per invoice; "Mark Paid" always records the full total. Deposits and instalments are impossible; `is_full_payment` exists but can never be false in practice.
+**Fix:** `ForeignKey` + `amount_due = total - sum(payments)`; status becomes `paid` when `amount_due <= 0`; add a "Record payment" form.
+
+### <a id="pay-4"></a>PAY-4 — Refunds and expired sessions are ignored
+`Nice` · Phase 3 · `apps/payments/views.py` (`handle_payment_intent_succeeded` is `pass`)
+**Fix:** Handle `charge.refunded` and `checkout.session.expired`; delete the empty handler.
+
+---
+
+## Broken user flows
+
+### <a id="bug-1"></a>BUG-1 — Wrong password reloads the page with no error
+`Must` · Phase 2 · `frontend/src/api/client.js:L30-33`
+**Problem:** Login returns 401 for bad credentials; the global interceptor treats every 401 as "session expired", deletes the token and does `window.location.href='/login'`, wiping the error toast.
+**Fix:** Redirect only when a token was sent and the URL is not `/api/auth/*`; use router navigation and clear auth state.
+
+### <a id="bug-2"></a>BUG-2 — Client money totals always show $0.00
+`Must` · Phase 2 · `frontend/src/pages/Clients/ClientList.jsx:L135`, `ClientDetail.jsx:L235-243`, `apps/clients/serializers.py`
+**Problem:** SPA reads `total_billed`, `total_paid`, `outstanding`; the API returns `total_revenue`, `outstanding_amount`, `invoice_count`.
+**Fix:** Align names (add `total_billed` to the serializer if "billed" ≠ "paid").
+
+### <a id="bug-3"></a>BUG-3 — Saving a time log without an hourly rate always fails
+`Must` · Phase 2 · `frontend/src/pages/TimeTracker/TimeTracker.jsx:L124,L375-381`, `apps/time_tracker/models.py:L30`
+**Problem:** Field labelled "optional" sends `null`; model column is non-null → 400 "Failed to save time log".
+**Fix:** Default the rate from client or user settings on the backend, or make it required in the form.
+
+### <a id="bug-4"></a>BUG-4 — Overdue invoices cannot be marked paid in the UI
+`Must` · Phase 2 · `frontend/src/pages/Invoices/InvoiceDetail.jsx:L158-162`
+**Fix:** Show "Mark Paid" for `['sent','overdue']`.
+
+### <a id="bug-5"></a>BUG-5 — Currency hardcoded to USD in the SPA and emails
+`Must` · Phase 2 · `Dashboard.jsx`, `InvoiceList.jsx`, `ClientList.jsx`, `ClientDetail.jsx`, `Reports.jsx`, `TimeTracker.jsx`, 5 of 6 templates in `InvoicePreview.jsx`, `templates/invoices/email/*.html` (`${{ invoice.total }}`)
+**Problem:** EUR/BDT users see `$`; the same invoice shows `€` in one preview template and `$` in the others; emails always say `$`.
+**Fix:** One `formatCurrency(amount, currency)` in `utils/formatters.js` (exists, unused) used everywhere; pass currency into email context and use the existing `currency` template filter.
+
+### <a id="bug-6"></a>BUG-6 — "Forgot password" pretends to send an email
+`Must` · Phase 2 · `apps/accounts/api_views.py:L137-150`, `frontend/src/pages/Auth/ForgotPassword.jsx`
+**Problem:** Endpoint returns 200 and sends nothing; there is no confirm endpoint or reset page. Locked-out users cannot recover.
+**Fix:** Django `PasswordResetForm` with a link to `/reset-password/:uid/:token`; confirm endpoint with `default_token_generator` + `SetPasswordForm`; throttle (SEC-4); same response whether or not the email exists.
+
+### <a id="bug-7"></a>BUG-7 — Pagination ignored: only the first 20 records ever load
+`Must` · Phase 2 · `InvoiceCreate.jsx:L67-69`, `TimeTracker.jsx:L47-48,L174-177`, `InvoiceList.jsx`, `ClientList.jsx`, `Dashboard.jsx:L22`
+**Problem:** DRF pages at 20; the SPA reads `results` and ignores `next`. Client #21 cannot be picked on a new invoice; "Total Hours" sums only 20 logs; Dashboard's `{limit: 5}` is ignored.
+**Fix:** Pagination controls on lists; `page_size_query_param` on the backend; searchable client select; totals computed server-side.
+
+### <a id="bug-8"></a>BUG-8 — Any error during page load logs the user out
+`Should` · Phase 2 · `frontend/src/context/AuthContext.jsx:L14-26`
+**Fix:** Clear the token only on `401`.
+
+### <a id="bug-9"></a>BUG-9 — "Send" reports success while only queued; stored PDF is stale
+`Should` · Phase 2 · `InvoiceDetail.jsx:L56-63`, `apps/invoices/api_views.py` (`InvoiceSendView`), `apps/invoices/tasks.py`
+**Problem:** Send queues `generate_and_store_pdf` and `send_invoice_email` in parallel; `mark_as_sent` runs later. UI says "sent", status is still `draft`, a second click emails twice, and the stored PDF is rendered as DRAFT and served forever after (also after payment).
+**Fix:** Single task (or `chain`) that marks sent → renders PDF → emails; UI shows "Queued", disables Send until status changes; regenerate or invalidate `pdf_file` on every status change.
+
+### <a id="bug-10"></a>BUG-10 — Delete offered for sent/paid invoices; API error text discarded
+`Should` · Phase 2 · `InvoiceDetail.jsx:L96-104,L166-183`
+**Fix:** Render Delete only for drafts; show `error.response.data.error`.
+
+### <a id="bug-11"></a>BUG-11 — Client search does nothing
+`Should` · Phase 2 · `apps/clients/api_views.py:L11-12`
+**Fix:** Filter `name|company|email__icontains` on `?search=`.
+
+### <a id="bug-12"></a>BUG-12 — "Create invoice" from a client does not preselect that client
+`Should` · Phase 2 · `ClientDetail.jsx:L144,L268`, `InvoiceCreate.jsx`
+**Fix:** Read `useSearchParams().get('client')` as the default.
+
+### <a id="bug-13"></a>BUG-13 — Date-only values shift by a day
+`Should` · Phase 2 · `TimeTracker.jsx:L25,L105,L159-165,L297`
+**Problem:** `new Date('2026-11-15')` is UTC midnight → shows Nov 14 west of UTC; default date uses `toISOString()` (UTC), pre-filling tomorrow/yesterday near midnight.
+**Fix:** Parse date-only strings as local dates; build defaults from local `getFullYear/getMonth/getDate`.
+
+### <a id="bug-14"></a>BUG-14 — Reports shows "NaN%" for new users
+`Should` · Phase 2 · `frontend/src/pages/Reports/Reports.jsx:L255-268`
+**Fix:** `Number(stats.total_billed) > 0 ? … : 0`.
+
+### <a id="bug-15"></a>BUG-15 — Load failures render the empty state; Dashboard is all-or-nothing
+`Should` · Phase 2 · `InvoiceList.jsx`, `ClientList.jsx`, `TimeTracker.jsx`, `Dashboard.jsx`, `Reports.jsx`
+**Fix:** Error state with retry; `Promise.allSettled` on the Dashboard.
+
+### <a id="bug-16"></a>BUG-16 — PDF labels and options are wrong
+`Should` · Phase 2 · `templates/invoices/invoice_pdf.html:L143-144`, `apps/invoices/utils.py`
+**Problem:** Due date labelled "Payment Date"; unpaid invoices with empty notes say "This invoice serves as your official receipt"; the template/colour picker in `InvoiceDetail.jsx` has no effect on the PDF.
+**Fix:** Label "Due Date"; receipt text only when paid; implement or remove template/colour params.
+
+### <a id="bug-17"></a>BUG-17 — Bad query params return 500
+`Should` · Phase 2 · `apps/dashboard/api_views.py:L75` (`?months=abc`), `apps/invoices/api_views.py:L34` (`?client=foo`)
+**Fix:** Validate with serializer fields or `django-filter`; return 400.
+
+### <a id="bug-18"></a>BUG-18 — Production PDFs crash for users with a logo
+`Must` · Phase 5 · `apps/invoices/utils.py:L39-48`
+**Problem:** `user.logo.path` raises `NotImplementedError` on S3 storage, which is not caught → every PDF download/send fails in production for users with a logo.
+**Fix:** Embed the logo as a data URI from `user.logo.open().read()`.
+
+---
+
+## Payments-adjacent product gaps (core features)
+
+### <a id="feat-1"></a>FEAT-1 — Bill unbilled time logs onto an invoice
+`Should` · Phase 3 · `TimeLog.is_billed`, `TimeLog.link_to_invoice` (unused), no SPA flow.
+
+### <a id="feat-2"></a>FEAT-2 — Invoice actions missing from the API
+`Should` · Phase 3 · duplicate (only the dead view has it, and it mutates on GET), cancel/void, re-send and manual reminder for overdue invoices (`InvoiceSendView` rejects `overdue`).
+
+### <a id="feat-3"></a>FEAT-3 — Public, tokenized invoice page for clients
+`Should` · Phase 3 · Clients currently have no way to view or pay an invoice except the PDF attachment.
+
+### <a id="feat-4"></a>FEAT-4 — Growth features
+`Nice` · Phase 6 · recurring invoices, quotes/estimates, credit notes, CSV export, per-line and multiple taxes, percentage discounts, per-user invoice prefix, activity/audit log, notification settings, GDPR export/delete, email verification, i18n.
+
+---
+
+## Performance
+
+### <a id="perf-1"></a>PERF-1 — Client list runs 3 queries per client
+`Should` · Phase 4 · `apps/clients/serializers.py:L21-28`
+**Problem:** `get_invoice_count`, `get_total_revenue`, `get_outstanding_amount` each query per row → 61 queries per page of 20.
+**Fix:** `annotate(Count(...), Sum(..., filter=Q(...)))` in `get_queryset`.
+
+### <a id="perf-2"></a>PERF-2 — Single 812 KB JS bundle
+`Should` · Phase 4 · `frontend/src/App.jsx` (every page eagerly imported, incl. recharts)
+**Fix:** `React.lazy` per route; recharts only on Dashboard/Reports.
+
+---
+
+## Lean (delete / merge)
+
+### <a id="lean-1"></a>LEAN-1 — Delete the dead server-rendered UI
+`Should` · Phase 4 · `views.py`, `urls.py`, `forms.py` in accounts, clients, dashboard, invoices, time_tracker; `config/urls.py:L11-17`; `crispy_forms`, `crispy_tailwind`
+**Why:** ~1,000 lines duplicating the API; every page 500s; `/invoices/<pk>/duplicate/` mutates on GET; allauth login redirects to a 500. Decision: [ADR-0001](adr/0001-api-only-backend.md).
+**Fix:** Delete; move the Stripe webhook under `/api/payments/webhook/`; keep `allauth` only if email confirmation is adopted.
+
+### <a id="lean-2"></a>LEAN-2 — Unused dependencies
+`Should` · Phase 4 · backend: `sendgrid` (mail goes through SMTP), `django-crispy-forms`, `crispy-tailwind`; frontend: `@types/react`, `@types/react-dom` (no TypeScript).
+
+### <a id="lean-3"></a>LEAN-3 — Dead backend helpers
+`Nice` · Phase 4 · `invoices/utils.py:format_currency`, `templatetags/invoice_filters.py:abs_value`, `Invoice.days_until_due`, `handle_payment_intent_succeeded`, `config/celery.py:debug_task`, the `color` param in `utils.py`. Keep `TimeLog.link_to_invoice` for [FEAT-1](#feat-1).
+
+### <a id="lean-4"></a>LEAN-4 — Dead and duplicated frontend code
+`Should` · Phase 4 · `hooks/useDebounce.js` (unused); `utils/formatters.js` (unused while `formatCurrency` is copied into 6 pages and `getStatusBadge` into 4); unused endpoint helpers in `api/endpoints.js` (`auth.*` duplicated in `AuthContext`, `clients.archive`, `timeLogs.get`, `settings.get/update` → `/api/settings/` does not exist); `@` alias and `/accounts` proxy in `vite.config.js`; Inter font loaded twice.
+
+### <a id="lean-5"></a>LEAN-5 — Oversized components mixing jobs
+`Nice` · Phase 4 · `InvoicePreview.jsx` (714 lines, 6 templates), `InvoiceCreate.jsx` (441), `TimeTracker.jsx` (411), `Settings.jsx` (382). Split by job (one file per template; form vs. totals vs. API mapping), not by line count.
+
+---
+
+## UX & accessibility
+
+### <a id="ux-1"></a>UX-1 — Modal has no dialog semantics, Esc, or focus trap
+`Should` · Phase 4 · `frontend/src/components/ui/Modal.jsx`
+**Fix:** Native `<dialog>` + `showModal()`, or `role="dialog" aria-modal aria-labelledby`, Esc to close, focus in/out management, `aria-label` on close.
+
+### <a id="ux-2"></a>UX-2 — Inputs unlabeled for assistive tech; rows not keyboard-reachable
+`Should` · Phase 4 · `components/ui/Input.jsx`, `Select.jsx`, `Table.jsx`, icon-only buttons across pages
+**Fix:** `useId()` + `htmlFor`; invoice number as a `<Link>`; `aria-label` on icon buttons.
+
+### <a id="ux-3"></a>UX-3 — No 404 route
+`Nice` · Phase 4 · `frontend/src/App.jsx` has no `*` route.
+
+### <a id="ux-4"></a>UX-4 — Fake settings and header controls
+`Should` · Phase 4 · `Settings.jsx` (Notifications/Appearance not registered with the form), `Header.jsx` (bell always shows unread dot), `Sidebar.jsx` ("Pro Plan" card), undefined `xs:` breakpoint in `tailwind.config.js` ("New Invoice" label never shows).
+**Fix:** Implement or remove each; add `screens: { xs: '480px' }`.
+
+### <a id="ux-5"></a>UX-5 — Theme handled per page
+`Nice` · Phase 4 · dark-mode toggle duplicated in auth pages and `Header`; sidebar uses the dark logo on a dark background.
+
+### <a id="ux-6"></a>UX-6 — Mixed product branding
+`Should` · Phase 4 · "Penough" vs "FreelanceFlow" vs "BugValluk". See [DESIGN.md](DESIGN.md).
+
+---
+
+## Tests
+
+### <a id="test-1"></a>TEST-1 — 9 of 32 backend tests fail
+`Must` · Phase 0 · measured 2026-11-15
+| Test | Cause |
+|---|---|
+| `test_invoices.py::TestInvoiceViews` (4 tests) | test the dead template views ([LEAN-1](#lean-1)) → `TemplateDoesNotExist` |
+| `test_invoices.py::TestInvoiceModel::test_is_overdue` | factory sets a `date` on a `DateTimeField` |
+| `test_payments.py::test_partial_payment` | `invoice.save()` recalculates total to 0 (no items) |
+| `test_payments.py::test_webhook_invalid_signature` | mocked `SignatureVerificationError` is not an exception class |
+| `test_tasks.py::test_sends_email_with_pdf`, `test_generates_and_stores_pdf` | patch `apps.invoices.tasks.generate_pdf`, which is imported elsewhere |
+**Fix:** Delete the 4 dead-view tests with LEAN-1 (or now); fix the factory to use aware datetimes; give the partial-payment invoice items; mock the exception as a real class; patch where the name is looked up.
+
+### <a id="test-2"></a>TEST-2 — Test DB selection is accidental
+`Must` · Phase 0 · `config/settings/local.py:L28`
+**Problem:** `'test' in sys.argv` is never true under pytest, so tests use Postgres unless `.env` happens to set `USE_SQLITE=True`. CI passes `DATABASE_URL`, which `local.py` ignores.
+**Fix:** Add `config/settings/test.py` (SQLite in-memory or `DATABASE_URL`, MD5 hasher, locmem email, eager Celery) and point `pytest.ini` at it.
+
+### <a id="test-3"></a>TEST-3 — No API tests for accounts, clients, time logs, dashboard, cross-tenant access, rounding
+`Must` · Phases 1–3 (each fix lands with its test) · see coverage map below.
+
+### <a id="test-4"></a>TEST-4 — The frontend has no tests
+`Should` · Phase 0 (infra), Phases 2–4 (tests) · no Vitest/Jest, no test script.
+**Fix:** Vitest + React Testing Library + MSW; first targets: `client.js` 401 handling, `InvoiceCreate` edit/quantity payload, currency formatting, date-only parsing.
+
+### <a id="test-5"></a>TEST-5 — No end-to-end smoke test
+`Should` · Phase 5 · Playwright: sign up → create client → create invoice → send → mark paid → PDF downloads.
+
+**Coverage map (backend, 2026-11-15)**
+
+| Area | Tested | Untested |
+|---|---|---|
+| Invoice model | numbering, totals, tax, editable, sent/paid transitions | rounding, discount, numbering race, year rollover |
+| Invoice API | list, detail, status filter | create/update with items, validation, cross-user, send, mark-paid, PDF, delete rules |
+| Payments | webhook happy path, checkout (mocked) | idempotency, amount mismatch, anonymous checkout |
+| Tasks | overdue marking, due-soon selection | overdue reminder, stale PDF, retries |
+| Accounts / Clients / Time logs / Dashboard API | — | everything |
+
+---
+
+## Ops, CI & developer experience
+
+### <a id="ops-1"></a>OPS-1 — CI cannot pass
+`Must` · Phase 0 · `.github/workflows/ci.yml`
+**Problem:** Lint and test steps run from the repo root (`flake8 apps/`, `pip install -r requirements-dev.txt`) but the code lives in `backend/`; the build job uses `context: .` and there is no root Dockerfile; no frontend job.
+**Fix:** `defaults.run.working-directory: backend`; build `./backend`; add a frontend job (`npm ci && npm run lint && npm run build && npm test`).
+
+### <a id="ops-2"></a>OPS-2 — Lint fails on both sides
+`Must` · Phase 0
+**Frontend:** `npm run lint` → 16 errors, 12 warnings: unused vars (`Signup.jsx`, `InvoiceCreate.jsx`, `Settings.jsx`, …) and `react-hooks/exhaustive-deps`; `--max-warnings 0` makes warnings fatal.
+**Backend:** `black --check apps` → 64 files would be reformatted (the code uses single quotes; black's default normalizes to double), `isort --check-only` → 14 files, `flake8 apps` → 154 issues. CI's lint job fails on these even after [OPS-1](#ops-1).
+**Fix:** One formatting-only commit (`black apps && isort apps`, or set `skip-string-normalization` if single quotes are preferred), then fix the remaining flake8 findings; keep that commit separate so `git blame --ignore-rev` can skip it.
+
+### <a id="ops-3"></a>OPS-3 — Production compose cannot deploy the app
+`Must` · Phase 5 · `docker-compose.prod.yml`, `nginx.conf`
+**Problem:** `build: .` (no root Dockerfile); no frontend service; nginx proxies `/` to Django so the SPA is never served; port 443 published with no TLS server block; no migrate step; `.env.prod.db` undocumented.
+**Fix:** Build `./backend`; multi-stage frontend image served by nginx with `try_files $uri /index.html`; `/api`, `/admin`, `/static`, `/media` proxied to Django; TLS (Caddy or certbot); release step runs `migrate`.
+
+### <a id="ops-4"></a>OPS-4 — Backend image runs `collectstatic` with local settings
+`Should` · Phase 5 · `backend/Dockerfile:L28`
+**Problem:** `manage.py` defaults to `local` (plain storage, no manifest) while gunicorn runs `production` (`CompressedManifestStaticFilesStorage`) → "Missing staticfiles manifest entry" → admin 500.
+**Fix:** `RUN DJANGO_SETTINGS_MODULE=config.settings.production SECRET_KEY=build python manage.py collectstatic --noinput`.
+
+### <a id="ops-5"></a>OPS-5 — Frontend image runs the Vite dev server
+`Should` · Phase 5 · `frontend/Dockerfile`
+**Problem:** `npm install` (not `npm ci`), `CMD npm run dev`, no `.dockerignore` (copies host `node_modules`/`dist`), `VITE_API_URL` set at runtime although Vite inlines it at build time.
+**Fix:** Multi-stage build → static files; `.dockerignore`; `VITE_API_URL` as a build arg.
+
+### <a id="ops-6"></a>OPS-6 — Two conflicting `.env.example` files
+`Should` · Phase 0 · **Done 2026-11-15**: merged into the root `.env.example`; `backend/.env.example` removed.
+
+### <a id="ops-7"></a>OPS-7 — Django 4.2 is past end of support; loose pins; migration drift
+`Should` · Phase 4 · `backend/requirements.txt`, `invoices/migrations/0004`, `0005`
+**Problem:** Django 4.2 LTS support ended April 2026. `STATICFILES_STORAGE`/`DEFAULT_FILE_STORAGE` are removed in 5.1. Requirements use `>=` with no lockfile. `0005` has `blank=True` the model lacks; `0004` copies `default_due_date` locally.
+**Fix:** Django 5.2 LTS with `STORAGES={...}`; `pip-tools` lockfile; `makemigrations --check` in CI.
+
+### <a id="ops-8"></a>OPS-8 — Tooling gaps
+`Nice` · Phase 4 · ESLint 8 (EOL, legacy `.eslintrc.cjs`), no Prettier, no pre-commit hooks, no `ruff`/`mypy` in CI, Python version drift (docs/Docker/CI say 3.11, local venv is 3.13).
+**Fix:** ESLint 9 flat config + Prettier; `pre-commit` with ruff/black/isort/prettier; one Python version in `.python-version`, Dockerfile and CI.
+
+### <a id="ops-9"></a>OPS-9 — No observability or task resilience
+`Should` · Phase 5 · No Sentry/error tracking; Celery email tasks have no `autoretry_for`/backoff; no structured logging in tasks; no health check that touches DB/Redis (nginx `/health/` returns a static 200).
+
+### <a id="ops-10"></a>OPS-10 — README described a setup that did not work
+`Should` · Phase 0 · **Done 2026-11-15**: wrong frontend port (5173 vs 3000), nginx in dev compose, `python backend/manage.py` paths, broken `loaddata` fixture, missing status. README rewritten.
+
+### <a id="ops-11"></a>OPS-11 — Broken demo fixture
+`Should` · Phase 0 · **Done 2026-11-15**: `fixtures/sample_data.json` had one user with a placeholder password hash (login impossible). Replaced by `python manage.py seed_demo`.
+
+### <a id="ops-12"></a>OPS-12 — Celery defaults to production settings
+`Must` · Phase 0 · `config/celery.py:L9`
+**Problem:** `celery -A config worker` without `DJANGO_SETTINGS_MODULE` loads `production`, so a local worker uses S3 storage and SendGrid; PDF tasks fail locally.
+**Fix:** Default to `config.settings.local` like `manage.py`; production sets the variable explicitly (compose already does).
+
+### <a id="ops-13"></a>OPS-13 — Root `.gitignore` ignores any `lib/` directory
+`Nice` · Phase 0 · `.gitignore:L13` (`lib/`) would silently ignore e.g. `frontend/src/lib/`.
+**Fix:** Anchor Python-packaging patterns (`/backend/lib/`) or drop them.
