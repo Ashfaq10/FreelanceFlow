@@ -115,6 +115,9 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      # Replaces Dependabot PRs: vulnerabilities surface here instead of as branches.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
 
   build:
     runs-on: ubuntu-latest
