@@ -11,9 +11,10 @@ django-debug-toolbar>=4.3.0
 ipython>=8.0.0
 
 # Code Quality
-flake8>=7.0.0
-black>=24.0.0
-isort>=5.13.0
+# Floors match the versions pinned in .github/workflows/ci.yml and .pre-commit-config.yaml.
+flake8>=7.5.0
+black>=26.10.1
+isort>=9.0.2
 pre-commit>=4.0.0
 
 # Type Checking
