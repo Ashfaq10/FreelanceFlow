@@ -78,7 +78,7 @@ function Dashboard() {
             Dashboard
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-0.5 text-sm">
-            Here's an overview of your business today.
+            Here&apos;s an overview of your business today.
           </p>
         </div>
         <Link to="/invoices/new" className="btn btn-primary hidden sm:inline-flex">

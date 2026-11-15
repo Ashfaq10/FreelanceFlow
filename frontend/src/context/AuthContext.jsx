@@ -62,6 +62,7 @@ export function AuthProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook lives beside its provider by design
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) {

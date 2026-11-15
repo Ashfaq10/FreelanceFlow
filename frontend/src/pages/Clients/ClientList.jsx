@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Users, Mail, Phone } from 'lucide-react'
-import { Card, Table, Button, EmptyState, Skeleton } from '../../components/ui'
+import { Card, Button, EmptyState, Skeleton } from '../../components/ui'
 import { clients as clientApi } from '../../api/endpoints'
 
 function ClientList() {
@@ -11,23 +11,22 @@ function ClientList() {
   const [search, setSearch] = useState(searchParams.get('search') || '')
 
   useEffect(() => {
+    const fetchClients = async () => {
+      setLoading(true)
+      try {
+        const params = {
+          search: searchParams.get('search'),
+        }
+        const response = await clientApi.list(params)
+        setClients(response.data.results || response.data || [])
+      } catch (error) {
+        console.error('Failed to fetch clients:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchClients()
   }, [searchParams])
-
-  const fetchClients = async () => {
-    setLoading(true)
-    try {
-      const params = {
-        search: searchParams.get('search'),
-      }
-      const response = await clientApi.list(params)
-      setClients(response.data.results || response.data || [])
-    } catch (error) {
-      console.error('Failed to fetch clients:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleSearch = (e) => {
     e.preventDefault()

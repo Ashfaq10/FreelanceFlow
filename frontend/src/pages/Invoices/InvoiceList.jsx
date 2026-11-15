@@ -15,24 +15,23 @@ function InvoiceList() {
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
 
   useEffect(() => {
+    const fetchInvoices = async () => {
+      setLoading(true)
+      try {
+        const params = {
+          search: searchParams.get('search'),
+          status: searchParams.get('status'),
+        }
+        const response = await invoiceApi.list(params)
+        setInvoices(response.data.results || response.data || [])
+      } catch (error) {
+        console.error('Failed to fetch invoices:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchInvoices()
   }, [searchParams])
-
-  const fetchInvoices = async () => {
-    setLoading(true)
-    try {
-      const params = {
-        search: searchParams.get('search'),
-        status: searchParams.get('status'),
-      }
-      const response = await invoiceApi.list(params)
-      setInvoices(response.data.results || response.data || [])
-    } catch (error) {
-      console.error('Failed to fetch invoices:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleSearch = (e) => {
     e.preventDefault()

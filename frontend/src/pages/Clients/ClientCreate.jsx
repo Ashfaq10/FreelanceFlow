@@ -29,26 +29,24 @@ function ClientCreate() {
   })
 
   useEffect(() => {
-    if (isEditing) {
-      fetchClient()
+    if (!isEditing) return
+    const fetchClient = async () => {
+      setLoading(true)
+      try {
+        const response = await clientApi.get(id)
+        reset({
+          ...response.data,
+          company_name: response.data.company || '',
+        })
+      } catch (error) {
+        toast.error('Failed to load client')
+        navigate('/clients')
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [id])
-
-  const fetchClient = async () => {
-    setLoading(true)
-    try {
-      const response = await clientApi.get(id)
-      reset({
-        ...response.data,
-        company_name: response.data.company || '',
-      })
-    } catch (error) {
-      toast.error('Failed to load client')
-      navigate('/clients')
-    } finally {
-      setLoading(false)
-    }
-  }
+    fetchClient()
+  }, [id, isEditing, reset, navigate])
 
   const onSubmit = async (data) => {
     setSaving(true)

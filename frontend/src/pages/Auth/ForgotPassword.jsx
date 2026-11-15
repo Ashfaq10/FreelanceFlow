@@ -14,7 +14,7 @@ function ForgotPassword() {
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add('dark')
     else document.documentElement.classList.remove('dark')
-  }, [])
+  }, [darkMode])
 
   const toggleDark = () => {
     const next = !darkMode
@@ -60,7 +60,7 @@ function ForgotPassword() {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Check your email</h2>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
-            We've sent a password reset link to your email address.
+            We&apos;ve sent a password reset link to your email address.
           </p>
           <Link to="/login" className="btn btn-primary inline-flex mt-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -99,7 +99,7 @@ function ForgotPassword() {
         <div className="mb-7 text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reset your password</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
-            Enter your email and we'll send you a reset link.
+            Enter your email and we&apos;ll send you a reset link.
           </p>
         </div>
 

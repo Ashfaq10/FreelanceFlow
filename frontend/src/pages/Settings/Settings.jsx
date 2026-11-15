@@ -12,7 +12,7 @@ function Settings() {
   const [activeTab, setActiveTab] = useState('profile')
   const [logoPreview, setLogoPreview] = useState(null)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { register, handleSubmit, reset } = useForm()
 
   useEffect(() => {
     if (user) {
@@ -87,14 +87,6 @@ function Settings() {
     { value: 'AUD', label: 'AUD - Australian Dollar' },
     { value: 'INR', label: 'INR - Indian Rupee' },
     { value: 'BDT', label: 'BDT - Bangladeshi Taka' },
-  ]
-
-  const paymentTerms = [
-    { value: 7, label: 'Net 7 (Due in 7 days)' },
-    { value: 14, label: 'Net 14 (Due in 14 days)' },
-    { value: 30, label: 'Net 30 (Due in 30 days)' },
-    { value: 45, label: 'Net 45 (Due in 45 days)' },
-    { value: 60, label: 'Net 60 (Due in 60 days)' },
   ]
 
   return (

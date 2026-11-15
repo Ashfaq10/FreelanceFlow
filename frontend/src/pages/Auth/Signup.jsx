@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Mail, Lock, Eye, EyeOff, Zap, ArrowLeft, Sun, Moon } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Zap, Sun, Moon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui'
@@ -16,7 +16,7 @@ function Signup() {
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add('dark')
     else document.documentElement.classList.remove('dark')
-  }, [])
+  }, [darkMode])
 
   const toggleDark = () => {
     const next = !darkMode

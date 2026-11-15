@@ -4,6 +4,7 @@
  */
 
 // ── Colour palettes ───────────────────────────────────────────────────
+// eslint-disable-next-line react-refresh/only-export-components -- shared template config; splitting this file is LEAN-5
 export const COLOR_PALETTES = [
     {
         id: 'blue',
@@ -62,6 +63,7 @@ export const COLOR_PALETTES = [
 ]
 
 // ── Template definitions ──────────────────────────────────────────────
+// eslint-disable-next-line react-refresh/only-export-components -- shared template config; splitting this file is LEAN-5
 export const TEMPLATES = [
     { id: 'professional', name: 'Professional', description: 'BugValluk-style invoice with logo, meta bar, and bank details' },
     { id: 'classic', name: 'Classic', description: 'Clean, timeless two-column layout' },
@@ -147,9 +149,6 @@ function BillToDetails({ invoice, titleClass = '', nameClass = '', lineClass = '
 // ─────────────────────────────────────────────────────────────────────
 function ProfessionalTemplate({ invoice }) {
     const cur = invoice.currency || 'USD'
-    const status = (invoice.status || 'draft').toLowerCase()
-    const statusLabel = { paid: 'PAID', sent: 'UNPAID', overdue: 'OVERDUE', draft: 'DRAFT' }[status] || 'UNPAID'
-    const statusColor = { paid: '#059669', sent: '#F97316', overdue: '#DC2626' }[status] || '#6B7280'
     const bankLines = (invoice.bank_details || '').split('\n').filter(Boolean)
     const terms = (invoice.invoice_terms || '').split('\n').filter(Boolean)
 
@@ -576,12 +575,6 @@ function ItemsTable({ invoice, color, striped, minimal, compact }) {
     const py = compact ? 'py-1.5' : minimal ? 'py-3' : 'py-3.5'
     const headerBg = minimal ? 'transparent' : compact ? 'transparent' : color.light
     const headerColor = minimal || compact ? color.primary : color.primary
-    const headerBorder = minimal
-        ? `1px solid ${color.primary}`
-        : compact
-            ? `1px solid ${color.primary}`
-            : 'none'
-
     return (
         <table className="w-full mb-6" style={{ borderCollapse: 'collapse' }}>
             <thead>
@@ -625,7 +618,7 @@ function ItemsTable({ invoice, color, striped, minimal, compact }) {
     )
 }
 
-function Totals({ invoice, color, minimal, compact, sidebar }) {
+function Totals({ invoice, color, compact, sidebar }) {
     if (sidebar) return null // Bold template shows total in sidebar
     const w = compact ? '220px' : '260px'
     return (
@@ -657,7 +650,7 @@ function Totals({ invoice, color, minimal, compact, sidebar }) {
     )
 }
 
-function Notes({ text, color, minimal, compact }) {
+function Notes({ text, color, compact }) {
     return (
         <div style={{
             marginTop: compact ? '16px' : '24px',
@@ -673,7 +666,7 @@ function Notes({ text, color, minimal, compact }) {
     )
 }
 
-function Footer({ color, minimal, compact }) {
+function Footer({ color, compact }) {
     return (
         <div style={{
             marginTop: compact ? '20px' : '32px',

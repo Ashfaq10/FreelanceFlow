@@ -25,7 +25,7 @@ function Login() {
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add('dark')
     else document.documentElement.classList.remove('dark')
-  }, [])
+  }, [darkMode])
 
   const toggleDark = () => {
     const next = !darkMode
@@ -216,7 +216,7 @@ function Login() {
           </div>
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link to="/signup" className="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">
               Create one free
             </Link>

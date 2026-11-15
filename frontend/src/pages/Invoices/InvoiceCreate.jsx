@@ -18,7 +18,7 @@ function InvoiceCreate() {
 
   const now = new Date()
 
-  const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, watch, reset, formState: { errors } } = useForm({
     defaultValues: {
       client: '',
       reference_number: '',
@@ -56,51 +56,51 @@ function InvoiceCreate() {
   const taxRate = parseFloat(watch('tax_rate')) || 0
 
   useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const response = await clientApi.list()
+        const clientData = response.data.results || response.data || []
+        setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
+      } catch (error) {
+        console.error('Failed to fetch clients:', error)
+      }
+    }
+
+    const fetchInvoice = async () => {
+      setLoading(true)
+      try {
+        const response = await invoiceApi.get(id)
+        const invoice = response.data
+        const editNow = new Date()
+        reset({
+          client: invoice.client,
+          reference_number: invoice.reference_number || '',
+          issue_date: toDateTimeLocal(editNow),
+          due_date: toDateTimeLocal(new Date(editNow.getTime() + 30 * 24 * 60 * 60 * 1000)),
+          discount_amount: invoice.discount_amount ?? 0,
+          tax_rate: invoice.tax_rate ?? 0,
+          notes: invoice.notes || '',
+          items: invoice.items?.length > 0
+            ? invoice.items.map((item) => ({
+                description: item.description,
+                quantity: Number(item.quantity),
+                rate: item.rate ?? item.unit_price ?? 0,
+              }))
+            : [{ description: '', quantity: 1, rate: 0 }],
+        })
+      } catch (error) {
+        toast.error('Failed to load invoice')
+        navigate('/invoices')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchClients()
     if (isEditing) {
       fetchInvoice()
     }
-  }, [id])
-
-  const fetchClients = async () => {
-    try {
-      const response = await clientApi.list()
-      const clientData = response.data.results || response.data || []
-      setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
-    } catch (error) {
-      console.error('Failed to fetch clients:', error)
-    }
-  }
-
-  const fetchInvoice = async () => {
-    setLoading(true)
-    try {
-      const response = await invoiceApi.get(id)
-      const invoice = response.data
-      const editNow = new Date()
-      reset({
-        client: invoice.client,
-        reference_number: invoice.reference_number || '',
-        issue_date: toDateTimeLocal(editNow),
-        due_date: toDateTimeLocal(new Date(editNow.getTime() + 30 * 24 * 60 * 60 * 1000)),
-        discount_amount: invoice.discount_amount ?? 0,
-        tax_rate: invoice.tax_rate ?? 0,
-        notes: invoice.notes || '',
-        items: invoice.items?.length > 0
-          ? invoice.items.map((item) => ({
-              description: item.description,
-              quantity: Number(item.quantity),
-              rate: item.rate ?? item.unit_price ?? 0,
-            }))
-          : [{ description: '', quantity: 1, rate: 0 }],
-      })
-    } catch (error) {
-      toast.error('Failed to load invoice')
-      navigate('/invoices')
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [id, isEditing, reset, navigate])
 
   const calculateSubtotal = () => {
     return items.reduce((sum, item) => {

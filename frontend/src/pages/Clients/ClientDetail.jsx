@@ -25,30 +25,30 @@ function ClientDetail() {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
+    const fetchClient = async () => {
+      try {
+        const response = await clientApi.get(id)
+        setClient(response.data)
+      } catch (error) {
+        toast.error('Failed to load client')
+        navigate('/clients')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const fetchClientInvoices = async () => {
+      try {
+        const response = await invoiceApi.list({ client: id })
+        setInvoices(response.data.results || response.data || [])
+      } catch (error) {
+        console.error('Failed to fetch invoices:', error)
+      }
+    }
+
     fetchClient()
     fetchClientInvoices()
-  }, [id])
-
-  const fetchClient = async () => {
-    try {
-      const response = await clientApi.get(id)
-      setClient(response.data)
-    } catch (error) {
-      toast.error('Failed to load client')
-      navigate('/clients')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchClientInvoices = async () => {
-    try {
-      const response = await invoiceApi.list({ client: id })
-      setInvoices(response.data.results || response.data || [])
-    } catch (error) {
-      console.error('Failed to fetch invoices:', error)
-    }
-  }
+  }, [id, navigate])
 
   const handleDelete = async () => {
     setDeleting(true)

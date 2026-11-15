@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Edit, Send, Download, CheckCircle, Trash2,
@@ -39,9 +39,7 @@ function InvoiceDetail() {
     localStorage.setItem(STORAGE_KEY_COLOR, id)
   }
 
-  useEffect(() => { fetchInvoice() }, [id])
-
-  const fetchInvoice = async () => {
+  const fetchInvoice = useCallback(async () => {
     try {
       const response = await invoiceApi.get(id)
       setInvoice(response.data)
@@ -51,7 +49,9 @@ function InvoiceDetail() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id, navigate])
+
+  useEffect(() => { fetchInvoice() }, [fetchInvoice])
 
   const handleSend = async () => {
     setActionLoading('send')
