@@ -21,11 +21,9 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    
-    try:
+
+    # Only when settings added it to INSTALLED_APPS (local.py); merely being importable is not enough.
+    if 'debug_toolbar' in settings.INSTALLED_APPS:
         import debug_toolbar
-        urlpatterns = [
-            path('__debug__/', include(debug_toolbar.urls)),
-        ] + urlpatterns
-    except ImportError:
-        pass
+
+        urlpatterns = [path('__debug__/', include(debug_toolbar.urls))] + urlpatterns

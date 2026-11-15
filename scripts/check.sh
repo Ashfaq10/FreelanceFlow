@@ -19,6 +19,7 @@ echo '== backend: format, lint, tests'
 (cd backend && "../$PY" -m black --check apps)
 (cd backend && "../$PY" -m isort --check-only apps)
 (cd backend && "../$PY" -m flake8 apps --count)
+(cd backend && "../$PY" manage.py makemigrations --check --dry-run --settings=config.settings.test)
 (cd backend && "../$PY" -m pytest -q)
 
 echo '== frontend: lint, tests, build'

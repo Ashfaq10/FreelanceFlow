@@ -32,6 +32,5 @@ Phase 4, in this order (see [PHASES.md](PHASES.md)):
 
 ## Blocked / needs a decision
 
-- Rebuild the local `backend/venv` on Python 3.12 (3.13 is not supported by Django 4.2)
 - One real Stripe test-mode payment (everything payment-related is mocked so far)
 - Upload the repo's social preview image in GitHub settings

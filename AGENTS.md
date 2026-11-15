@@ -4,7 +4,7 @@ Instructions for AI coding agents and new contributors. Humans: start with [READ
 
 ## What this is
 
-FreelanceFlow: invoicing for freelancers. Django 4.2 + DRF API (`backend/`), React 18 + Vite + Tailwind SPA (`frontend/`), Celery + Redis for email/PDF/reminders, WeasyPrint PDFs, Stripe payments.
+FreelanceFlow: invoicing for freelancers. Django 5.2 LTS + DRF API (`backend/`), React 18 + Vite + Tailwind SPA (`frontend/`), Celery + Redis for email/PDF/reminders, WeasyPrint PDFs, Stripe payments.
 
 The SPA is the only real UI. The old server-rendered Django views were deleted (LEAN-1). Put new behaviour in `api_views.py` / `api_urls.py` / `serializers.py` ([ADR-0001](docs/adr/0001-api-only-backend.md)).
 
@@ -25,7 +25,7 @@ Everything CI runs, from the repo root: `bash scripts/check.sh` (add `--pg` to r
 
 ```bash
 # Backend (Windows: venv\Scripts\python; macOS/Linux: venv/bin/python)
-python -m venv venv && venv/Scripts/python -m pip install -r requirements-dev.txt
+python -m venv venv && venv/Scripts/python -m pip install -r requirements-dev.txt   # both .txt files are compiled locks
 venv/Scripts/python manage.py migrate
 venv/Scripts/python manage.py seed_demo --reset      # demo@freelanceflow.dev / demo-pass-2026
 venv/Scripts/python manage.py runserver               # http://localhost:8000

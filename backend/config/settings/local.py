@@ -45,9 +45,10 @@ if os.getenv('EMAIL_HOST_USER'):
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
 
 # Dev-only dependency (SEC-7): it is absent from the production image, and urls.py already guards its routes.
 try:

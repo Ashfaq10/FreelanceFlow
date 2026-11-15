@@ -48,3 +48,16 @@ npm run build
 ## Code review
 
 Reviewers check, in order: correctness → security/data scoping → tests → performance → simplicity. Request changes for missing tests on `Must` items; leave style to the formatters.
+
+## Python dependencies
+
+`backend/requirements.in` and `requirements-dev.in` hold the direct dependencies; `requirements.txt` and `requirements-dev.txt` are compiled lockfiles (CI and the Docker image install those). After editing a `.in` file:
+
+```bash
+pip install uv
+cd backend
+uv pip compile requirements.in --universal --python-version 3.12 -o requirements.txt
+uv pip compile requirements-dev.in --universal --python-version 3.12 -c requirements.txt -o requirements-dev.txt
+```
+
+`uv pip compile` is the pip-tools workflow with cross-platform output, so the lock works on Windows and Linux.

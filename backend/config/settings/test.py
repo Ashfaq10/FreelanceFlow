@@ -19,8 +19,10 @@ else:
 
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
 MEDIA_ROOT = Path(tempfile.gettempdir()) / 'freelanceflow-test-media'
 
 CELERY_TASK_ALWAYS_EAGER = True

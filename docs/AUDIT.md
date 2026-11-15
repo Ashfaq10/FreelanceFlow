@@ -367,7 +367,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Should` · Phase 0 · **Done 2026-11-15**: merged into the root `.env.example`; `backend/.env.example` removed.
 
 ### <a id="ops-7"></a>OPS-7 — Django 4.2 is past end of support; loose pins; migration drift
-`Should` · Phase 4 · `backend/requirements.txt`, `invoices/migrations/0004`, `0005`
+`Should` · Phase 4 · `backend/requirements.txt`, `invoices/migrations/0004`, `0005` · **Done 2026-11-15**: Django 5.2.19 (LTS), `STORAGES` replaces `DEFAULT_FILE_STORAGE`/`STATICFILES_STORAGE` in all four settings files, `accounts/0005` fixes the `bank_details` drift, `makemigrations --check` runs in CI and `scripts/check.sh`, and both requirements files are compiled locks (`.in` → `.txt`, via `uv pip compile`, a pip-tools-compatible resolver that can target Python 3.12 from any OS). Verified: 201 tests, a real PDF render on WeasyPrint 70, production settings load with S3 as the default storage. Also removed the unused `mypy`/`django-stubs`/`ipython` dev dependencies and made the debug toolbar mount only when it is in `INSTALLED_APPS`.
 **Problem:** Django 4.2 LTS support ended April 2026. `STATICFILES_STORAGE`/`DEFAULT_FILE_STORAGE` are removed in 5.1. Requirements use `>=` with no lockfile. `0005` has `blank=True` the model lacks; `0004` copies `default_due_date` locally.
 **Fix:** Django 5.2 LTS with `STORAGES={...}`; `pip-tools` lockfile; `makemigrations --check` in CI.
 

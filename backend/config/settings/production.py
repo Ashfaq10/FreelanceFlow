@@ -32,7 +32,7 @@ AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGES = {**STORAGES, 'default': {'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage'}}
 
 LOGGING = {
     'version': 1,
