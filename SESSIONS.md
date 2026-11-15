@@ -15,6 +15,33 @@ Entry template:
 
 ---
 
+## 2026-11-15 — Phase 1: security & money integrity
+
+**Goal:** close every Phase 1 item (14), after adding the dev tooling that was missing.
+
+**Done:** (one commit per item or tight group, all pushed to `main`)
+- Tooling: `scripts/check.sh` (`--pg` for Postgres), pre-commit hooks (black/isort/flake8/eslint), Dependabot.
+- SEC-1 related fields scoped to `request.user`; SEC-2 production requires `SECRET_KEY`/`ALLOWED_HOSTS` + proxy TLS header.
+- SEC-3 Pillow-validated logo uploads, old file deleted; SEC-4 auth throttles + password validators + lower-cased emails; SEC-7 toolbar dev-only; SEC-8 currency `ChoiceField`.
+- DATA-1 `Invoice.client` `PROTECT`, 409 on delete, SPA archives; DATA-2 status state machine + cancel endpoint; DATA-3 `to_cents` both sides; DATA-4 atomic writes + `bulk_create`, signals deleted; DATA-5 fractional quantities and bounded discount/tax; DATA-6 draft dates kept.
+- PAY-1 idempotent, amount-checked Stripe webhook.
+- Tests: 25 → 86 backend, 9 frontend. New files: `test_scoping`, `test_money`, `test_transitions`, `test_invoice_writes`, `test_invoice_validation`, `test_clients`, `test_webhook`, `test_accounts`, `test_auth`, `utils/money.test.js`.
+- Browser-verified against the running app: money parity (1.5 × 0.33 → $0.50 on screen and saved), draft dates on edit, 409 + archive flow.
+
+**State:** Phase 1 done (14/14); CI green on `main` (run 43707497190). Migrations 0007 (validators) and 0008 (`PROTECT`) applied locally and in CI. Docker Desktop was down all session, so the image build was only ever exercised by CI — it caught two failures (`libgdk-pixbuf2.0-0`, then the missing `debug_toolbar` during `collectstatic`).
+
+**Next:** Phase 2, BACKLOG "Now": [BUG-1](docs/AUDIT.md#bug-1) login errors, [BUG-2](docs/AUDIT.md#bug-2) client totals field names, [BUG-3](docs/AUDIT.md#bug-3) time-log rate.
+
+### Open questions
+
+1. **Product name:** Penough vs FreelanceFlow — [UX-6](docs/AUDIT.md#ux-6).
+2. **Python version:** CI/Docker 3.11, local venv 3.13 — [OPS-8](docs/AUDIT.md#ops-8).
+3. **ADRs 0001 and 0002:** accept as proposed?
+4. **`main` protection:** `.claude/settings.json` denies `git push origin main`, but pushes to `main` are what we do. Drop the rule, or switch to branch + PR?
+5. **`TimeLog.client` is still `CASCADE`:** deleting a client with time logs but no invoices drops those logs. Protect them too?
+
+---
+
 ## 2026-11-15 — Phase 0 baseline
 
 **Goal:** finish Phase 0: green tests, green lint, working CI, frontend test setup.

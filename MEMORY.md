@@ -30,6 +30,9 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 - **2026-11-15 — Vitest/jsdom: stubbing `window.location` as `{ href: '/' }` breaks axios** ("Invalid base URL"). Copy `href`, `origin`, `protocol`, `host`, `hostname`, `port`, `pathname` into the stub (see `api/client.test.js`).
 - **2026-11-15 — CI pins flake8/black/isort to the local venv versions.** Unpinned tools in CI reformat differently from local runs; bump the pin in `ci.yml` when the venv upgrades.
 - **2026-11-15 — `bulk_create` skips `Model.save()`.** `InvoiceItem.line_total` must be set explicitly before the call (`item.compute_line_total()`), or the column is written as NULL/stale.
+- **2026-11-15 — Removing a package from `requirements.txt` can break the image build.** `backend/Dockerfile` runs `collectstatic` through `manage.py`, which loads *local* settings; anything those settings import must exist in the production image, or be guarded (see `debug_toolbar` in `config/settings/local.py`). Proper fix is [OPS-4](docs/AUDIT.md#ops-4).
+- **2026-11-15 — DRF throttles count in the Django cache.** Tests that hit `/api/auth/*` leak counters into later tests; `tests/conftest.py` clears the cache around every test.
+- **2026-11-15 — An `IntegrityError` inside a test's transaction poisons it.** Wrap the failing write in `transaction.atomic()` (savepoint) before catching, as `signup_view` does, or the next query raises `TransactionManagementError`.
 
 ## Debugging recipes
 
