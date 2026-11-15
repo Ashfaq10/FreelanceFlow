@@ -34,7 +34,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** In the serializer `__init__`, restrict `fields['client'].queryset` to `request.user.clients.all()` and `fields['invoice'].queryset` to `request.user.invoices.all()`. Test: cross-user POST returns 400.
 
 ### <a id="sec-2"></a>SEC-2 — Production can boot with the public default `SECRET_KEY`
-`Must` · Phase 1 · `config/settings/base.py:L14`, `config/settings/production.py`
+`Must` · Phase 1 · `config/settings/base.py:L14`, `config/settings/production.py` · **Done 2026-11-15**: production reads both from the environment with no default and sets `SECURE_PROXY_SSL_HEADER`.
 **Problem:** Missing `SECRET_KEY` falls back to `'django-insecure-change-me-in-production'` (published in the repo) → forged sessions and password-reset tokens. No `SECURE_PROXY_SSL_HEADER`, so `SECURE_SSL_REDIRECT=True` behind a TLS-terminating proxy redirects forever.
 **Fix:** `SECRET_KEY = os.environ['SECRET_KEY']` in `production.py`; set `SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')`; parse `ALLOWED_HOSTS` from env with no default.
 

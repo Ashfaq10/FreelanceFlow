@@ -10,17 +10,17 @@ Rules:
 
 ## Now
 
-- [ ] Production settings require `SECRET_KEY` and `ALLOWED_HOSTS` — [SEC-2](docs/AUDIT.md#sec-2)
 - [ ] SPA shows server-computed money — [DATA-3](docs/AUDIT.md#data-3) (frontend half)
 - [ ] Atomic invoice create/update; drop the per-item signal — [DATA-4](docs/AUDIT.md#data-4)
+- [ ] `PROTECT` invoices from client deletion; archive in the UI — [DATA-1](docs/AUDIT.md#data-1)
 
 ## Next
 
-1. `PROTECT` invoices from client deletion; archive in the UI — [DATA-1](docs/AUDIT.md#data-1)
-2. Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
-3. Production settings require `SECRET_KEY` and `ALLOWED_HOSTS` — [SEC-2](docs/AUDIT.md#sec-2)
-4. Validate logo uploads with Pillow — [SEC-3](docs/AUDIT.md#sec-3)
-5. Throttle auth endpoints; password validators; lower-case emails — [SEC-4](docs/AUDIT.md#sec-4)
+1. Idempotent Stripe webhook — [PAY-1](docs/AUDIT.md#pay-1)
+2. Validate logo uploads with Pillow — [SEC-3](docs/AUDIT.md#sec-3)
+3. Throttle auth endpoints; password validators; lower-case emails — [SEC-4](docs/AUDIT.md#sec-4)
+4. Fractional quantities; non-negative discount/tax — [DATA-5](docs/AUDIT.md#data-5)
+5. Editing a draft keeps its saved dates — [DATA-6](docs/AUDIT.md#data-6)
 
 ## Later
 
@@ -38,4 +38,5 @@ Rules:
 - [x] 2026-11-15 — Dev tooling: `scripts/check.sh`, pre-commit hooks, Dependabot
 - [x] 2026-11-15 — Cross-tenant related fields scoped to the caller (SEC-1)
 - [x] 2026-11-15 — Money quantized to cents on the backend (DATA-3); invoice status locked to its state machine with a cancel endpoint (DATA-2)
+- [x] 2026-11-15 — Production refuses the published default `SECRET_KEY`; `ALLOWED_HOSTS` required; proxy TLS header (SEC-2)
 - [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)

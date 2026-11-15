@@ -60,7 +60,7 @@ flowchart LR
 **Exit criteria:** every item has a regression test · cross-tenant test suite covers every write endpoint · invoice totals property-tested (`subtotal - discount + tax == total` for random inputs).
 
 - [x] Scope `client`/`invoice` querysets to `request.user` on every write serializer ([SEC-1](docs/AUDIT.md#sec-1)) — **S**
-- [ ] Production settings require `SECRET_KEY` and `ALLOWED_HOSTS`; add `SECURE_PROXY_SSL_HEADER` ([SEC-2](docs/AUDIT.md#sec-2)) — **S**
+- [x] Production settings require `SECRET_KEY` and `ALLOWED_HOSTS`; add `SECURE_PROXY_SSL_HEADER` ([SEC-2](docs/AUDIT.md#sec-2)) — **S**
 - [ ] Validate logo uploads with Pillow; PNG/JPEG/WebP only; delete the old file ([SEC-3](docs/AUDIT.md#sec-3)) — **S**
 - [ ] Throttle auth endpoints; run password validators; lower-case emails; 400 on signup race ([SEC-4](docs/AUDIT.md#sec-4)) — **M**
 - [ ] Remove `django-debug-toolbar` from production requirements ([SEC-7](docs/AUDIT.md#sec-7)) — **S**

@@ -3,12 +3,18 @@ Production settings for FreelanceFlow.
 """
 from .base import *
 
+# No defaults: booting with the repo's published SECRET_KEY would let anyone forge sessions and reset tokens.
+SECRET_KEY = os.environ['SECRET_KEY']
+ALLOWED_HOSTS = [host.strip() for host in os.environ['ALLOWED_HOSTS'].split(',') if host.strip()]
+
 DEBUG = False
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_SSL_REDIRECT = True
+# TLS terminates at the proxy; without this Django sees http:// and SECURE_SSL_REDIRECT loops.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000
