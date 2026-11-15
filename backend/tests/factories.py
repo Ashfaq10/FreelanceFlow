@@ -35,7 +35,8 @@ class ClientFactory(DjangoModelFactory):
     email = factory.Faker('email')
     company = factory.Faker('company')
     address = factory.Faker('address')
-    phone = factory.Faker('phone_number')
+    # Faker's phone_number can exceed Client.phone's max_length=20, which Postgres rejects (SQLite does not).
+    phone = factory.Faker('numerify', text='+1-###-###-####')
     is_archived = False
 
 
