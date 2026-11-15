@@ -1,4 +1,5 @@
 import logging
+import smtplib
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -12,6 +13,15 @@ from apps.payments.services import CheckoutUnavailable, payment_link
 from .utils import get_currency_symbol, public_invoice_url
 
 logger = logging.getLogger(__name__)
+
+# A refused SMTP connection is temporary: retry with backoff instead of dropping the email (OPS-9).
+EMAIL_RETRY = {
+    'autoretry_for': (smtplib.SMTPException, OSError),
+    'retry_backoff': 10,
+    'retry_backoff_max': 600,
+    'retry_jitter': True,
+    'retry_kwargs': {'max_retries': 5},
+}
 
 
 @shared_task
@@ -31,7 +41,7 @@ def check_overdue_invoices():
     return f'{count} invoices marked as overdue'
 
 
-@shared_task
+@shared_task(**EMAIL_RETRY)
 def send_due_soon_reminders():
     """Send reminder emails for invoices due in 3 days."""
     from .models import Invoice
@@ -51,7 +61,7 @@ def send_due_soon_reminders():
     return f'{count} due-soon reminders sent'
 
 
-@shared_task
+@shared_task(**EMAIL_RETRY)
 def send_overdue_reminder(invoice_id):
     """Send overdue notification email to client."""
     from .models import Invoice
@@ -85,7 +95,7 @@ def send_overdue_reminder(invoice_id):
     return f'Overdue reminder sent for {invoice.invoice_number}'
 
 
-@shared_task
+@shared_task(**EMAIL_RETRY)
 def send_reminder(invoice_id):
     """Chase one invoice by hand: overdue notice if it is late, due-soon notice otherwise (FEAT-2)."""
     from .models import Invoice
@@ -102,7 +112,7 @@ def send_reminder(invoice_id):
     return f'Reminder sent for {invoice.invoice_number}'
 
 
-@shared_task
+@shared_task(**EMAIL_RETRY)
 def send_invoice(invoice_id, custom_message=''):
     """Mark sent, render the PDF for that state, then email it — in that order (BUG-9)."""
     from django.core.files.base import ContentFile

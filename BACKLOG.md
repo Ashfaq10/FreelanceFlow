@@ -10,7 +10,6 @@ Rules:
 
 ## Now
 
-- [ ] Email tasks retry with backoff — [OPS-9](docs/AUDIT.md#ops-9)
 - [ ] Then Phase 4: delete the server-rendered UI — [LEAN-1](docs/AUDIT.md#lean-1)
 
 ## Next
