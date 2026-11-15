@@ -29,7 +29,7 @@ function InvoiceSummary({ totals, discountAmount, taxRate, saving, onSaveAndSend
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div className="flex justify-between text-lg">
               <span className="font-semibold">Total</span>
-              <span className="font-bold text-primary-600">{formatCents(totals.total)}</span>
+              <span className="font-bold text-primary-600 dark:text-primary-400">{formatCents(totals.total)}</span>
             </div>
           </div>
         </div>

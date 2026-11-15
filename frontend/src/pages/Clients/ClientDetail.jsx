@@ -97,7 +97,7 @@ function ClientDetail() {
           </button>
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+              <span className="text-2xl font-bold text-primary-600 dark:text-primary-400 dark:text-primary-400">
                 {(client.name || client.company || 'C').charAt(0).toUpperCase()}
               </span>
             </div>
@@ -128,7 +128,12 @@ function ClientDetail() {
             </Button>
             {showDropdown && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                <div
+                  role="presentation"
+                  aria-hidden="true"
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowDropdown(false)}
+                />
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
                   <button
                     onClick={() => {
@@ -158,7 +163,7 @@ function ClientDetail() {
               {client.email && (
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-gray-400" />
-                  <a href={`mailto:${client.email}`} className="text-primary-600 hover:underline">
+                  <a href={`mailto:${client.email}`} className="text-primary-600 dark:text-primary-400 hover:underline">
                     {client.email}
                   </a>
                 </div>
@@ -166,7 +171,7 @@ function ClientDetail() {
               {client.phone && (
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-gray-400" />
-                  <a href={`tel:${client.phone}`} className="text-primary-600 hover:underline">
+                  <a href={`tel:${client.phone}`} className="text-primary-600 dark:text-primary-400 hover:underline">
                     {client.phone}
                   </a>
                 </div>
@@ -227,7 +232,10 @@ function ClientDetail() {
           <Card>
             <Card.Header className="flex items-center justify-between">
               <Card.Title>Invoices</Card.Title>
-              <Link to={`/invoices/new?client=${id}`} className="text-sm text-primary-600 hover:text-primary-700">
+              <Link
+                to={`/invoices/new?client=${id}`}
+                className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700"
+              >
                 Create Invoice
               </Link>
             </Card.Header>
@@ -270,7 +278,10 @@ function ClientDetail() {
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                   <p>No invoices yet</p>
-                  <Link to={`/invoices/new?client=${id}`} className="text-primary-600 hover:text-primary-700 text-sm">
+                  <Link
+                    to={`/invoices/new?client=${id}`}
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 text-sm"
+                  >
                     Create the first invoice
                   </Link>
                 </div>

@@ -16,7 +16,7 @@ function CompactTemplate({ invoice, color }) {
           <span className="font-black text-lg" style={{ color: color.primary }}>
             {invoice.business_name || 'Your Business'}
           </span>
-          {invoice.user_email && <span className="text-gray-400 text-xs ml-3">{invoice.user_email}</span>}
+          {invoice.user_email && <span className="text-gray-500 text-xs ml-3">{invoice.user_email}</span>}
         </div>
         <div className="text-right">
           <span className="font-black text-xl text-gray-900">INVOICE </span>
@@ -28,23 +28,23 @@ function CompactTemplate({ invoice, color }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 text-xs">
         <FromDetails
           invoice={invoice}
-          titleClass="text-gray-400 uppercase tracking-wider mb-1"
+          titleClass="text-gray-500 uppercase tracking-wider mb-1"
           nameClass="font-semibold text-gray-800"
-          lineClass="text-gray-400"
+          lineClass="text-gray-500"
         />
         <BillToDetails
           invoice={invoice}
-          titleClass="text-gray-400 uppercase tracking-wider mb-1"
+          titleClass="text-gray-500 uppercase tracking-wider mb-1"
           nameClass="font-semibold text-gray-800"
-          lineClass="text-gray-400"
+          lineClass="text-gray-500"
         />
         <div className="md:text-right">
           <div>
-            <span className="text-gray-400">Issued: </span>
+            <span className="text-gray-500">Issued: </span>
             <span className="font-medium">{fmtDate(invoice.issue_date)}</span>
           </div>
           <div>
-            <span className="text-gray-400">Due: </span>
+            <span className="text-gray-500">Due: </span>
             <span className="font-bold" style={{ color: color.primary }}>
               {fmtDate(invoice.due_date)}
             </span>

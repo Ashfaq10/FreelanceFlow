@@ -277,7 +277,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Native `<dialog>` + `showModal()`, or `role="dialog" aria-modal aria-labelledby`, Esc to close, focus in/out management, `aria-label` on close.
 
 ### <a id="ux-2"></a>UX-2 — Inputs unlabeled for assistive tech; rows not keyboard-reachable
-`Should` · Phase 4 · `components/ui/Input.jsx`, `Select.jsx`, `Table.jsx`, icon-only buttons across pages · **Done 2026-11-15**: `Input`, `Select` and the Notes field link their label with `useId`/`htmlFor` and announce errors; invoice numbers in the invoice list and on a client page are real links (keyboard reachable); the search boxes, back arrows, timer, delete and menu-close buttons have names. Settings textareas follow with [UX-4](#ux-4).
+`Should` · Phase 4 · `components/ui/Input.jsx`, `Select.jsx`, `Table.jsx`, icon-only buttons across pages · **Done 2026-11-15**: `Input`, `Select` and the Notes field link their label with `useId`/`htmlFor` and announce errors; invoice numbers in the invoice list and on a client page are real links (keyboard reachable); the search boxes, back arrows, timer, delete and menu-close buttons have names. Settings textareas follow with [UX-4](#ux-4). Follow-up: a full axe-core pass found and fixed the rest (dark-mode preview text, contrast, unnamed buttons, heading order, landmarks, chart sectors); `eslint-plugin-jsx-a11y` now guards it.
 **Fix:** `useId()` + `htmlFor`; invoice number as a `<Link>`; `aria-label` on icon buttons.
 
 ### <a id="ux-3"></a>UX-3 — No 404 route

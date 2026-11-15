@@ -150,11 +150,13 @@ function Reports() {
             <Card.Description>Distribution by status</Card.Description>
           </Card.Header>
           <Card.Content>
-            <div className="h-80">
+            {/* The chart is decoration for screen readers; the same numbers are in the list below. */}
+            <div className="h-80" aria-hidden="true">
               {statusData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
+                      rootTabIndex={-1}
                       data={statusData}
                       cx="50%"
                       cy="50%"
@@ -182,6 +184,13 @@ function Reports() {
                 <div className="flex items-center justify-center h-full text-gray-500">No invoice data available</div>
               )}
             </div>
+            <ul className="sr-only">
+              {statusData.map((entry) => (
+                <li key={entry.name}>
+                  {entry.name}: {entry.value}
+                </li>
+              ))}
+            </ul>
           </Card.Content>
         </Card>
       </div>
@@ -225,10 +234,10 @@ function Reports() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <Card.Content className="py-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Collection Rate</h3>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Collection Rate</h2>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold text-gray-900 dark:text-white">{collectedPercent}%</span>
-              <span className="text-gray-500 text-sm mb-1">of billed amount</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm mb-1">of billed amount</span>
             </div>
             <div className="mt-4 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
@@ -243,7 +252,7 @@ function Reports() {
 
         <Card>
           <Card.Content className="py-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Average Invoice Value</h3>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Average Invoice Value</h2>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(
@@ -251,17 +260,23 @@ function Reports() {
                 )}
               </span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">Based on {stats?.total_invoices || 0} invoices</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Based on {stats?.total_invoices || 0} invoices
+            </p>
           </Card.Content>
         </Card>
 
         <Card>
           <Card.Content className="py-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Outstanding Amount</h3>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Outstanding Amount</h2>
             <div className="flex items-end gap-2">
-              <span className="text-4xl font-bold text-yellow-600">{formatCurrency(stats?.outstanding_amount)}</span>
+              <span className="text-4xl font-bold text-yellow-700 dark:text-yellow-500">
+                {formatCurrency(stats?.outstanding_amount)}
+              </span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">{stats?.overdue_count || 0} overdue invoices</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              {stats?.overdue_count || 0} overdue invoices
+            </p>
           </Card.Content>
         </Card>
       </div>

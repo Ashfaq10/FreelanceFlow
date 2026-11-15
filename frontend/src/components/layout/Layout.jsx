@@ -11,6 +11,8 @@ function Layout() {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
+          role="presentation"
+          aria-hidden="true"
           className="fixed inset-0 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
           style={{ backdropFilter: 'blur(4px)', background: 'rgba(15,17,23,0.5)' }}

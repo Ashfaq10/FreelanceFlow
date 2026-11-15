@@ -140,7 +140,7 @@ function ProfessionalTemplate({ invoice }) {
         </div>
       )}
 
-      <div className="border-t border-gray-200 pt-4 text-center text-[10px] text-gray-400">
+      <div className="border-t border-gray-200 pt-4 text-center text-[10px] text-gray-500">
         <div>This is a computer-generated document and does not require any signature or stamp.</div>
         <div className="mt-1 text-gray-500">
           {invoice.business_name}

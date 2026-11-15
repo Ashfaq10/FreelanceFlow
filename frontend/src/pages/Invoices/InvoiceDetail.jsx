@@ -306,12 +306,23 @@ function InvoiceDetail() {
 
           {/* More menu: whatever this invoice's status allows (FEAT-2, BUG-10) */}
           <div className="relative">
-            <Button variant="ghost" size="sm" onClick={() => setShowDropdown(!showDropdown)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="More actions"
+              aria-expanded={showDropdown}
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
               <MoreVertical className="w-4 h-4" />
             </Button>
             {showDropdown && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                <div
+                  role="presentation"
+                  aria-hidden="true"
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowDropdown(false)}
+                />
                 <div
                   className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
                   style={{ backdropFilter: 'blur(16px)' }}
@@ -468,7 +479,7 @@ function InvoiceDetail() {
 
       {/* ── Invoice Preview ──────────────────────────── */}
       <Card>
-        <Card.Content className="p-8">
+        <Card.Content className="p-8 m-3 sm:m-5 rounded-lg bg-white shadow-sm ring-1 ring-gray-200 dark:ring-0">
           <InvoicePreview invoice={invoice} templateId={templateId} colorId={colorId} />
         </Card.Content>
       </Card>
@@ -488,11 +499,13 @@ function InvoiceDetail() {
           <Card.Content>
             <div className="flex gap-8 mb-4">
               <div>
-                <p className="text-xs uppercase tracking-wide text-gray-400">Paid</p>
-                <p className="text-lg font-semibold text-green-600">{formatCurrency(invoice.amount_paid)}</p>
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Paid</p>
+                <p className="text-lg font-semibold text-green-700 dark:text-green-400">
+                  {formatCurrency(invoice.amount_paid)}
+                </p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-gray-400">Still due</p>
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Still due</p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {formatCurrency(invoice.amount_due)}
                 </p>
@@ -513,7 +526,7 @@ function InvoiceDetail() {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">No payments recorded yet.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">No payments recorded yet.</p>
             )}
           </Card.Content>
         </Card>

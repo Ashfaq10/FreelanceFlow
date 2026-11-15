@@ -15,28 +15,28 @@ function ModernTemplate({ invoice, color }) {
         <div className="flex justify-between items-center">
           <div>
             <div className="text-3xl font-black text-white tracking-tight">INVOICE</div>
-            <div className="text-white/60 font-mono text-sm mt-1">#{invoice.invoice_number}</div>
+            <div className="text-white/85 font-mono text-sm mt-1">#{invoice.invoice_number}</div>
           </div>
           <div className="text-right">
             <div className="text-white font-bold text-xl">{invoice.business_name || 'Your Business'}</div>
-            {invoice.user_email && <div className="text-white/60 text-sm">{invoice.user_email}</div>}
+            {invoice.user_email && <div className="text-white/85 text-sm">{invoice.user_email}</div>}
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 pt-6 border-t border-white/20">
           <FromDetails
             invoice={invoice}
-            titleClass="text-white/50 text-xs uppercase tracking-wider mb-1"
+            titleClass="text-white/80 text-xs uppercase tracking-wider mb-1"
             nameClass="text-white font-bold text-lg"
-            lineClass="text-white/70 text-sm"
+            lineClass="text-white/90 text-sm"
           />
           <BillToDetails
             invoice={invoice}
-            titleClass="text-white/50 text-xs uppercase tracking-wider mb-1"
+            titleClass="text-white/80 text-xs uppercase tracking-wider mb-1"
             nameClass="text-white font-bold text-lg"
-            lineClass="text-white/70 text-sm"
+            lineClass="text-white/90 text-sm"
           />
           <div className="md:text-right">
-            <div className="text-white/50 text-xs uppercase tracking-wider mb-1">Dates</div>
+            <div className="text-white/80 text-xs uppercase tracking-wider mb-1">Dates</div>
             <div className="text-white text-sm">
               Issued: <span className="font-semibold">{fmtDate(invoice.issue_date)}</span>
             </div>

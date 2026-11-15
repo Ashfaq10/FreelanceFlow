@@ -15,6 +15,29 @@ Entry template:
 
 ---
 
+## 2026-11-15 — Phase 4: code health, performance, UX & a11y (17/17)
+
+**Goal:** close Phase 4 with one pushed, CI-green commit per item.
+
+**Done:**
+- LEAN-1…5: deleted the dead server-rendered Django UI (webhook now `/api/payments/webhook/`), dead deps/helpers/frontend code, one `StatusBadge`, big files split (`components/invoice/*`, Settings tabs, TimeTracker, invoice form).
+- PERF-1 (client list 58 → 10 queries), PERF-2 (entry chunk 860 → 267 KB).
+- UX-1…5: accessible `Modal`, labelled inputs, 404 route, fake bell/plan/notifications removed, one `ThemeProvider`.
+- OPS-8: ESLint 9 flat config + Prettier. OPS-7: Django 5.2 LTS, `STORAGES`, compiled lockfiles (`requirements*.in` → `.txt` via `uv pip compile`), `makemigrations --check` in CI.
+- OpenAPI: `docs/openapi.json` for all 27 endpoints, drift test, and a frontend contract test.
+- BUG-16 completed: the six templates are real PDF layouts (`Invoice.pdf_template`).
+- BUG-19 (found by screenshots): charts plotted nothing because amounts are strings; responsive fixes at 6 widths.
+- A11y pass: 0 axe violations (9 screens × light/dark, 6 templates); `jsx-a11y` lint added.
+- Tests: 191 → 215 backend, 16 → 39 frontend (9 files).
+
+**State:** all of Phases 0–4 on `main`; `scripts/check.sh` green. Not proven: a real Stripe test-mode payment, email through a real worker, Docker image builds (Docker Desktop was down; CI builds them).
+
+**Next:** decide Phase 5 scope (live deploy, OPS-3, OPS-9, TEST-5); run one Stripe test-mode payment (`stripe listen`). Update the Stripe webhook URL to `/api/payments/webhook/` on deploy.
+
+**Open questions:** where to host; portfolio only, or real users; the `/pay/<token>` link is permanent (no revoke); dashboard totals add currencies together (FEAT-4); dropdown menus close on click-away but not on Escape.
+
+---
+
 ## 2026-11-15 — Phase 3: core product (8/8), link preview, auth redesign
 
 **Goal:** finish Phase 3, add a LinkedIn-ready preview image, redesign sign in / sign up, and bring every `.md` up to date.

@@ -5,6 +5,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 ## [Unreleased]
 
 ### Added
+- Accessibility guard: `eslint-plugin-jsx-a11y` runs in `npm run lint`, so unlabelled controls and icon-only buttons fail CI.
 - OpenAPI schema: `GET /api/schema/` and a committed `docs/openapi.json` covering all 27 endpoints. A backend test fails when the file is stale, and a frontend test fails when the API stops offering a field the SPA reads (the BUG-2 class of bug).
 - `config/settings/test.py`: in-memory SQLite by default, Postgres via `TEST_DATABASE_URL`; MD5 hasher, locmem email, eager Celery, temp media dir (TEST-2).
 - Frontend tests: Vitest + React Testing Library + MSW, `npm test`, first test covers `api/client.js` token and 401/500 handling (TEST-4).
@@ -39,6 +40,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- Accessibility pass (axe-core, 0 violations on 9 screens × light/dark × 6 templates): the invoice preview is white paper in dark mode (dark text was on a dark card), low-contrast greys and brand text fixed for both themes, named the remaining icon buttons and the timer's client select, labelled the two `nav` landmarks, card titles are `h2`, the Reports donut is hidden from screen readers and replaced by a text list. Tailwind now defines the `/3 /4 /6 /8` opacity steps the dark theme used, which were silently dropped (card footers stayed light in dark mode).
 - The invoice template picker now changes the PDF too, not just the preview. The choice is saved on the invoice (`pdf_template`: professional, classic, modern, minimal, bold, compact), stays editable after sending, and applies to the downloaded and emailed PDF (BUG-16).
 - Backend runs on Django 5.2 LTS (4.2 is out of support) with `STORAGES` settings, and Python dependencies are locked: edit `requirements.in`, compile `requirements.txt`. CI now fails when models and migrations disagree; the one existing drift (`User.bank_details`) has its migration (OPS-7).
 - Dashboard and Reports charts show data: amounts arrive as strings and the chart library plotted nothing, so the revenue chart was empty and the bar chart drew every month at full height with axis labels like `$1k $1k $1k $0k`. Axis labels are compact (`$3K`) (BUG-19).

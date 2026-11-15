@@ -5,6 +5,8 @@ export default {
   theme: {
     extend: {
       screens: { xs: '480px' },
+      // The dark theme uses /3 /4 /6 /8 tints that Tailwind's default opacity scale lacks; without these they were silently dropped.
+      opacity: { 3: '0.03', 4: '0.04', 6: '0.06', 8: '0.08' },
       colors: {
         primary: {
           50: '#eef4ff',

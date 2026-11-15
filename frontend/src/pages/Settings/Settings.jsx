@@ -93,7 +93,7 @@ function Settings() {
         {/* Sidebar */}
         <div className="lg:w-64">
           <Card>
-            <nav className="p-2">
+            <nav aria-label="Settings sections" className="p-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}

@@ -285,14 +285,18 @@ function TimeTracker() {
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head></Table.Head>
+                <Table.Head>
+                  <span className="sr-only">Select</span>
+                </Table.Head>
                 <Table.Head>Date</Table.Head>
                 <Table.Head>Client</Table.Head>
                 <Table.Head>Description</Table.Head>
                 <Table.Head>Hours</Table.Head>
                 <Table.Head className="hidden lg:table-cell">Rate</Table.Head>
                 <Table.Head>Total</Table.Head>
-                <Table.Head></Table.Head>
+                <Table.Head>
+                  <span className="sr-only">Actions</span>
+                </Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -330,6 +334,7 @@ function TimeTracker() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => openModal(log)}
+                        aria-label="Edit time log"
                         className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                       >
                         <Clock className="w-4 h-4" />

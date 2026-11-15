@@ -11,7 +11,7 @@ function CardHeader({ children, className = '' }) {
 }
 
 function CardTitle({ children, className = '' }) {
-  return <h3 className={`text-base font-semibold text-gray-900 dark:text-white ${className}`}>{children}</h3>
+  return <h2 className={`text-base font-semibold text-gray-900 dark:text-white ${className}`}>{children}</h2>
 }
 
 function CardDescription({ children, className = '' }) {

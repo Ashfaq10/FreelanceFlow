@@ -29,21 +29,21 @@ function ClassicTemplate({ invoice, color }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <FromDetails
           invoice={invoice}
-          titleClass="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2"
+          titleClass="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2"
           nameClass="font-bold text-lg text-gray-900"
           lineClass="text-gray-500 text-sm"
         />
         <BillToDetails
           invoice={invoice}
-          titleClass="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2"
+          titleClass="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2"
           nameClass="font-bold text-lg text-gray-900"
           lineClass="text-gray-500 text-sm"
         />
         <div className="md:text-right">
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-            <span className="text-gray-400 font-medium">Issue Date</span>
+            <span className="text-gray-500 font-medium">Issue Date</span>
             <span className="font-semibold">{fmtDate(invoice.issue_date)}</span>
-            <span className="text-gray-400 font-medium">Due Date</span>
+            <span className="text-gray-500 font-medium">Due Date</span>
             <span className="font-semibold" style={{ color: color.primary }}>
               {fmtDate(invoice.due_date)}
             </span>

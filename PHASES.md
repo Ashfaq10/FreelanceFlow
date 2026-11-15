@@ -18,7 +18,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
-| 4 | Code health, performance, UX & a11y | 🟡 In progress | 17 / 17 |
+| 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
 
@@ -117,7 +117,7 @@ flowchart LR
 
 **Goal:** less code, current dependencies, fast first load, keyboard- and screen-reader-usable.
 
-**Exit criteria:** Lighthouse accessibility ≥ 95 on Dashboard, Invoice list, Invoice create · initial JS chunk < 300 KB minified (267 KB since PERF-2; was 812 KB) · `makemigrations --check` clean · no unused deps.
+**Exit criteria (all met):** accessibility audit clean: axe-core, the engine behind Lighthouse's accessibility score, reports 0 violations on 9 screens in both themes and on all six invoice templates (Lighthouse itself scores the same engine; its CLI could not keep a login across pages here) · initial JS chunk < 300 KB minified (267 KB since PERF-2; was 812 KB) · `makemigrations --check` clean, and now enforced in CI · no unused deps.
 
 - [x] Delete the server-rendered UI, crispy, unused allauth URLs; move the webhook under `/api/` ([LEAN-1](docs/AUDIT.md#lean-1), [ADR-0001](docs/adr/0001-api-only-backend.md)) — **M**
 - [x] Remove unused dependencies ([LEAN-2](docs/AUDIT.md#lean-2)) — **S**

@@ -79,7 +79,7 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
           <button
             type="button"
             onClick={() => append({ description: '', quantity: 1, rate: 0 })}
-            className="flex items-center gap-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
+            className="flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 text-sm font-medium"
           >
             <Plus className="w-4 h-4" />
             Add Line Item

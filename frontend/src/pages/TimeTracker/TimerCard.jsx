@@ -37,6 +37,7 @@ function TimerCard({
           </div>
           <div className="flex-1 max-w-md space-y-3">
             <Select
+              aria-label="Client"
               options={clients}
               placeholder="Select client"
               value={client}

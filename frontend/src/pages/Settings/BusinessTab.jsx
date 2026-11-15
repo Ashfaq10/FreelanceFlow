@@ -11,7 +11,7 @@ function BusinessTab({ register, loading, user, logoPreview, onLogoUpload }) {
       <Card.Content className="space-y-6">
         {/* Logo Upload */}
         <div>
-          <label className="label">Business Logo</label>
+          <p className="label">Business Logo</p>
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
               {logoPreview || user?.logo ? (

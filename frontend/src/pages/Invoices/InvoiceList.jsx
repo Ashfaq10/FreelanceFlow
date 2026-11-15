@@ -210,7 +210,7 @@ function InvoiceList() {
                       type="button"
                       onClick={(e) => handleDownload(e, invoice)}
                       disabled={downloadingId === invoice.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50"
                       title="Download PDF"
                     >
                       <Download className="w-4 h-4" />

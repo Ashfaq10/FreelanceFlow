@@ -61,8 +61,8 @@ function SidebarContent({ onClose }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
-        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">
+      <nav aria-label="Main" className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
+        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           Main Menu
         </p>
         {navigation.slice(0, 4).map((item) => (
@@ -71,7 +71,7 @@ function SidebarContent({ onClose }) {
 
         <div className="my-4 border-t border-gray-200/60 dark:border-white/6" />
 
-        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">
+        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           More
         </p>
         {navigation.slice(4).map((item) => (
