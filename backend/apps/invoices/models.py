@@ -90,8 +90,6 @@ class Invoice(models.Model):
         return f'{prefix}{max_num + 1:03d}'
 
     def calculate_totals(self):
-        from decimal import Decimal
-
         self.subtotal = sum(item.line_total for item in self.items.all())
         discount = Decimal(str(self.discount_amount or 0))
         tax_rate = Decimal(str(self.tax_rate or 0))

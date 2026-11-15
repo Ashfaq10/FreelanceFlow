@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ClientForm
@@ -13,7 +13,7 @@ def client_list(request):
         Client.objects.filter(user=request.user, is_archived=False)
         .annotate(
             invoice_count=Count('invoices'),
-            total_revenue=Sum('invoices__total', filter=models.Q(invoices__status='paid')),
+            total_revenue=Sum('invoices__total', filter=Q(invoices__status='paid')),
         )
         .order_by('name')
     )
@@ -123,6 +123,3 @@ def archived_clients(request):
     clients = Client.objects.filter(user=request.user, is_archived=True).order_by('name')
 
     return render(request, 'clients/archived.html', {'clients': clients})
-
-
-from django.db import models

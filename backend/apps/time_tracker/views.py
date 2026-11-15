@@ -1,8 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 
 from .forms import TimeLogForm
 from .models import TimeLog
@@ -33,7 +32,7 @@ def time_log_list(request):
 
     unbilled_amount = (
         TimeLog.objects.filter(user=request.user, is_billed=False)
-        .annotate(amount=models.F('hours') * models.F('hourly_rate'))
+        .annotate(amount=F('hours') * F('hourly_rate'))
         .aggregate(total=Sum('amount'))['total']
         or 0
     )
@@ -143,6 +142,3 @@ def unbilled_time_logs(request, client_id=None):
             'time_logs': time_logs,
         },
     )
-
-
-from django.db import models

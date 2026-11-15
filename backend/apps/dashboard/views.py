@@ -2,7 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import render
 from django.utils import timezone
@@ -75,9 +75,7 @@ def reports(request):
 
     top_clients = (
         Client.objects.filter(user=user, is_archived=False)
-        .annotate(
-            revenue=Sum('invoices__total', filter=models.Q(invoices__status='paid')), invoice_count=Count('invoices')
-        )
+        .annotate(revenue=Sum('invoices__total', filter=Q(invoices__status='paid')), invoice_count=Count('invoices'))
         .filter(revenue__gt=0)
         .order_by('-revenue')[:10]
     )
@@ -98,6 +96,3 @@ def reports(request):
     }
 
     return render(request, 'dashboard/reports.html', context)
-
-
-from django.db import models

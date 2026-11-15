@@ -27,7 +27,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 black isort
+          # Pinned so CI formats exactly like the local venv; bump together with requirements-dev.txt.
+          pip install flake8==7.5.0 black==26.10.1 isort==9.0.2
 
       - name: Run flake8
         run: flake8 apps/ --count --show-source --statistics

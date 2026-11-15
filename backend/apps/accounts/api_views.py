@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate
 
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -59,7 +59,7 @@ def signup_view(request):
 def logout_view(request):
     try:
         request.user.auth_token.delete()
-    except:
+    except Token.DoesNotExist:
         pass
     return Response({'message': 'Logged out successfully'})
 
