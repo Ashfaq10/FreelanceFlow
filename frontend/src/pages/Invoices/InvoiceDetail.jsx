@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Edit, Send, Download, CheckCircle, Trash2,
-  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard
+  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard, Plus
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Badge, Button, Modal, Skeleton } from '../../components/ui'
+import { Card, Badge, Button, Modal, Skeleton, Input, Select } from '../../components/ui'
 import InvoicePreview, { TEMPLATES, COLOR_PALETTES } from '../../components/ui/InvoicePreview'
 import { invoices as invoiceApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { parseDateOnly } from '../../utils/dates'
 
 const STORAGE_KEY_TEMPLATE = 'invoice_template'
 
@@ -20,6 +22,12 @@ function InvoiceDetail() {
   const [actionLoading, setActionLoading] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentForm, setPaymentForm] = useState({ amount: '', method: 'bank', notes: '' })
+
+  const currency = invoice?.currency || 'USD'
+  const formatCurrency = (amount) => formatMoney(amount, currency)
+  const formatDate = (value) => parseDateOnly(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   // Template / colour state (persisted)
   const [templateId, setTemplateId] = useState(
@@ -95,6 +103,19 @@ function InvoiceDetail() {
       fetchInvoice()
     } catch (error) {
       toast.error(apiError(error, 'Could not create a payment link'))
+    } finally { setActionLoading('') }
+  }
+
+  const handleRecordPayment = async () => {
+    setActionLoading('payment')
+    try {
+      const { data } = await invoiceApi.recordPayment(id, paymentForm)
+      setInvoice(data)
+      setShowPaymentModal(false)
+      setPaymentForm({ amount: '', method: 'bank', notes: '' })
+      toast.success('Payment recorded')
+    } catch (error) {
+      toast.error(apiError(error, 'Could not record the payment'))
     } finally { setActionLoading('') }
   }
 
@@ -318,6 +339,83 @@ function InvoiceDetail() {
           <InvoicePreview invoice={invoice} templateId={templateId} colorId={colorId} />
         </Card.Content>
       </Card>
+
+      {/* ── Payments (PAY-3) ─────────────────────────── */}
+      {(invoice.payments?.length > 0 || ['sent', 'overdue'].includes(invoice.status)) && (
+        <Card>
+          <Card.Header className="flex items-center justify-between">
+            <Card.Title>Payments</Card.Title>
+            {['sent', 'overdue'].includes(invoice.status) && (
+              <Button size="sm" variant="secondary" onClick={() => setShowPaymentModal(true)}>
+                <Plus className="w-4 h-4 mr-1.5" />Record Payment
+              </Button>
+            )}
+          </Card.Header>
+          <Card.Content>
+            <div className="flex gap-8 mb-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-400">Paid</p>
+                <p className="text-lg font-semibold text-green-600">{formatCurrency(invoice.amount_paid)}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-400">Still due</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">{formatCurrency(invoice.amount_due)}</p>
+              </div>
+            </div>
+            {invoice.payments?.length > 0 ? (
+              <ul className="divide-y divide-gray-100 dark:divide-white/8 text-sm">
+                {invoice.payments.map(payment => (
+                  <li key={payment.id} className="flex items-center justify-between py-2">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {formatDate(payment.paid_on)} · {payment.method}{payment.notes ? ` · ${payment.notes}` : ''}
+                    </span>
+                    <span className="font-medium">{formatCurrency(payment.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No payments recorded yet.</p>
+            )}
+          </Card.Content>
+        </Card>
+      )}
+
+      {/* ── Record Payment Modal ─────────────────────── */}
+      <Modal isOpen={showPaymentModal} onClose={() => setShowPaymentModal(false)} title="Record Payment"
+        description={`${formatCurrency(invoice.amount_due)} still due on ${invoice.invoice_number}.`}>
+        <div className="space-y-4">
+          <Input
+            label="Amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            max={invoice.amount_due}
+            value={paymentForm.amount}
+            onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+          />
+          <Select
+            label="Method"
+            value={paymentForm.method}
+            onChange={(e) => setPaymentForm({ ...paymentForm, method: e.target.value })}
+            options={[
+              { value: 'bank', label: 'Bank transfer' },
+              { value: 'cash', label: 'Cash' },
+              { value: 'check', label: 'Check' },
+              { value: 'stripe', label: 'Stripe' },
+              { value: 'manual', label: 'Other' },
+            ]}
+          />
+          <Input
+            label="Reference (optional)"
+            value={paymentForm.notes}
+            onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+          />
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>Cancel</Button>
+          <Button onClick={handleRecordPayment} loading={actionLoading === 'payment'}>Record Payment</Button>
+        </div>
+      </Modal>
 
       {/* ── Delete Modal ─────────────────────────────── */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Invoice"

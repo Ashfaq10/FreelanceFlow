@@ -40,7 +40,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale); `client` must be yours, `status` read-only; `pdf_color` (one of `indigo`, `blue`, `slate`, `emerald`, `rose`, `amber`, `cyan`) stays editable after sending | [DATA-5](AUDIT.md#data-5) |
 | DELETE | `/api/invoices/{id}/` | Drafts only (400 otherwise) | |
 | POST | `/api/invoices/{id}/send/` | Queues one task: mark sent → render PDF → email (drafts and sent only; 400 without line items; 503 if the queue is unreachable) | |
-| POST | `/api/invoices/{id}/mark-paid/` | Records a manual full payment; sent or overdue only (400 otherwise) | |
+| POST | `/api/invoices/{id}/mark-paid/` | Settles the remaining balance with a manual payment; sent or overdue only (400 otherwise) | |
 | POST | `/api/invoices/{id}/cancel/` | Cancels a draft, sent or overdue invoice (400 otherwise) | |
 | GET | `/api/invoices/{id}/pdf/` | PDF download in the invoice's `pdf_color`; `?regenerate=true` re-renders, `?timezone=` formats the dates. The stored copy is dropped on every status or colour change | |
 
@@ -65,6 +65,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | Method | Path | Description | Known issues |
 |---|---|---|---|
 | POST | `/api/invoices/{id}/checkout/` | Stripe Checkout link for your own sent/overdue invoice: `{url}`. Reuses the open session; 400 on a draft, 503 when Stripe is unconfigured or refuses | |
+| POST | `/api/invoices/{id}/payments/` | Record a full or partial payment: `{amount, method?, paid_on?, notes?}`. 400 if it exceeds the balance; the invoice becomes `paid` when nothing is due | |
 | POST | `/payments/webhook/` | Stripe webhook (signature-verified, no auth) | |
 | GET | `/payments/success/{invoice_id}/`, `/payments/cancelled/{invoice_id}/` | Legacy redirect targets; Checkout now returns to the SPA at `/invoices/{id}?payment=success\|cancelled` | [LEAN-1](AUDIT.md#lean-1) |
 

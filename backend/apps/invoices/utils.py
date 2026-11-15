@@ -71,12 +71,7 @@ def _logo_file_uri(user):
 
 
 def _payment_context(invoice):
-    from django.core.exceptions import ObjectDoesNotExist
-
-    try:
-        payment = invoice.payment
-    except ObjectDoesNotExist:
-        payment = None
+    payment = invoice.payments.order_by('paid_on', 'created_at').last()
     if not payment:
         return {
             'has_payment': False,

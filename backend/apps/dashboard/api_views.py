@@ -10,11 +10,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.clients.models import Client
-from apps.invoices.models import Invoice
+from apps.invoices.models import Invoice, to_cents
+from apps.payments.models import Payment
 
 
 class MonthlyRevenueQuerySerializer(serializers.Serializer):
     months = serializers.IntegerField(min_value=1, max_value=120, default=12)
+
+
+def _balance(invoices):
+    billed = invoices.aggregate(total=Sum('total'))['total'] or Decimal('0')
+    received = Payment.objects.filter(invoice__in=invoices).aggregate(total=Sum('amount_paid'))['total'] or Decimal('0')
+    return to_cents(billed - received)
 
 
 class DashboardSummaryView(APIView):
@@ -24,22 +31,18 @@ class DashboardSummaryView(APIView):
         user = request.user
         today = timezone.now().date()
 
-        total_revenue = Invoice.objects.filter(user=user, status='paid').aggregate(total=Sum('total'))[
-            'total'
-        ] or Decimal('0')
+        # Revenue is money received, so it sums payments — partial ones included (PAY-3).
+        payments = Payment.objects.filter(invoice__user=user)
+        total_revenue = to_cents(payments.aggregate(total=Sum('amount_paid'))['total'] or 0)
 
-        outstanding_amount = Invoice.objects.filter(user=user, status__in=['sent', 'overdue']).aggregate(
-            total=Sum('total')
-        )['total'] or Decimal('0')
-
-        overdue_amount = Invoice.objects.filter(user=user, status='overdue').aggregate(total=Sum('total'))[
-            'total'
-        ] or Decimal('0')
+        # What is still owed, not what was billed: deposits already received come off (PAY-3).
+        outstanding_amount = _balance(Invoice.objects.filter(user=user, status__in=['sent', 'overdue']))
+        overdue_amount = _balance(Invoice.objects.filter(user=user, status='overdue'))
 
         start_of_month = today.replace(day=1)
-        this_month_revenue = Invoice.objects.filter(
-            user=user, status='paid', payment__paid_on__gte=start_of_month
-        ).aggregate(total=Sum('total'))['total'] or Decimal('0')
+        this_month_revenue = to_cents(
+            payments.filter(paid_on__gte=start_of_month).aggregate(total=Sum('amount_paid'))['total'] or 0
+        )
 
         status_counts = Invoice.objects.filter(user=user).values('status').annotate(count=Count('id'))
         status_dict = {item['status']: item['count'] for item in status_counts}
@@ -78,15 +81,15 @@ class MonthlyRevenueView(APIView):
         start_date = today - timedelta(days=months * 30)
 
         monthly_revenue = (
-            Invoice.objects.filter(user=user, status='paid', payment__paid_on__gte=start_date)
-            .annotate(month=TruncMonth('payment__paid_on'))
+            Payment.objects.filter(invoice__user=user, paid_on__gte=start_date)
+            .annotate(month=TruncMonth('paid_on'))
             .values('month')
-            .annotate(total=Sum('total'), count=Count('id'))
+            .annotate(total=Sum('amount_paid'), count=Count('invoice', distinct=True))
             .order_by('month')
         )
 
         data = [
-            {'month': item['month'].strftime('%Y-%m'), 'total': str(item['total']), 'count': item['count']}
+            {'month': item['month'].strftime('%Y-%m'), 'total': str(to_cents(item['total'])), 'count': item['count']}
             for item in monthly_revenue
         ]
 

@@ -5,6 +5,8 @@ from django.utils import timezone
 
 from rest_framework import serializers
 
+from apps.payments.serializers import PaymentSerializer
+
 from .models import Invoice, InvoiceItem
 from .utils import PDF_COLORS
 
@@ -197,6 +199,9 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     currency = serializers.CharField(source='user.currency', read_only=True)
     logo_url = serializers.SerializerMethodField()
     payment_date = serializers.SerializerMethodField()
+    payments = PaymentSerializer(many=True, read_only=True)
+    amount_paid = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    amount_due = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Invoice
@@ -242,6 +247,9 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'currency',
             'logo_url',
             'payment_date',
+            'payments',
+            'amount_paid',
+            'amount_due',
         ]
         read_only_fields = [
             'id',
@@ -265,8 +273,5 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         return obj.user.logo.url
 
     def get_payment_date(self, obj):
-        try:
-            payment = obj.payment
-        except Exception:
-            payment = None
-        return payment.paid_on if payment else None
+        last = obj.payments.order_by('paid_on').last()
+        return last.paid_on if last else None

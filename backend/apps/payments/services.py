@@ -1,12 +1,17 @@
-"""Stripe Checkout sessions for invoices (PAY-2)."""
+"""Stripe Checkout sessions and payment recording for invoices (PAY-2, PAY-3)."""
 
 import logging
+from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 import stripe
 
-from apps.invoices.models import to_cents
+from apps.invoices.models import Invoice, to_cents
+
+from .models import Payment
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +20,32 @@ PAYABLE_STATUSES = ('sent', 'overdue')
 
 class CheckoutUnavailable(Exception):
     """Stripe is not configured, or refused the request."""
+
+
+@transaction.atomic
+def record_payment(invoice, amount, method='manual', paid_on=None, notes='', **stripe_ids):
+    """Record a (possibly partial) payment and settle the invoice once nothing is due (PAY-3)."""
+    invoice = Invoice.objects.select_for_update().get(pk=invoice.pk)
+
+    amount = to_cents(amount)
+    if amount <= Decimal('0'):
+        raise ValidationError('A payment must be greater than zero.')
+    if amount > invoice.amount_due:
+        raise ValidationError(f'That is more than the {invoice.amount_due} still due on this invoice.')
+
+    payment = Payment.objects.create(
+        invoice=invoice,
+        amount_paid=amount,
+        method=method,
+        notes=notes,
+        **({'paid_on': paid_on} if paid_on else {}),
+        **stripe_ids,
+    )
+
+    if invoice.amount_due <= Decimal('0') and invoice.status != 'paid':
+        invoice.mark_as_paid()
+
+    return payment
 
 
 def payment_link(invoice):

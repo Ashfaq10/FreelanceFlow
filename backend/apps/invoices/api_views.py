@@ -117,9 +117,7 @@ class InvoicePDFView(APIView):
     def get(self, request, pk):
         try:
             invoice = (
-                Invoice.objects.select_related('client', 'user', 'payment')
-                .prefetch_related('items')
-                .get(pk=pk, user=request.user)
+                Invoice.objects.select_related('client', 'user').prefetch_related('items').get(pk=pk, user=request.user)
             )
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -146,26 +144,25 @@ class InvoiceMarkPaidView(APIView):
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        from apps.payments.models import Payment
+        from apps.payments.api_views import invoice_detail
+        from apps.payments.services import record_payment
+
+        if invoice.status not in ('sent', 'overdue'):
+            return Response(
+                {'error': f'An invoice that is {invoice.status} cannot become paid.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
-            invoice.mark_as_paid()
+            if invoice.amount_due > 0:
+                # Settles whatever is left, so it still works after a deposit (PAY-3).
+                record_payment(invoice, invoice.amount_due, method='manual', notes='Marked paid manually')
+            else:
+                invoice.mark_as_paid()
         except ValidationError as exc:
             return Response({'error': exc.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
 
-        Payment.objects.get_or_create(
-            invoice=invoice,
-            defaults={
-                'amount_paid': invoice.total,
-                'method': 'manual',
-                'notes': 'Marked paid manually',
-            },
-        )
-        invoice = (
-            Invoice.objects.select_related('client', 'user', 'payment').prefetch_related('items').get(pk=invoice.pk)
-        )
-        serializer = InvoiceDetailSerializer(invoice, context={'request': request})
-        return Response(serializer.data)
+        return Response(invoice_detail(invoice, request))
 
 
 class InvoiceCancelView(APIView):

@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -15,6 +14,7 @@ import stripe
 from apps.invoices.models import Invoice, to_cents
 
 from .models import Payment
+from .services import record_payment
 
 logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -77,21 +77,28 @@ def handle_successful_payment(session):
         )
         return
 
-    if invoice.status == 'paid':
-        # Replayed event, or the invoice was already settled manually.
+    if Payment.objects.filter(stripe_session_id=session.get('id', '')).exists():
+        # Replayed event: this session has already been recorded (PAY-1).
         return
 
-    Payment.objects.update_or_create(
-        invoice=invoice,
-        defaults={
-            'amount_paid': amount_paid,
-            'stripe_payment_id': session.get('payment_intent', ''),
-            'stripe_session_id': session.get('id', ''),
-            'paid_on': timezone.now().date(),
-            'method': 'stripe',
-        },
-    )
-    invoice.mark_as_paid()
+    try:
+        record_payment(
+            invoice,
+            amount_paid,
+            method='stripe',
+            stripe_payment_id=session.get('payment_intent', ''),
+            stripe_session_id=session.get('id', ''),
+        )
+    except DjangoValidationError as exc:
+        # Someone recorded a payment by hand between send and checkout; do not invent a balance.
+        logger.error(
+            'Stripe session %s paid %s but invoice %s only has %s due: %s',
+            session.get('id'),
+            amount_paid,
+            invoice.invoice_number,
+            invoice.amount_due,
+            exc.messages[0],
+        )
 
 
 def handle_payment_intent_succeeded(payment_intent):

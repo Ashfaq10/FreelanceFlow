@@ -126,6 +126,15 @@ class Invoice(models.Model):
         return self.status == 'draft'
 
     @property
+    def amount_paid(self):
+        """Sum of recorded payments; partial payments are allowed (PAY-3)."""
+        return to_cents(sum((payment.amount_paid for payment in self.payments.all()), Decimal('0')))
+
+    @property
+    def amount_due(self):
+        return to_cents(self.total - self.amount_paid)
+
+    @property
     def days_until_due(self):
         if self.status == 'paid':
             return None

@@ -11,7 +11,7 @@ Rules:
 ## Now
 
 - [ ] Per-invoice currency with a data migration — [DATA-7](docs/AUDIT.md#data-7)
-- [ ] Multiple/partial payments with `amount_due` — [PAY-3](docs/AUDIT.md#pay-3)
+- [ ] Handle refunds and expired Stripe sessions — [PAY-4](docs/AUDIT.md#pay-4)
 
 ## Next
 

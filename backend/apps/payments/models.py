@@ -15,7 +15,7 @@ class Payment(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice = models.OneToOneField('invoices.Invoice', on_delete=models.CASCADE, related_name='payment')
+    invoice = models.ForeignKey('invoices.Invoice', on_delete=models.CASCADE, related_name='payments')
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     paid_on = models.DateField(default=timezone.now)
     stripe_payment_id = models.CharField(max_length=255, blank=True)
@@ -32,4 +32,5 @@ class Payment(models.Model):
 
     @property
     def is_full_payment(self):
+        """True when this single payment covers the whole invoice; see Invoice.amount_due for the balance."""
         return self.amount_paid >= self.invoice.total

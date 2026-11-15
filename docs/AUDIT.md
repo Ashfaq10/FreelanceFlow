@@ -122,7 +122,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Authenticated `POST /api/invoices/{id}/checkout/` returning `{url}`; create the session when the invoice is sent so the email carries the link; success/cancel URLs point to the SPA (or the public invoice page, [FEAT-3](#feat-3)).
 
 ### <a id="pay-3"></a>PAY-3 — No partial or multiple payments
-`Should` · Phase 3 · `apps/payments/models.py` (`invoice = OneToOneField`)
+`Should` · Phase 3 · `apps/payments/models.py` (`invoice = OneToOneField`) · **Done 2026-11-15**: `Payment.invoice` is a `ForeignKey` (migration `payments/0002`); `Invoice.amount_paid`/`amount_due` drive the paid transition; `POST /api/invoices/{id}/payments/` records a deposit or instalment and refuses more than the balance; "Mark Paid" settles only what is left; the dashboard counts money received, not invoice totals; the SPA has a Payments panel with a Record Payment form (`tests/test_partial_payments.py`).
 **Problem:** One payment per invoice; "Mark Paid" always records the full total. Deposits and instalments are impossible; `is_full_payment` exists but can never be false in practice.
 **Fix:** `ForeignKey` + `amount_due = total - sum(payments)`; status becomes `paid` when `amount_due <= 0`; add a "Record payment" form.
 

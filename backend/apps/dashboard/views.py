@@ -32,7 +32,7 @@ def dashboard(request):
 
     start_of_month = today.replace(day=1)
     this_month_revenue = Invoice.objects.filter(
-        user=user, status='paid', payment__paid_on__gte=start_of_month
+        user=user, status='paid', payments__paid_on__gte=start_of_month
     ).aggregate(total=Sum('total'))['total'] or Decimal('0')
 
     recent_invoices = Invoice.objects.filter(user=user).select_related('client').order_by('-created_at')[:5]
@@ -66,8 +66,8 @@ def reports(request):
 
     twelve_months_ago = today - timedelta(days=365)
     monthly_revenue = (
-        Invoice.objects.filter(user=user, status='paid', payment__paid_on__gte=twelve_months_ago)
-        .annotate(month=TruncMonth('payment__paid_on'))
+        Invoice.objects.filter(user=user, status='paid', payments__paid_on__gte=twelve_months_ago)
+        .annotate(month=TruncMonth('payments__paid_on'))
         .values('month')
         .annotate(total=Sum('total'), count=Count('id'))
         .order_by('month')
@@ -80,11 +80,12 @@ def reports(request):
         .order_by('-revenue')[:10]
     )
 
-    all_paid_invoices = Invoice.objects.filter(user=user, status='paid').select_related('payment')
+    all_paid_invoices = Invoice.objects.filter(user=user, status='paid').prefetch_related('payments')
     payment_times = []
     for invoice in all_paid_invoices:
-        if hasattr(invoice, 'payment') and invoice.sent_at:
-            days = (invoice.payment.paid_on - invoice.sent_at.date()).days
+        last_payment = invoice.payments.order_by('paid_on').last()
+        if last_payment and invoice.sent_at:
+            days = (last_payment.paid_on - invoice.sent_at.date()).days
             payment_times.append(days)
 
     avg_payment_time = sum(payment_times) / len(payment_times) if payment_times else 0
