@@ -1,6 +1,10 @@
 <h1 align="center">FreelanceFlow</h1>
 
 <p align="center">
+  <img src="frontend/public/og-image.png" alt="FreelanceFlow: invoicing that gets you paid" width="720">
+</p>
+
+<p align="center">
   Invoicing for freelancers: manage clients, track time, send branded PDF invoices, collect Stripe payments, and chase overdue invoices automatically.
 </p>
 
