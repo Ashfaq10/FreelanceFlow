@@ -129,7 +129,7 @@ def _format_datetime_local(dt, timezone_str=None):
 def build_pdf_context(invoice, timezone_str=None):
     user = invoice.user
     client = invoice.client
-    currency = user.currency or 'USD'
+    currency = invoice.currency or user.currency or 'USD'
     status_label, status_color = _status_display(invoice.status)
     payment_ctx = _payment_context(invoice)
 

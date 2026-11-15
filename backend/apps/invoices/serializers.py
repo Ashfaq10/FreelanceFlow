@@ -65,6 +65,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             'tax_rate',
             'tax_amount',
             'total',
+            'currency',
             'notes',
             'items_count',
             'created_at',
@@ -196,7 +197,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     user_address = serializers.CharField(source='user.address', read_only=True)
     user_phone = serializers.CharField(source='user.phone', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
-    currency = serializers.CharField(source='user.currency', read_only=True)
+    currency = serializers.CharField(read_only=True)
     logo_url = serializers.SerializerMethodField()
     payment_date = serializers.SerializerMethodField()
     payments = PaymentSerializer(many=True, read_only=True)

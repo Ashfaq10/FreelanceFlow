@@ -49,6 +49,8 @@ class Invoice(models.Model):
     )
     notes = models.TextField(blank=True, help_text='Payment terms or additional notes')
     pdf_file = models.FileField(upload_to='invoices/pdfs/', blank=True, null=True)
+    # Frozen at creation from the user's setting: changing the account currency must not restate old invoices (DATA-7).
+    currency = models.CharField(max_length=3, blank=True)
     # Accent colour of the rendered PDF; ids come from PDF_COLORS in utils.py (BUG-16).
     pdf_color = models.CharField(max_length=20, default='indigo')
     stripe_payment_url = models.URLField(blank=True)
@@ -76,6 +78,9 @@ class Invoice(models.Model):
 
     def save(self, *args, **kwargs):
         from django.db import IntegrityError
+
+        if not self.currency:
+            self.currency = self.user.currency or 'USD'
 
         if not self.invoice_number:
             for _ in range(10):

@@ -103,7 +103,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Pre-fill from `invoice.issue_date` / `invoice.due_date`.
 
 ### <a id="data-7"></a>DATA-7 — Currency lives on the user, not the invoice
-`Should` · Phase 3 · `apps/invoices/serializers.py` (`currency = CharField(source='user.currency')`), `apps/invoices/utils.py`, `apps/payments/views.py`
+`Should` · Phase 3 · `apps/invoices/serializers.py` (`currency = CharField(source='user.currency')`), `apps/invoices/utils.py`, `apps/payments/views.py` · **Done 2026-11-15**: `Invoice.currency` is frozen from the user's setting at creation (migration `0010` backfills existing rows) and read by the PDF, the three emails, Stripe Checkout, both serializers and the SPA lists. Dashboard totals still add different currencies together — tracked under [FEAT-4](#feat-4).
 **Problem:** Switching the account from USD to EUR re-renders and re-charges every past invoice in EUR with the same numbers.
 **Fix:** Add `Invoice.currency` (default from user at create) + data migration; read it everywhere.
 

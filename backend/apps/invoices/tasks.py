@@ -68,7 +68,7 @@ def send_overdue_reminder(invoice_id):
             'invoice': invoice,
             'client': invoice.client,
             'user': invoice.user,
-            'currency_symbol': get_currency_symbol(invoice.user.currency),
+            'currency_symbol': get_currency_symbol(invoice.currency),
         },
     )
 
@@ -116,7 +116,7 @@ def send_invoice(invoice_id, custom_message=''):
             'client': invoice.client,
             'user': invoice.user,
             'custom_message': custom_message,
-            'currency_symbol': get_currency_symbol(invoice.user.currency),
+            'currency_symbol': get_currency_symbol(invoice.currency),
         },
     )
 
@@ -142,7 +142,7 @@ def send_due_soon_email(invoice):
             'invoice': invoice,
             'client': invoice.client,
             'user': invoice.user,
-            'currency_symbol': get_currency_symbol(invoice.user.currency),
+            'currency_symbol': get_currency_symbol(invoice.currency),
         },
     )
 

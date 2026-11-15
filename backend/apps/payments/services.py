@@ -80,7 +80,7 @@ def _create_session(invoice):
         line_items=[
             {
                 'price_data': {
-                    'currency': (user.currency or 'USD').lower(),
+                    'currency': (invoice.currency or user.currency or 'USD').lower(),
                     # Decimal cents, never float arithmetic (DATA-3).
                     'unit_amount': int(to_cents(invoice.total) * 100),
                     'product_data': {

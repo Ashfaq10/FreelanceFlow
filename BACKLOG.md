@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] Per-invoice currency with a data migration — [DATA-7](docs/AUDIT.md#data-7)
 - [ ] Handle refunds and expired Stripe sessions — [PAY-4](docs/AUDIT.md#pay-4)
+- [ ] Bill unbilled time logs onto an invoice — [FEAT-1](docs/AUDIT.md#feat-1)
 
 ## Next
 

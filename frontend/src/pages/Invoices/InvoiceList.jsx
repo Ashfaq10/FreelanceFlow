@@ -72,8 +72,8 @@ function InvoiceList() {
     setSearchParams(params)
   }
 
+  // Fallback only: an invoice carries its own currency since DATA-7.
   const currency = useCurrency()
-  const formatCurrency = (amount) => formatMoney(amount, currency)
 
   const formatDate = (date) => {
     return new Date(date).toLocaleString('en-US', {
@@ -222,7 +222,7 @@ function InvoiceList() {
                     {formatDate(invoice.due_date)}
                   </Table.Cell>
                   <Table.Cell>
-                    <span className="font-semibold">{formatCurrency(invoice.total)}</span>
+                    <span className="font-semibold">{formatMoney(invoice.total, invoice.currency || currency)}</span>
                   </Table.Cell>
                   <Table.Cell>{getStatusBadge(invoice.status)}</Table.Cell>
                   <Table.Cell className="text-right">

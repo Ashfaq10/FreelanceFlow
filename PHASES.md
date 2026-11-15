@@ -17,7 +17,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 0 | Baseline: green tests, working CI, honest docs | ✅ Done (CI green on `main`, run 43703445329) | 11 / 11 |
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
-| 3 | Complete the core product (payments, currency, time billing) | 🟡 In progress | 2 / 8 |
+| 3 | Complete the core product (payments, currency, time billing) | 🟡 In progress | 3 / 8 |
 | 4 | Code health, performance, UX & a11y | ⚪ Not started | 0 / 16 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
@@ -107,7 +107,7 @@ flowchart LR
 - [x] Authenticated `POST /api/invoices/{id}/checkout/`; pay link created on send and shown in email + SPA ([PAY-2](docs/AUDIT.md#pay-2)) — **M**
 - [x] Multiple/partial payments with `amount_due`; "Record payment" form ([PAY-3](docs/AUDIT.md#pay-3)) — **L**
 - [ ] Handle refunds and expired sessions ([PAY-4](docs/AUDIT.md#pay-4)) — **S**
-- [ ] `Invoice.currency` with data migration; used by PDF, emails, Stripe, SPA ([DATA-7](docs/AUDIT.md#data-7)) — **M**
+- [x] `Invoice.currency` with data migration; used by PDF, emails, Stripe, SPA ([DATA-7](docs/AUDIT.md#data-7)) — **M**
 - [ ] Bill unbilled time logs onto a new or draft invoice ([FEAT-1](docs/AUDIT.md#feat-1)) — **M**
 - [ ] API: duplicate, cancel/void, re-send, manual reminder ([FEAT-2](docs/AUDIT.md#feat-2)) — **M**
 - [ ] Public tokenized invoice page with Pay button ([FEAT-3](docs/AUDIT.md#feat-3)) — **L**

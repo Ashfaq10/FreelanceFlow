@@ -225,7 +225,7 @@ function Dashboard() {
                   </div>
                   <div className="text-right flex-shrink-0 ml-3">
                     <p className="text-sm font-bold text-gray-900 dark:text-white">
-                      {formatCurrency(invoice.total)}
+                      {formatMoney(invoice.total, invoice.currency || currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                     <div className="mt-0.5">
                       {getStatusBadge(invoice.status)}

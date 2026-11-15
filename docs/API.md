@@ -36,7 +36,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | Method | Path | Description | Known issues |
 |---|---|---|---|
 | GET | `/api/invoices/` | List; filters `?status=`, `?client=`, `?search=`, `?page=`, `?page_size=` — all validated (400 on nonsense) | |
-| POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `rate`); one transaction; number auto-assigned `INV-YYYY-NNN` per user; `status` is ignored (always `draft`) | [DATA-5](AUDIT.md#data-5) |
+| POST | `/api/invoices/` | Create with nested `items[]` (`description`, `quantity`, `rate`); one transaction; number auto-assigned `INV-YYYY-NNN` per user; `status` is ignored (always `draft`); `currency` is frozen from your account setting | [DATA-5](AUDIT.md#data-5) |
 | GET / PATCH / PUT | `/api/invoices/{id}/` | Detail / update (items replaced wholesale); `client` must be yours, `status` read-only; `pdf_color` (one of `indigo`, `blue`, `slate`, `emerald`, `rose`, `amber`, `cyan`) stays editable after sending | [DATA-5](AUDIT.md#data-5) |
 | DELETE | `/api/invoices/{id}/` | Drafts only (400 otherwise) | |
 | POST | `/api/invoices/{id}/send/` | Queues one task: mark sent → render PDF → email (drafts and sent only; 400 without line items; 503 if the queue is unreachable) | |
