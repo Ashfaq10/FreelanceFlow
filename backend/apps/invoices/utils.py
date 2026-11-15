@@ -26,6 +26,10 @@ PDF_COLORS = {
 }
 
 
+# Layouts the PDF can take; the stylesheet for each lives in templates/invoices/invoice_pdf.html.
+PDF_TEMPLATES = ('professional', 'classic', 'modern', 'minimal', 'bold', 'compact')
+
+
 def _default_notes(invoice):
     """Only a paid invoice is a receipt (BUG-16)."""
     if invoice.status == 'paid':
@@ -149,6 +153,7 @@ def build_pdf_context(invoice, timezone_str=None):
         'terms_list': _terms_list(user),
         'discount': invoice.discount_amount or 0,
         'accent': PDF_COLORS.get(invoice.pdf_color, PDF_COLORS['indigo']),
+        'layout': invoice.pdf_template if invoice.pdf_template in PDF_TEMPLATES else 'professional',
         'notes_text': invoice.notes or _default_notes(invoice),
         'issue_date_formatted': _format_datetime_local(invoice.issue_date, timezone_str),
         'due_date_formatted': _format_datetime_local(invoice.due_date, timezone_str),

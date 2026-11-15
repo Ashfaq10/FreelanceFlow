@@ -2348,6 +2348,10 @@
                         "type": "string",
                         "maxLength": 20
                     },
+                    "pdf_template": {
+                        "type": "string",
+                        "maxLength": 20
+                    },
                     "stripe_payment_url": {
                         "type": "string",
                         "format": "uri",
@@ -2650,6 +2654,9 @@
                     "pdf_color": {
                         "$ref": "#/components/schemas/PdfColorEnum"
                     },
+                    "pdf_template": {
+                        "$ref": "#/components/schemas/PdfTemplateEnum"
+                    },
                     "items": {
                         "type": "array",
                         "items": {
@@ -2699,6 +2706,9 @@
                     },
                     "pdf_color": {
                         "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "pdf_template": {
+                        "$ref": "#/components/schemas/PdfTemplateEnum"
                     },
                     "items": {
                         "type": "array",
@@ -3003,6 +3013,9 @@
                     "pdf_color": {
                         "$ref": "#/components/schemas/PdfColorEnum"
                     },
+                    "pdf_template": {
+                        "$ref": "#/components/schemas/PdfTemplateEnum"
+                    },
                     "items": {
                         "type": "array",
                         "items": {
@@ -3191,6 +3204,18 @@
                 ],
                 "type": "string",
                 "description": "* `amber` - amber\n* `blue` - blue\n* `cyan` - cyan\n* `emerald` - emerald\n* `indigo` - indigo\n* `rose` - rose\n* `slate` - slate"
+            },
+            "PdfTemplateEnum": {
+                "enum": [
+                    "professional",
+                    "classic",
+                    "modern",
+                    "minimal",
+                    "bold",
+                    "compact"
+                ],
+                "type": "string",
+                "description": "* `professional` - professional\n* `classic` - classic\n* `modern` - modern\n* `minimal` - minimal\n* `bold` - bold\n* `compact` - compact"
             },
             "PublicInvoice": {
                 "type": "object",

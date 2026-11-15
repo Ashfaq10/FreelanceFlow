@@ -18,7 +18,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
-| 4 | Code health, performance, UX & a11y | 🟡 In progress | 16 / 17 |
+| 4 | Code health, performance, UX & a11y | 🟡 In progress | 17 / 17 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
 
@@ -136,7 +136,7 @@ flowchart LR
 - [x] Pick one product name and apply it everywhere ([UX-6](docs/AUDIT.md#ux-6)) — **S**
 - [x] Charts and responsive layouts at tablet and phone widths ([BUG-19](docs/AUDIT.md#bug-19)) — **M**
 - [x] Generate an OpenAPI schema (`drf-spectacular`), commit it, fail CI on drift; SPA field names checked against it (prevents [BUG-2](docs/AUDIT.md#bug-2)-style mismatches) — **M**
-- [ ] PDF layouts match the six designs in the SPA preview (today the picker changes the preview only, [BUG-16](docs/AUDIT.md#bug-16)) — **L**
+- [x] PDF layouts match the six designs in the SPA preview ([BUG-16](docs/AUDIT.md#bug-16); `Invoice.pdf_template`) — **L**
 
 ## Phase 5 — Production readiness
 

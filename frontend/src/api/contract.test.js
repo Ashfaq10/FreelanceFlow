@@ -20,6 +20,7 @@ const READS = {
     'amount_due',
     'public_url',
     'pdf_color',
+    'pdf_template',
     'client_name',
     'business_name',
   ],

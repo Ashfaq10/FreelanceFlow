@@ -109,9 +109,53 @@
       white-space: nowrap;
       display: inline-block;
     }
+
+    /* ── Layouts (BUG-16): same document, different character. professional = the rules above. ── */
+    /* classic: serif, ruled, no filled header cells */
+    .layout-classic { font-family: Georgia, 'Times New Roman', serif; }
+    .layout-classic .invoice-title { font-size: 22pt; font-weight: 400; letter-spacing: 0.25em; text-align: right; }
+    .layout-classic table.items thead th { background: none; color: #000; border: none; border-top: 1.5px solid #000; border-bottom: 1.5px solid #000; }
+    .layout-classic table.items tbody td { border: none; border-bottom: 1px solid #D1D5DB; }
+    .layout-classic table.items tbody tr { background: none; }
+    .layout-classic .box { background: none; border: 1px solid #9CA3AF; border-left-width: 1px; }
+    .layout-classic .rule { border-top-color: #000; }
+
+    /* modern: full-width accent header */
+    .layout-modern .header { background: {{ accent.primary }}; color: #fff; padding: 16px 20px; border-radius: 4px; margin-bottom: 18px; }
+    .layout-modern .header .brand-tagline, .layout-modern .header .invoice-number { color: rgba(255,255,255,.85); }
+    .layout-modern .invoice-title { color: #fff; }
+    .layout-modern table.items thead th { background: {{ accent.primary }}; border-color: {{ accent.primary }}; }
+    .layout-modern table.items tbody tr:nth-child(even) { background: {{ accent.light }}; }
+
+    /* minimal: type and whitespace only */
+    .layout-minimal { color: #1F2937; }
+    .layout-minimal .invoice-title { font-size: 16pt; font-weight: 300; letter-spacing: 0.3em; color: #6B7280; }
+    .layout-minimal .rule { border-top-color: #E5E7EB; margin: 22px 0; }
+    .layout-minimal table.items thead th { background: none; color: {{ accent.primary }}; border: none; border-bottom: 1px solid {{ accent.primary }}; text-transform: none; letter-spacing: 0.02em; }
+    .layout-minimal table.items tbody td { border: none; border-bottom: 1px solid #F3F4F6; }
+    .layout-minimal table.items tbody tr { background: none; }
+    .layout-minimal .box { background: none; border-left: none; padding-left: 0; }
+    .layout-minimal .total-divider { border-top: 1px solid {{ accent.primary }}; }
+
+    /* bold: heavy type and a colour bar down the page edge */
+    {% if layout == 'bold' %}@page { border-left: 6mm solid {{ accent.primary }}; padding-left: 5mm; }{% endif %}
+    .layout-bold .invoice-title { font-size: 34pt; font-weight: 900; color: {{ accent.primary }}; }
+    .layout-bold .brand-name { font-weight: 900; }
+    .layout-bold table.items thead th { background: {{ accent.primary }}; border-color: {{ accent.primary }}; font-size: 8pt; }
+    .layout-bold .total-due { color: {{ accent.primary }}; font-size: 16pt; }
+    .layout-bold .box { border-left-width: 8px; }
+
+    /* compact: dense, fits more on a page */
+    .layout-compact { font-size: 8.5pt; line-height: 1.25; }
+    .layout-compact .header { margin-bottom: 8px; }
+    .layout-compact .invoice-title { font-size: 18pt; }
+    .layout-compact .rule { margin: 8px 0; }
+    .layout-compact .addresses { margin: 8px 0 10px; }
+    .layout-compact table.items thead th, .layout-compact table.items tbody td { padding: 5px 6px; }
+    .layout-compact .box, .layout-compact .terms { margin-bottom: 8px; padding: 8px 10px; }
   </style>
 </head>
-<body>
+<body class="layout-{{ layout }}">
 <div class="page">
 
   <div class="header">

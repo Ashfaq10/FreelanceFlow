@@ -55,6 +55,8 @@ class Invoice(models.Model):
     public_token = models.CharField(max_length=32, unique=True, blank=True)
     # Accent colour of the rendered PDF; ids come from PDF_COLORS in utils.py (BUG-16).
     pdf_color = models.CharField(max_length=20, default='indigo')
+    # Layout of the rendered PDF; ids come from PDF_TEMPLATES in utils.py (BUG-16).
+    pdf_template = models.CharField(max_length=20, default='professional')
     stripe_payment_url = models.URLField(blank=True)
     stripe_session_id = models.CharField(max_length=255, blank=True)
 

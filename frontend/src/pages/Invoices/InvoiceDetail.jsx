@@ -27,8 +27,6 @@ import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { parseDateOnly } from '../../utils/dates'
 
-const STORAGE_KEY_TEMPLATE = 'invoice_template'
-
 function MenuItem({ icon: Icon, label, onClick, danger }) {
   return (
     <button
@@ -61,32 +59,29 @@ function InvoiceDetail() {
   const formatDate = (value) =>
     parseDateOnly(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
-  // Template / colour state (persisted)
-  const [templateId, setTemplateId] = useState(() => localStorage.getItem(STORAGE_KEY_TEMPLATE) || 'professional')
+  // Template and colour live on the invoice, so the emailed PDF matches the one you download (BUG-16).
+  const [templateId, setTemplateId] = useState('professional')
   const [colorId, setColorId] = useState('indigo')
   const [showDesignPanel, setShowDesignPanel] = useState(false)
 
-  const selectTemplate = (id) => {
-    setTemplateId(id)
-    localStorage.setItem(STORAGE_KEY_TEMPLATE, id)
-  }
-  // The colour lives on the invoice, so the emailed PDF matches the one you download (BUG-16).
-  const selectColor = async (color) => {
-    const previous = colorId
-    setColorId(color)
+  const saveDesign = async (field, value, current, apply) => {
+    apply(value)
     try {
-      await invoiceApi.update(id, { pdf_color: color })
+      await invoiceApi.update(id, { [field]: value })
     } catch (error) {
-      setColorId(previous)
-      toast.error(apiError(error, 'Could not save the colour'))
+      apply(current)
+      toast.error(apiError(error, 'Could not save the design'))
     }
   }
+  const selectTemplate = (template) => saveDesign('pdf_template', template, templateId, setTemplateId)
+  const selectColor = (color) => saveDesign('pdf_color', color, colorId, setColorId)
 
   const fetchInvoice = useCallback(async () => {
     try {
       const response = await invoiceApi.get(id)
       setInvoice(response.data)
       setColorId(response.data.pdf_color || 'indigo')
+      setTemplateId(response.data.pdf_template || 'professional')
     } catch {
       toast.error('Failed to load invoice')
       navigate('/invoices')
@@ -405,7 +400,7 @@ function InvoiceDetail() {
                 Template
               </p>
               <p className="text-xs text-gray-400 mb-3 -mt-2">
-                Changes the preview above. The PDF keeps its own layout and uses the colour below.
+                Applies to the preview above and to the PDF you download or email.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {TEMPLATES.map((t) => (

@@ -219,6 +219,7 @@ class InvoiceDuplicateView(APIView):
                 notes=invoice.notes,
                 currency=invoice.currency,
                 pdf_color=invoice.pdf_color,
+                pdf_template=invoice.pdf_template,
             )
             InvoiceItem.objects.bulk_create(
                 [

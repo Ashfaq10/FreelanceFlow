@@ -39,6 +39,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- The invoice template picker now changes the PDF too, not just the preview. The choice is saved on the invoice (`pdf_template`: professional, classic, modern, minimal, bold, compact), stays editable after sending, and applies to the downloaded and emailed PDF (BUG-16).
 - Backend runs on Django 5.2 LTS (4.2 is out of support) with `STORAGES` settings, and Python dependencies are locked: edit `requirements.in`, compile `requirements.txt`. CI now fails when models and migrations disagree; the one existing drift (`User.bank_details`) has its migration (OPS-7).
 - Dashboard and Reports charts show data: amounts arrive as strings and the chart library plotted nothing, so the revenue chart was empty and the bar chart drew every month at full height with axis labels like `$1k $1k $1k $0k`. Axis labels are compact (`$3K`) (BUG-19).
 - Layouts fixed at tablet and phone widths: stat cards no longer overlap their icons, the clients list stacks on phones, the invoice and time-log tables fit at 768 px, the new-invoice form wraps, the donut is no longer clipped, and "New Invoice" no longer appears twice (BUG-19).
