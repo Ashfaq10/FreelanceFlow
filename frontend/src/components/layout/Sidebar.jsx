@@ -82,16 +82,6 @@ function SidebarContent({ onClose }) {
           <NavItem key={item.name} item={item} onClick={onClose} />
         ))}
       </nav>
-
-      {/* Footer card */}
-      <div className="p-4 border-t border-gray-200/70 dark:border-white/8">
-        <div className="rounded-xl p-3 text-xs text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(37,99,235,.08) 0%, rgba(6,182,212,.06) 100%)', border: '1px solid rgba(37,99,235,.12)' }}
-        >
-          <p className="font-semibold text-primary-700 dark:text-primary-400">Pro Plan</p>
-          <p className="text-gray-500 dark:text-gray-500 mt-0.5">Unlimited invoices & clients</p>
-        </div>
-      </div>
     </div>
   )
 }

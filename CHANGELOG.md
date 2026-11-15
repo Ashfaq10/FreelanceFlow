@@ -38,6 +38,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- One theme setting for the whole app: light, dark or follow-the-system, remembered, applied before the page paints, and the same from the header toggle, the sign-in pages and Settings (UX-5).
 - Unknown addresses show a "Page not found" page with a way home instead of a blank screen (UX-3).
 - Screen readers and keyboards: form labels are tied to their fields, invoice numbers are links you can Tab to, and icon-only buttons have names (UX-2).
 - Dialogs are accessible: they are announced with their title, close on Escape, keep keyboard focus inside while open and give it back afterwards (UX-1).
@@ -79,6 +80,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Dropped `libgdk-pixbuf2.0-0` from the CI test job and `backend/Dockerfile`: the package is gone from Ubuntu 26.04 and the slim base image, and WeasyPrint 60 does not use it (OPS-1).
 
 ### Removed
+- Removed controls that did nothing (the always-on notification bell, the "Pro Plan" card, the Notifications settings tab); Settings → Appearance now really switches the theme; the "New Invoice" button label shows on screens 480 px and wider (UX-4).
 - Frontend dead code removed: one shared `StatusBadge` instead of four copies, an unused hook, API helpers that called endpoints that do not exist, an unused dev proxy and alias, and the duplicate Inter font request (LEAN-4).
 - Dead backend helpers removed: `format_currency`, the `abs_value` template filter, `Invoice.days_until_due` and Celery's `debug_task` (LEAN-3).
 - Unused packages: `sendgrid` (mail goes through SMTP), `@types/react` and `@types/react-dom` (no TypeScript) (LEAN-2).

@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="icon" type="image/webp" href="/favicon.webp" />
+    <script>
+      // Apply the saved theme before first paint so dark mode does not flash light (UX-5).
+      try {
+        var t = localStorage.getItem('theme') || (localStorage.getItem('darkMode') === 'true' ? 'dark' : 'light');
+        if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FreelanceFlow — Invoicing for freelancers</title>
     <meta name="description" content="FreelanceFlow: invoicing for freelancers. Clients, time tracking, PDF invoices and Stripe payments in one place." />

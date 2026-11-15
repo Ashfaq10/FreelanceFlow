@@ -279,11 +279,11 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Nice` · Phase 4 · `frontend/src/App.jsx` has no `*` route. · **Done 2026-11-15**: new `NotFound` page on a catch-all route (`App.test.jsx`).
 
 ### <a id="ux-4"></a>UX-4 — Fake settings and header controls
-`Should` · Phase 4 · `Settings.jsx` (Notifications/Appearance not registered with the form), `Header.jsx` (bell always shows unread dot), `Sidebar.jsx` ("Pro Plan" card), undefined `xs:` breakpoint in `tailwind.config.js` ("New Invoice" label never shows).
+`Should` · Phase 4 · `Settings.jsx` (Notifications/Appearance not registered with the form), `Header.jsx` (bell always shows unread dot), `Sidebar.jsx` ("Pro Plan" card), undefined `xs:` breakpoint in `tailwind.config.js` ("New Invoice" label never shows). · **Done 2026-11-15**: removed what did nothing: the bell with a permanent unread dot, the "Pro Plan" card, and the Notifications tab whose toggles were never saved. Appearance now works (see [UX-5](#ux-5)); the `xs` breakpoint exists (`screens.xs = 480px`), so "New Invoice" shows at 480 px and up and "New" below it. Settings textareas have linked labels.
 **Fix:** Implement or remove each; add `screens: { xs: '480px' }`.
 
 ### <a id="ux-5"></a>UX-5 — Theme handled per page
-`Nice` · Phase 4 · dark-mode toggle duplicated in auth pages and `Header`; sidebar uses the dark logo on a dark background.
+`Nice` · Phase 4 · dark-mode toggle duplicated in auth pages and `Header`; sidebar uses the dark logo on a dark background. · **Done 2026-11-15**: `ThemeProvider`/`useTheme` (`context/ThemeContext.jsx`) is the only owner of light, dark and system: the header toggle, the auth pages and Settings → Appearance read it, the choice is saved (`theme`, migrating the old `darkMode` flag) and applied before first paint so dark mode no longer flashes light (`ThemeContext.test.jsx`). The sidebar logo problem went with [UX-6](#ux-6).
 
 ### <a id="ux-6"></a>UX-6 — Mixed product branding
 `Should` · Phase 4 · "Penough" vs "FreelanceFlow" vs "BugValluk". See [DESIGN.md](DESIGN.md). **Done 2026-11-15**: product is FreelanceFlow (Penough is the maker); shared `Wordmark` replaces the logo images and the three copied markup blocks. The `penough_logo_*.png` files are kept in `frontend/public/logos/` but unused.

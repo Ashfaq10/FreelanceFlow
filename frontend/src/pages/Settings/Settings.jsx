@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Save, Upload, User, Building, CreditCard, Bell, Palette } from 'lucide-react'
+import { Save, Upload, User, Building, CreditCard, Palette } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Button, Input, Select } from '../../components/ui'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { settings as settingsApi, auth as authApi } from '../../api/endpoints'
 
 function Settings() {
   const { user, updateUser } = useAuth()
+  const { choice: themeChoice, setTheme } = useTheme()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   const [logoPreview, setLogoPreview] = useState(null)
@@ -75,7 +77,6 @@ function Settings() {
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'business', label: 'Business', icon: Building },
     { id: 'invoicing', label: 'Invoicing', icon: CreditCard },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'appearance', label: 'Appearance', icon: Palette },
   ]
 
@@ -260,8 +261,9 @@ function Settings() {
                     {...register('default_currency')}
                   />
                   <div>
-                    <label className="label">Bank Details (one per line)</label>
+                    <label htmlFor="bank-details" className="label">Bank Details (one per line)</label>
                     <textarea
+                      id="bank-details"
                       className="input min-h-[120px] font-mono text-sm"
                       placeholder={'Account Name: Your Company\nAccount Number: 0000-0000000000\nBank Name: Example Bank'}
                       {...register('bank_details')}
@@ -269,8 +271,9 @@ function Settings() {
                     <p className="text-sm text-gray-500 mt-1">Shown in the bank details box on PDF invoices.</p>
                   </div>
                   <div>
-                    <label className="label">Terms &amp; Conditions (one per line)</label>
+                    <label htmlFor="invoice-terms" className="label">Terms &amp; Conditions (one per line)</label>
                     <textarea
+                      id="invoice-terms"
                       className="input min-h-[100px] text-sm"
                       placeholder="All amounts are in the currency shown on this invoice."
                       {...register('invoice_terms')}
@@ -286,82 +289,37 @@ function Settings() {
               </Card>
             )}
 
-            {activeTab === 'notifications' && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Notification Preferences</Card.Title>
-                  <Card.Description>Manage how you receive notifications</Card.Description>
-                </Card.Header>
-                <Card.Content className="space-y-6">
-                  <div className="space-y-4">
-                    {[
-                      { id: 'invoice_paid', label: 'Invoice paid', desc: 'Get notified when a client pays an invoice' },
-                      { id: 'invoice_overdue', label: 'Invoice overdue', desc: 'Get notified when an invoice becomes overdue' },
-                      { id: 'payment_reminder', label: 'Payment reminders', desc: 'Receive reminders about upcoming due dates' },
-                      { id: 'weekly_summary', label: 'Weekly summary', desc: 'Receive a weekly summary of your activity' },
-                    ].map((item) => (
-                      <label key={item.id} className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{item.label}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
-                        </div>
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                </Card.Content>
-                <Card.Footer>
-                  <Button type="submit" loading={loading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </Card.Footer>
-              </Card>
-            )}
-
             {activeTab === 'appearance' && (
               <Card>
                 <Card.Header>
                   <Card.Title>Appearance</Card.Title>
-                  <Card.Description>Customize the look and feel</Card.Description>
+                  <Card.Description>Applies straight away and is remembered on this device.</Card.Description>
                 </Card.Header>
-                <Card.Content className="space-y-6">
-                  <div>
-                    <label className="label">Theme</label>
+                <Card.Content>
+                  <fieldset>
+                    <legend className="label">Theme</legend>
                     <div className="grid grid-cols-3 gap-4 mt-2">
                       {[
                         { id: 'light', label: 'Light', bg: 'bg-white' },
                         { id: 'dark', label: 'Dark', bg: 'bg-gray-900' },
                         { id: 'system', label: 'System', bg: 'bg-gradient-to-r from-white to-gray-900' },
                       ].map((theme) => (
-                        <label
-                          key={theme.id}
-                          className="relative cursor-pointer"
-                        >
+                        <label key={theme.id} className="relative cursor-pointer">
                           <input
                             type="radio"
                             name="theme"
                             value={theme.id}
                             className="sr-only peer"
-                            defaultChecked={theme.id === 'light'}
+                            checked={themeChoice === theme.id}
+                            onChange={() => setTheme(theme.id)}
                           />
-                          <div className={`${theme.bg} h-20 rounded-lg border-2 border-gray-200 dark:border-gray-700 peer-checked:border-primary-500 transition-colors`} />
+                          <div className={`${theme.bg} h-20 rounded-lg border-2 border-gray-200 dark:border-gray-700 peer-checked:border-primary-500 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500 transition-colors`} />
                           <p className="text-center mt-2 text-sm font-medium">{theme.label}</p>
                         </label>
                       ))}
                     </div>
-                  </div>
+                  </fieldset>
                 </Card.Content>
-                <Card.Footer>
-                  <Button type="submit" loading={loading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </Card.Footer>
               </Card>
             )}
           </form>

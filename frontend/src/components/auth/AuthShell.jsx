@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
 import { Wordmark } from '../ui'
+import { useTheme } from '../../context/ThemeContext'
 import SampleInvoice from './SampleInvoice'
 
 /** Solid primary button for the auth pages; the app-wide gradient and glow stay inside the app. */
@@ -11,18 +11,7 @@ export const AUTH_SUBMIT = '!bg-none !bg-primary-600 hover:!bg-primary-700 !shad
  * Left: a sample invoice going from sent to paid. Right: the form, directly on the page.
  */
 function AuthShell({ title, subtitle, footer, children }) {
-  // Same storage key as before; one theme provider is still UX-5.
-  const [dark, setDark] = useState(() => localStorage.getItem('darkMode') === 'true')
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark)
-  }, [dark])
-
-  const toggleTheme = () => {
-    const next = !dark
-    setDark(next)
-    localStorage.setItem('darkMode', String(next))
-  }
+  const { dark, toggle: toggleTheme } = useTheme()
 
   return (
     <div className="min-h-screen flex bg-surface-light dark:bg-surface-dark">

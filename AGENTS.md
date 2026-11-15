@@ -68,7 +68,7 @@ backend/
 frontend/src/
   api/client.js       axios instance, token header, global 401 handler
   api/endpoints.js    API helpers (several unused/dead — LEAN-4)
-  context/AuthContext.jsx
+  context/AuthContext.jsx, ThemeContext.jsx (useTheme: light/dark/system — never toggle the `dark` class yourself)
   pages/<Area>/       one folder per screen
   components/ui/      shared primitives — reuse before writing new markup
   components/auth/    AuthShell (frame for sign in / sign up / password reset), PasswordField, SampleInvoice
