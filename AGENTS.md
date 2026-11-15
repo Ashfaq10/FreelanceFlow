@@ -71,6 +71,7 @@ frontend/src/
   context/AuthContext.jsx, ThemeContext.jsx (useTheme: light/dark/system — never toggle the `dark` class yourself)
   pages/<Area>/       one folder per screen
   components/ui/      shared primitives — reuse before writing new markup
+  components/invoice/ InvoicePreview + one file per template (palettes.js, format.js, parts.jsx are shared)
   components/auth/    AuthShell (frame for sign in / sign up / password reset), PasswordField, SampleInvoice
   pages/Public/       PublicInvoice — the client's /pay/<token> page, no login
 docs/                 AUDIT.md (findings), API.md, DESIGN.md, adr/

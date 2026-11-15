@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Plus, Clock, Trash2, Play, Pause, FileText } from 'lucide-react'
+import { Plus, Clock, Trash2, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Button, Input, Select, Table, EmptyState, ErrorState, Modal } from '../../components/ui'
+import { Card, Button, Table, EmptyState, ErrorState } from '../../components/ui'
 import { timeLogs as timeLogApi, clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
+import TimeLogModal from './TimeLogModal'
+import TimerCard from './TimerCard'
 import { fetchAllPages } from '../../utils/pagination'
 import { parseDateOnly, todayISO } from '../../utils/dates'
 
@@ -212,46 +214,17 @@ function TimeTracker() {
         </Button>
       </div>
 
-      {/* Timer Card */}
-      <Card>
-        <Card.Content className="py-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <div className="text-4xl font-mono font-bold text-gray-900 dark:text-white">
-                {formatTime(trackingTime)}
-              </div>
-              <div className="flex gap-3">
-                {!isTracking ? (
-                  <Button onClick={startTracking} aria-label="Start timer" className="rounded-full w-12 h-12 p-0">
-                    <Play className="w-5 h-5" />
-                  </Button>
-                ) : (
-                  <Button onClick={stopTracking} variant="danger" aria-label="Stop timer" className="rounded-full w-12 h-12 p-0">
-                    <Pause className="w-5 h-5" />
-                  </Button>
-                )}
-              </div>
-            </div>
-            <div className="flex-1 max-w-md space-y-3">
-              <Select
-                options={clientList}
-                placeholder="Select client"
-                value={trackingClient}
-                onChange={(e) => setTrackingClient(e.target.value)}
-                disabled={isTracking}
-              />
-              <input
-                type="text"
-                value={trackingDescription}
-                onChange={(e) => setTrackingDescription(e.target.value)}
-                placeholder="What are you working on?"
-                className="input"
-                disabled={isTracking}
-              />
-            </div>
-          </div>
-        </Card.Content>
-      </Card>
+      <TimerCard
+        time={formatTime(trackingTime)}
+        isTracking={isTracking}
+        onStart={startTracking}
+        onStop={stopTracking}
+        clients={clientList}
+        client={trackingClient}
+        onClientChange={setTrackingClient}
+        description={trackingDescription}
+        onDescriptionChange={setTrackingDescription}
+      />
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -387,67 +360,15 @@ function TimeTracker() {
         )}
       </Card>
 
-      {/* Add/Edit Modal */}
-      <Modal
+      <TimeLogModal
         isOpen={showModal}
         onClose={closeModal}
-        title={editingLog ? 'Edit Time Log' : 'Log Time'}
-      >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Select
-            label="Client"
-            options={clientList}
-            placeholder="Select a client"
-            error={errors.client?.message}
-            {...register('client', { required: 'Client is required' })}
-          />
-          
-          <Input
-            label="Description"
-            placeholder="What did you work on?"
-            error={errors.description?.message}
-            {...register('description', { required: 'Description is required' })}
-          />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Hours"
-              type="number"
-              step="0.25"
-              min="0.25"
-              placeholder="1.5"
-              error={errors.hours?.message}
-              {...register('hours', { 
-                required: 'Hours is required',
-                min: { value: 0.25, message: 'Minimum 0.25 hours' }
-              })}
-            />
-            <Input
-              label="Date"
-              type="date"
-              error={errors.date?.message}
-              {...register('date', { required: 'Date is required' })}
-            />
-          </div>
-          
-          <Input
-            label="Hourly Rate (optional)"
-            type="number"
-            step="0.01"
-            placeholder="75.00"
-            {...register('hourly_rate')}
-          />
-
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="secondary" onClick={closeModal}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={saving}>
-              {editingLog ? 'Update' : 'Save'} Time Log
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        isEditing={!!editingLog}
+        clients={clientList}
+        saving={saving}
+        form={{ register, errors }}
+        onSubmit={handleSubmit(onSubmit)}
+      />
     </div>
   )
 }

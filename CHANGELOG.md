@@ -38,6 +38,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `django-debug-toolbar` is a dev-only dependency; it is no longer installed into the production image (SEC-7).
 
 ### Changed
+- Big components split by job: one file per invoice template, one per Settings tab, and separate line-item and summary pieces for the invoice form and a timer and modal for the time tracker. No behaviour change (LEAN-5).
 - One theme setting for the whole app: light, dark or follow-the-system, remembered, applied before the page paints, and the same from the header toggle, the sign-in pages and Settings (UX-5).
 - Unknown addresses show a "Page not found" page with a way home instead of a blank screen (UX-3).
 - Screen readers and keyboards: form labels are tied to their fields, invoice numbers are links you can Tab to, and icon-only buttons have names (UX-2).

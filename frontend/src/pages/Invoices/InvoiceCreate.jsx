@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, Save, Send, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Button, Input, Select } from '../../components/ui'
+import { Card, Input, Select } from '../../components/ui'
 import { useAuth } from '../../context/AuthContext'
 import { invoices as invoiceApi, clients as clientApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
-import { fromCents, lineTotalCents, previewTotalsCents } from '../../utils/money'
+import { fromCents, previewTotalsCents } from '../../utils/money'
 import { fetchAllPages } from '../../utils/pagination'
+import LineItemsEditor from './LineItemsEditor'
+import InvoiceSummary from './InvoiceSummary'
 
 function InvoiceCreate() {
   const { id } = useParams()
@@ -274,85 +276,7 @@ function InvoiceCreate() {
               </Card.Content>
             </Card>
 
-            {/* Line Items */}
-            <Card>
-              <Card.Header>
-                <Card.Title>Line Items</Card.Title>
-              </Card.Header>
-              <Card.Content>
-                <div className="space-y-4">
-                  <div className="hidden md:grid grid-cols-12 gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-                    <div className="col-span-6">Description</div>
-                    <div className="col-span-2">Quantity</div>
-                    <div className="col-span-2">Rate</div>
-                    <div className="col-span-1">Amount</div>
-                    <div className="col-span-1"></div>
-                  </div>
-
-                  {fields.map((field, index) => (
-                    <div key={field.id} className="grid grid-cols-12 gap-4 items-start">
-                      <div className="col-span-12 md:col-span-6">
-                        <input
-                          {...register(`items.${index}.description`, { required: 'Required' })}
-                          placeholder="Description"
-                          className="input"
-                        />
-                      </div>
-                      <div className="col-span-4 md:col-span-2">
-                        <input
-                          type="number"
-                          min="0.01"
-                          step="0.01"
-                          {...register(`items.${index}.quantity`, {
-                            required: 'Required',
-                            min: { value: 0.01, message: 'Min 0.01' }
-                          })}
-                          placeholder="Qty"
-                          className="input"
-                        />
-                      </div>
-                      <div className="col-span-4 md:col-span-2">
-                        <input
-                          type="number"
-                          step="0.01"
-                          {...register(`items.${index}.rate`, { 
-                            required: 'Required',
-                            min: { value: 0, message: 'Min 0' }
-                          })}
-                          placeholder="Rate"
-                          className="input"
-                        />
-                      </div>
-                      <div className="col-span-3 md:col-span-1 flex items-center h-10">
-                        <span className="text-sm font-medium">
-                          {formatCents(lineTotalCents(items[index]?.quantity, items[index]?.rate))}
-                        </span>
-                      </div>
-                      <div className="col-span-1 flex items-center h-10">
-                        {fields.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  <button
-                    type="button"
-                    onClick={() => append({ description: '', quantity: 1, rate: 0 })}
-                    className="flex items-center gap-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Line Item
-                  </button>
-                </div>
-              </Card.Content>
-            </Card>
+            <LineItemsEditor register={register} fields={fields} append={append} remove={remove} items={items} formatCents={formatCents} />
 
             {/* Notes */}
             <Card>
@@ -371,53 +295,14 @@ function InvoiceCreate() {
 
           {/* Summary Sidebar */}
           <div className="space-y-6">
-            <Card className="sticky top-24">
-              <Card.Header>
-                <Card.Title>Summary</Card.Title>
-              </Card.Header>
-              <Card.Content>
-                <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
-                    <span className="font-medium">{formatCents(previewTotals.subtotal)}</span>
-                  </div>
-                  {discountAmount > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-400">Discount</span>
-                      <span className="font-medium text-emerald-600">-{formatCents(previewTotals.discount)}</span>
-                    </div>
-                  )}
-                  {taxRate > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500 dark:text-gray-400">VAT ({taxRate}%)</span>
-                      <span className="font-medium">{formatCents(previewTotals.tax)}</span>
-                    </div>
-                  )}
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <div className="flex justify-between text-lg">
-                      <span className="font-semibold">Total</span>
-                      <span className="font-bold text-primary-600">{formatCents(previewTotals.total)}</span>
-                    </div>
-                  </div>
-                </div>
-              </Card.Content>
-              <Card.Footer className="flex flex-col gap-3">
-                <Button type="submit" loading={saving} className="w-full">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save as Draft
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleSubmit((data) => onSubmit(data, true))}
-                  loading={saving}
-                  className="w-full"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Save & Send
-                </Button>
-              </Card.Footer>
-            </Card>
+            <InvoiceSummary
+              totals={previewTotals}
+              discountAmount={discountAmount}
+              taxRate={taxRate}
+              saving={saving}
+              formatCents={formatCents}
+              onSaveAndSend={handleSubmit((data) => onSubmit(data, true))}
+            />
           </div>
         </div>
       </form>

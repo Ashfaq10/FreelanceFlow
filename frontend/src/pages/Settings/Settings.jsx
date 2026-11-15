@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Save, Upload, User, Building, CreditCard, Palette } from 'lucide-react'
+import { User, Building, CreditCard, Palette } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Card, Button, Input, Select } from '../../components/ui'
+import { Card } from '../../components/ui'
 import { useAuth } from '../../context/AuthContext'
-import { useTheme } from '../../context/ThemeContext'
 import { settings as settingsApi, auth as authApi } from '../../api/endpoints'
+import ProfileTab from './ProfileTab'
+import BusinessTab from './BusinessTab'
+import InvoicingTab from './InvoicingTab'
+import AppearanceTab from './AppearanceTab'
 
 function Settings() {
   const { user, updateUser } = useAuth()
-  const { choice: themeChoice, setTheme } = useTheme()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   const [logoPreview, setLogoPreview] = useState(null)
@@ -80,16 +82,6 @@ function Settings() {
     { id: 'appearance', label: 'Appearance', icon: Palette },
   ]
 
-  const currencies = [
-    { value: 'USD', label: 'USD - US Dollar' },
-    { value: 'EUR', label: 'EUR - Euro' },
-    { value: 'GBP', label: 'GBP - British Pound' },
-    { value: 'CAD', label: 'CAD - Canadian Dollar' },
-    { value: 'AUD', label: 'AUD - Australian Dollar' },
-    { value: 'INR', label: 'INR - Indian Rupee' },
-    { value: 'BDT', label: 'BDT - Bangladeshi Taka' },
-  ]
-
   return (
     <div className="space-y-6">
       <div>
@@ -125,203 +117,13 @@ function Settings() {
         {/* Content */}
         <div className="flex-1">
           <form onSubmit={handleSubmit(onSubmit)}>
-            {activeTab === 'profile' && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Profile Settings</Card.Title>
-                  <Card.Description>Update your personal information</Card.Description>
-                </Card.Header>
-                <Card.Content className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label="Full Name"
-                      placeholder="John Doe"
-                      {...register('full_name')}
-                    />
-                    <Input
-                      label="Email"
-                      type="email"
-                      disabled
-                      {...register('email')}
-                    />
-                    <Input
-                      label="Phone"
-                      placeholder="+1 (555) 123-4567"
-                      {...register('phone')}
-                    />
-                  </div>
-                </Card.Content>
-                <Card.Footer>
-                  <Button type="submit" loading={loading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </Card.Footer>
-              </Card>
-            )}
+            {activeTab === 'profile' && <ProfileTab register={register} loading={loading} />}
 
-            {activeTab === 'business' && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Business Information</Card.Title>
-                  <Card.Description>Details that appear on your invoices</Card.Description>
-                </Card.Header>
-                <Card.Content className="space-y-6">
-                  {/* Logo Upload */}
-                  <div>
-                    <label className="label">Business Logo</label>
-                    <div className="flex items-center gap-6">
-                      <div className="w-24 h-24 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
-                        {logoPreview || user?.logo ? (
-                          <img 
-                            src={logoPreview || user?.logo} 
-                            alt="Logo" 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Building className="w-10 h-10 text-gray-400" />
-                        )}
-                      </div>
-                      <div>
-                        <label className="btn btn-secondary cursor-pointer">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Logo
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoUpload}
-                            className="hidden"
-                          />
-                        </label>
-                        <p className="text-sm text-gray-500 mt-2">
-                          PNG, JPG up to 2MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+            {activeTab === 'business' && <BusinessTab register={register} loading={loading} user={user} logoPreview={logoPreview} onLogoUpload={handleLogoUpload} />}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label="Business Name"
-                      placeholder="Acme Inc."
-                      {...register('business_name')}
-                    />
-                    <Input
-                      label="Tagline"
-                      placeholder="The future of your industry"
-                      {...register('business_tagline')}
-                    />
-                    <Input
-                      label="Business Email"
-                      type="email"
-                      placeholder="billing@acme.com"
-                      {...register('business_email')}
-                    />
-                    <Input
-                      label="Business Phone"
-                      placeholder="+1 (555) 123-4567"
-                      {...register('business_phone')}
-                    />
-                    <Input
-                      label="Website"
-                      placeholder="https://example.com"
-                      {...register('website')}
-                    />
-                    <Input
-                      label="Business Address"
-                      placeholder="Street, city, country (shown on invoices)"
-                      {...register('address')}
-                    />
-                    <Input
-                      label="VAT / Tax Number"
-                      placeholder="VAT-123456"
-                      {...register('tax_number')}
-                    />
-                  </div>
-                </Card.Content>
-                <Card.Footer>
-                  <Button type="submit" loading={loading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </Card.Footer>
-              </Card>
-            )}
+            {activeTab === 'invoicing' && <InvoicingTab register={register} loading={loading} />}
 
-            {activeTab === 'invoicing' && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Invoice Settings</Card.Title>
-                  <Card.Description>Default settings for new invoices</Card.Description>
-                </Card.Header>
-                <Card.Content className="space-y-6">
-                  <Select
-                    label="Default Currency"
-                    options={currencies}
-                    {...register('default_currency')}
-                  />
-                  <div>
-                    <label htmlFor="bank-details" className="label">Bank Details (one per line)</label>
-                    <textarea
-                      id="bank-details"
-                      className="input min-h-[120px] font-mono text-sm"
-                      placeholder={'Account Name: Your Company\nAccount Number: 0000-0000000000\nBank Name: Example Bank'}
-                      {...register('bank_details')}
-                    />
-                    <p className="text-sm text-gray-500 mt-1">Shown in the bank details box on PDF invoices.</p>
-                  </div>
-                  <div>
-                    <label htmlFor="invoice-terms" className="label">Terms &amp; Conditions (one per line)</label>
-                    <textarea
-                      id="invoice-terms"
-                      className="input min-h-[100px] text-sm"
-                      placeholder="All amounts are in the currency shown on this invoice."
-                      {...register('invoice_terms')}
-                    />
-                  </div>
-                </Card.Content>
-                <Card.Footer>
-                  <Button type="submit" loading={loading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </Card.Footer>
-              </Card>
-            )}
-
-            {activeTab === 'appearance' && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Appearance</Card.Title>
-                  <Card.Description>Applies straight away and is remembered on this device.</Card.Description>
-                </Card.Header>
-                <Card.Content>
-                  <fieldset>
-                    <legend className="label">Theme</legend>
-                    <div className="grid grid-cols-3 gap-4 mt-2">
-                      {[
-                        { id: 'light', label: 'Light', bg: 'bg-white' },
-                        { id: 'dark', label: 'Dark', bg: 'bg-gray-900' },
-                        { id: 'system', label: 'System', bg: 'bg-gradient-to-r from-white to-gray-900' },
-                      ].map((theme) => (
-                        <label key={theme.id} className="relative cursor-pointer">
-                          <input
-                            type="radio"
-                            name="theme"
-                            value={theme.id}
-                            className="sr-only peer"
-                            checked={themeChoice === theme.id}
-                            onChange={() => setTheme(theme.id)}
-                          />
-                          <div className={`${theme.bg} h-20 rounded-lg border-2 border-gray-200 dark:border-gray-700 peer-checked:border-primary-500 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500 transition-colors`} />
-                          <p className="text-center mt-2 text-sm font-medium">{theme.label}</p>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                </Card.Content>
-              </Card>
-            )}
+            {activeTab === 'appearance' && <AppearanceTab />}
           </form>
         </div>
       </div>
