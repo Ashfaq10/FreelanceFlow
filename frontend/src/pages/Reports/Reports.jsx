@@ -17,6 +17,8 @@ import {
 import { DollarSign, TrendingUp, Users, FileText } from 'lucide-react'
 import { Card, StatsCard, Skeleton } from '../../components/ui'
 import { dashboard as dashboardApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
 
@@ -45,14 +47,9 @@ function Reports() {
     }
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount || 0)
-  }
+  const currency = useCurrency()
+  const formatCurrency = (amount) =>
+    formatMoney(amount, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
   const statusData = [
     { name: 'Paid', value: stats?.paid_count || 0 },
@@ -134,7 +131,7 @@ function Reports() {
                   <YAxis 
                     stroke="#9ca3af"
                     fontSize={12}
-                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    tickFormatter={(value) => `${formatCurrency(value / 1000)}k`}
                   />
                   <Tooltip 
                     formatter={(value) => [formatCurrency(value), 'Revenue']}
@@ -219,7 +216,7 @@ function Reports() {
                 <YAxis 
                   stroke="#9ca3af"
                   fontSize={12}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `${formatCurrency(value / 1000)}k`}
                 />
                 <Tooltip 
                   formatter={(value) => [formatCurrency(value), 'Revenue']}

@@ -1,7 +1,9 @@
-export function formatCurrency(amount, currency = 'USD') {
+/** The one money formatter. `options` takes Intl overrides, e.g. whole-number dashboard figures. */
+export function formatCurrency(amount, currency = 'USD', options = {}) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency,
+    currency: currency || 'USD',
+    ...options,
   }).format(amount || 0)
 }
 

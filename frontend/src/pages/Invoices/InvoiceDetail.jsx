@@ -155,7 +155,7 @@ function InvoiceDetail() {
               </Button>
             </>
           )}
-          {invoice.status === 'sent' && (
+          {['sent', 'overdue'].includes(invoice.status) && (
             <Button size="sm" onClick={handleMarkPaid} loading={actionLoading === 'paid'}>
               <CheckCircle className="w-4 h-4 mr-1.5" />Mark Paid
             </Button>

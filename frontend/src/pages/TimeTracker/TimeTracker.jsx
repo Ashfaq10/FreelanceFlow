@@ -4,6 +4,8 @@ import { Plus, Clock, Trash2, Play, Pause, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Button, Input, Select, Table, EmptyState, Modal } from '../../components/ui'
 import { timeLogs as timeLogApi, clients as clientApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 function TimeTracker() {
   const [loading, setLoading] = useState(true)
@@ -164,12 +166,8 @@ function TimeTracker() {
     })
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount || 0)
-  }
+  const currency = useCurrency()
+  const formatCurrency = (amount) => formatMoney(amount, currency)
 
   const totalHours = timeLogs.reduce((sum, log) => sum + parseFloat(log.hours || 0), 0)
   const totalEarnings = timeLogs.reduce((sum, log) => {

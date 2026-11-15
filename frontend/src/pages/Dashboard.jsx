@@ -4,6 +4,8 @@ import { DollarSign, Clock, AlertTriangle, TrendingUp, ArrowRight, FileText, Use
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card, Badge, StatsCard, Skeleton } from '../components/ui'
 import { dashboard, invoices } from '../api/endpoints'
+import { formatCurrency as formatMoney } from '../utils/formatters'
+import { useCurrency } from '../hooks/useCurrency'
 
 function Dashboard() {
   const [loading, setLoading] = useState(true)
@@ -33,14 +35,9 @@ function Dashboard() {
     }
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount || 0)
-  }
+  const currency = useCurrency()
+  const formatCurrency = (amount) =>
+    formatMoney(amount, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -152,7 +149,7 @@ function Dashboard() {
                     fontSize={11}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`}
+                    tickFormatter={(value) => (value >= 1000 ? `${formatCurrency(value / 1000)}k` : formatCurrency(value))}
                   />
                   <Tooltip
                     formatter={(value) => [formatCurrency(value), 'Revenue']}

@@ -3,6 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Users, Mail, Phone } from 'lucide-react'
 import { Card, Button, EmptyState, Skeleton } from '../../components/ui'
 import { clients as clientApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 function ClientList() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -39,12 +41,8 @@ function ClientList() {
     setSearchParams(params)
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount || 0)
-  }
+  const currency = useCurrency()
+  const formatCurrency = (amount) => formatMoney(amount, currency)
 
   return (
     <div className="space-y-6">

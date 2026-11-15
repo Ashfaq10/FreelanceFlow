@@ -27,7 +27,7 @@
                 <tr>
                     <td style="padding: 15px 0 5px 0; border-top: 1px solid #e2e8f0;"><strong>Amount Due:</strong></td>
                     <td style="text-align: right; padding: 15px 0 5px 0; border-top: 1px solid #e2e8f0; font-size: 24px; font-weight: bold; color: #0ea5e9;">
-                        ${{ invoice.total|floatformat:2 }}
+                        {{ currency_symbol }}{{ invoice.total|floatformat:2 }}
                     </td>
                 </tr>
             </table>

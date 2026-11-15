@@ -150,11 +150,11 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Default the rate from client or user settings on the backend, or make it required in the form.
 
 ### <a id="bug-4"></a>BUG-4 — Overdue invoices cannot be marked paid in the UI
-`Must` · Phase 2 · `frontend/src/pages/Invoices/InvoiceDetail.jsx:L158-162`
+`Must` · Phase 2 · `frontend/src/pages/Invoices/InvoiceDetail.jsx:L158-162` · **Done 2026-11-15**: the button renders for `sent` and `overdue`.
 **Fix:** Show "Mark Paid" for `['sent','overdue']`.
 
 ### <a id="bug-5"></a>BUG-5 — Currency hardcoded to USD in the SPA and emails
-`Must` · Phase 2 · `Dashboard.jsx`, `InvoiceList.jsx`, `ClientList.jsx`, `ClientDetail.jsx`, `Reports.jsx`, `TimeTracker.jsx`, 5 of 6 templates in `InvoicePreview.jsx`, `templates/invoices/email/*.html` (`${{ invoice.total }}`)
+`Must` · Phase 2 · `Dashboard.jsx`, `InvoiceList.jsx`, `ClientList.jsx`, `ClientDetail.jsx`, `Reports.jsx`, `TimeTracker.jsx`, 5 of 6 templates in `InvoicePreview.jsx`, `templates/invoices/email/*.html` · **Done 2026-11-15**: every screen formats through `utils/formatters.formatCurrency` with `useCurrency()`; `InvoicePreview` passes the invoice currency in all templates and chart axes follow it; emails render `currency_symbol` (`tests/test_emails.py`).
 **Problem:** EUR/BDT users see `$`; the same invoice shows `€` in one preview template and `$` in the others; emails always say `$`.
 **Fix:** One `formatCurrency(amount, currency)` in `utils/formatters.js` (exists, unused) used everywhere; pass currency into email context and use the existing `currency` template filter.
 

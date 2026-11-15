@@ -3,6 +3,7 @@
  * 5 professional templates × 6 color palettes
  */
 
+import { formatCurrency } from '../../utils/formatters'
 import { fromCents, lineTotalCents } from '../../utils/money'
 
 // ── Colour palettes ───────────────────────────────────────────────────
@@ -76,13 +77,8 @@ export const TEMPLATES = [
 ]
 
 // ── Helper ────────────────────────────────────────────────────────────
-const CURRENCY_SYMBOLS = { USD: '$', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$', INR: '₹', BDT: 'BDT ' }
-
-function fmt(amount, currency = 'USD') {
-    const sym = CURRENCY_SYMBOLS[currency] || `${currency} `
-    const n = Number(amount) || 0
-    return `${sym}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
+/** Always pass the invoice's currency; defaulting to USD is how five templates ended up showing `$` (BUG-5). */
+const fmt = (amount, currency = 'USD') => formatCurrency(amount, currency)
 
 /** Saved items carry the server's rounded line_total; unsaved drafts fall back to cent-exact math (DATA-3). */
 function itemLineTotal(item) {
@@ -482,7 +478,7 @@ function BoldTemplate({ invoice, color }) {
                     </div>
                     <div>
                         <div className="text-white/50 text-[10px] uppercase tracking-wider">Total Due</div>
-                        <div className="text-white font-black text-lg">{fmt(invoice.total)}</div>
+                        <div className="text-white font-black text-lg">{fmt(invoice.total, invoice.currency || 'USD')}</div>
                     </div>
                 </div>
             </div>
@@ -580,6 +576,7 @@ function CompactTemplate({ invoice, color }) {
 // Shared sub-components
 // ─────────────────────────────────────────────────────────────────────
 function ItemsTable({ invoice, color, striped, minimal, compact }) {
+    const cur = invoice.currency || 'USD'
     const py = compact ? 'py-1.5' : minimal ? 'py-3' : 'py-3.5'
     const headerBg = minimal ? 'transparent' : compact ? 'transparent' : color.light
     const headerColor = minimal || compact ? color.primary : color.primary
@@ -615,9 +612,9 @@ function ItemsTable({ invoice, color, striped, minimal, compact }) {
                     >
                         <td style={{ padding: compact ? '6px 8px' : '10px 12px', color: '#374151' }}>{item.description}</td>
                         <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.quantity}</td>
-                        <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', color: '#6b7280' }}>{fmt(item.rate || item.unit_price)}</td>
+                        <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', color: '#6b7280' }}>{fmt(item.rate || item.unit_price, cur)}</td>
                         <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', fontWeight: 600, color: '#111827' }}>
-                            {fmt(itemLineTotal(item))}
+                            {fmt(itemLineTotal(item), cur)}
                         </td>
                     </tr>
                 ))}
@@ -628,20 +625,21 @@ function ItemsTable({ invoice, color, striped, minimal, compact }) {
 
 function Totals({ invoice, color, compact, sidebar }) {
     if (sidebar) return null // Bold template shows total in sidebar
+    const cur = invoice.currency || 'USD'
     const w = compact ? '220px' : '260px'
     return (
         <div style={{ marginLeft: 'auto', width: w }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: compact ? '4px 0' : '6px 0', color: '#6b7280', fontSize: compact ? '12px' : '13px' }}>
-                <span>Subtotal</span><span>{fmt(invoice.subtotal)}</span>
+                <span>Subtotal</span><span>{fmt(invoice.subtotal, cur)}</span>
             </div>
             {Number(invoice.discount_amount) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: compact ? '4px 0' : '6px 0', color: '#10B981', fontSize: compact ? '12px' : '13px' }}>
-                    <span>Discount</span><span>{fmt(invoice.discount_amount)}</span>
+                    <span>Discount</span><span>{fmt(invoice.discount_amount, cur)}</span>
                 </div>
             )}
             {invoice.tax_rate > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: compact ? '4px 0' : '6px 0', color: '#6b7280', fontSize: compact ? '12px' : '13px' }}>
-                    <span>Tax ({invoice.tax_rate}%)</span><span>{fmt(invoice.tax_amount)}</span>
+                    <span>Tax ({invoice.tax_rate}%)</span><span>{fmt(invoice.tax_amount, cur)}</span>
                 </div>
             )}
             <div style={{
@@ -652,7 +650,7 @@ function Totals({ invoice, color, compact, sidebar }) {
                 fontWeight: 700, fontSize: compact ? '14px' : '18px', color: color.primary,
             }}>
                 <span>Total Due</span>
-                <span>{fmt(invoice.total)}</span>
+                <span>{fmt(invoice.total, cur)}</span>
             </div>
         </div>
     )

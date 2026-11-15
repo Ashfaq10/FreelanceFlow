@@ -4,6 +4,8 @@ import { Plus, Search, FileText, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Table, Badge, Button, EmptyState, Skeleton } from '../../components/ui'
 import { invoices as invoiceApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 function InvoiceList() {
   const navigate = useNavigate()
@@ -55,12 +57,8 @@ function InvoiceList() {
     setSearchParams(params)
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount || 0)
-  }
+  const currency = useCurrency()
+  const formatCurrency = (amount) => formatMoney(amount, currency)
 
   const formatDate = (date) => {
     return new Date(date).toLocaleString('en-US', {

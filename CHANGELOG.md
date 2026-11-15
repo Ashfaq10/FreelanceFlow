@@ -44,6 +44,8 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - A wrong password shows "Invalid email or password" instead of silently reloading the login page; the global 401 handler now redirects only for authenticated requests outside `/api/auth/*` (BUG-1).
 - Client screens show real money: the API returns `total_billed`, `total_paid` and `outstanding` under the names the SPA reads, instead of always rendering $0.00 (BUG-2).
 - Time logs save without an hourly rate, as the "optional" label promised; `total_amount` is empty for those entries (BUG-3).
+- Money is shown in the user's currency everywhere: six screens, all six invoice templates, both chart axes and the three emails used to print `$` regardless of the account setting (BUG-5).
+- "Mark Paid" appears on overdue invoices, not only sent ones (BUG-4).
 - Editing a draft keeps its saved issue and due dates instead of resetting them to today and today + 30 days (DATA-6).
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).
 - `ClientFactory.phone` stays within `Client.phone`'s `max_length=20`; Postgres rejected the longer Faker values that SQLite accepted (TEST-1).

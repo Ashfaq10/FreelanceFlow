@@ -13,6 +13,8 @@ import {
 import toast from 'react-hot-toast'
 import { Card, Badge, Button, Modal, Skeleton, Table } from '../../components/ui'
 import { clients as clientApi, invoices as invoiceApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { useCurrency } from '../../hooks/useCurrency'
 
 function ClientDetail() {
   const { id } = useParams()
@@ -64,12 +66,8 @@ function ClientDetail() {
     }
   }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount || 0)
-  }
+  const currency = useCurrency()
+  const formatCurrency = (amount) => formatMoney(amount, currency)
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {

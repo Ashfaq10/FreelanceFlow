@@ -5,6 +5,8 @@ from django.utils import timezone
 
 from celery import shared_task
 
+from .utils import get_currency_symbol
+
 
 @shared_task
 def check_overdue_invoices():
@@ -60,6 +62,7 @@ def send_overdue_reminder(invoice_id):
             'invoice': invoice,
             'client': invoice.client,
             'user': invoice.user,
+            'currency_symbol': get_currency_symbol(invoice.user.currency),
         },
     )
 
@@ -114,6 +117,7 @@ def send_invoice_email(invoice_id, custom_message=''):
             'client': invoice.client,
             'user': invoice.user,
             'custom_message': custom_message,
+            'currency_symbol': get_currency_symbol(invoice.user.currency),
         },
     )
 
@@ -146,6 +150,7 @@ def send_due_soon_email(invoice):
             'invoice': invoice,
             'client': invoice.client,
             'user': invoice.user,
+            'currency_symbol': get_currency_symbol(invoice.user.currency),
         },
     )
 
