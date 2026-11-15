@@ -10,17 +10,15 @@ Rules:
 
 ## Now
 
-- [ ] `?client=` preselects the client on new invoices — [BUG-12](docs/AUDIT.md#bug-12)
-- [ ] Date-only values parsed as local dates — [BUG-13](docs/AUDIT.md#bug-13)
-- [ ] Reports: no `NaN%` — [BUG-14](docs/AUDIT.md#bug-14)
+- [ ] Error + retry states; `Promise.allSettled` on the Dashboard — [BUG-15](docs/AUDIT.md#bug-15)
+- [ ] PDF labels: "Due Date", receipt text only when paid — [BUG-16](docs/AUDIT.md#bug-16)
+- [ ] Invalid query params return 400 — [BUG-17](docs/AUDIT.md#bug-17)
 
 ## Next
 
-1. Error + retry states; `Promise.allSettled` on the Dashboard — [BUG-15](docs/AUDIT.md#bug-15)
-2. PDF labels: "Due Date", receipt text only when paid — [BUG-16](docs/AUDIT.md#bug-16)
-3. Invalid query params return 400 — [BUG-17](docs/AUDIT.md#bug-17)
-4. Then Phase 3: Stripe checkout from the SPA — [PAY-2](docs/AUDIT.md#pay-2)
-5. Per-invoice currency — [DATA-7](docs/AUDIT.md#data-7)
+1. Phase 3: Stripe checkout from the SPA — [PAY-2](docs/AUDIT.md#pay-2)
+2. Per-invoice currency — [DATA-7](docs/AUDIT.md#data-7)
+3. Time logs billable on an invoice — [FEAT-1](docs/AUDIT.md#feat-1)
 
 ## Later
 

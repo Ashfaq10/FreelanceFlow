@@ -10,6 +10,7 @@ module.exports = {
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
+  overrides: [{ files: ['**/*.test.{js,jsx}', 'src/test/**'], env: { node: true } }],
   plugins: ['react-refresh'],
   rules: {
     'react-refresh/only-export-components': [

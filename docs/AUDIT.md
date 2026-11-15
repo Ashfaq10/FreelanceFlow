@@ -186,16 +186,16 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Filter `name|company|email__icontains` on `?search=`.
 
 ### <a id="bug-12"></a>BUG-12 — "Create invoice" from a client does not preselect that client
-`Should` · Phase 2 · `ClientDetail.jsx:L144,L268`, `InvoiceCreate.jsx`
+`Should` · Phase 2 · `ClientDetail.jsx:L144,L268`, `InvoiceCreate.jsx` · **Done 2026-11-15**: `?client=` is the form default and is re-applied once the client options have loaded (a `<select>` drops a value whose option does not exist yet).
 **Fix:** Read `useSearchParams().get('client')` as the default.
 
 ### <a id="bug-13"></a>BUG-13 — Date-only values shift by a day
-`Should` · Phase 2 · `TimeTracker.jsx:L25,L105,L159-165,L297`
+`Should` · Phase 2 · `TimeTracker.jsx:L25,L105,L159-165,L297` · **Done 2026-11-15**: `utils/dates.js` (`parseDateOnly`, `todayISO`) with tests pinned to a western timezone. `TimeLog.work_date` is the only date-only field; invoice dates are `DateTimeField`.
 **Problem:** `new Date('2026-11-15')` is UTC midnight → shows Nov 14 west of UTC; default date uses `toISOString()` (UTC), pre-filling tomorrow/yesterday near midnight.
 **Fix:** Parse date-only strings as local dates; build defaults from local `getFullYear/getMonth/getDate`.
 
 ### <a id="bug-14"></a>BUG-14 — Reports shows "NaN%" for new users
-`Should` · Phase 2 · `frontend/src/pages/Reports/Reports.jsx:L255-268`
+`Should` · Phase 2 · `frontend/src/pages/Reports/Reports.jsx:L255-268` · **Done 2026-11-15**: `Number(...) > 0` guards the collected-percentage and average-invoice maths; the string `"0.00"` is truthy, so the old `&&` guard produced `Infinity%`.
 **Fix:** `Number(stats.total_billed) > 0 ? … : 0`.
 
 ### <a id="bug-15"></a>BUG-15 — Load failures render the empty state; Dashboard is all-or-nothing

@@ -7,6 +7,7 @@ import { timeLogs as timeLogApi, clients as clientApi } from '../../api/endpoint
 import { formatCurrency as formatMoney } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
 import { fetchAllPages } from '../../utils/pagination'
+import { parseDateOnly, todayISO } from '../../utils/dates'
 
 function TimeTracker() {
   const [loading, setLoading] = useState(true)
@@ -25,7 +26,7 @@ function TimeTracker() {
       client: '',
       description: '',
       hours: '',
-      date: new Date().toISOString().split('T')[0],
+      date: todayISO(),
       hourly_rate: ''
     }
   })
@@ -106,7 +107,7 @@ function TimeTracker() {
         client: '',
         description: '',
         hours: '',
-        date: new Date().toISOString().split('T')[0],
+        date: todayISO(),
         hourly_rate: ''
       })
     }
@@ -159,7 +160,7 @@ function TimeTracker() {
   }
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
+    return parseDateOnly(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'

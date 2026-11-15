@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { Plus, Trash2, Save, Send, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -12,6 +12,7 @@ import { fetchAllPages } from '../../utils/pagination'
 
 function InvoiceCreate() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -21,9 +22,10 @@ function InvoiceCreate() {
 
   const now = new Date()
 
-  const { register, control, handleSubmit, watch, reset, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm({
     defaultValues: {
-      client: '',
+      // "Create invoice" from a client page arrives as ?client=<id> (BUG-12).
+      client: searchParams.get('client') || '',
       reference_number: '',
       issue_date: toDateTimeLocal(now),
       due_date: toDateTimeLocal(new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)),
@@ -64,6 +66,9 @@ function InvoiceCreate() {
         // Every client, not just the first page: client #21 could not be selected (BUG-7).
         const clientData = await fetchAllPages(clientApi.list)
         setClients(clientData.map(c => ({ value: c.id, label: c.name || c.company_name })))
+        // The <select> drops a value whose option did not exist yet, so re-apply it here (BUG-12).
+        const preselected = searchParams.get('client')
+        if (preselected && !isEditing) setValue('client', preselected)
       } catch (error) {
         console.error('Failed to fetch clients:', error)
       }
@@ -102,7 +107,7 @@ function InvoiceCreate() {
     if (isEditing) {
       fetchInvoice()
     }
-  }, [id, isEditing, reset, navigate])
+  }, [id, isEditing, reset, navigate, searchParams, setValue])
 
   // Draft preview only: the server recomputes and returns the authoritative amounts (DATA-3).
   const previewTotals = previewTotalsCents(items, discountAmount, taxRate)

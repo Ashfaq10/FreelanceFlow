@@ -26,6 +26,9 @@ function Reports() {
   const [loading, setLoading] = useState(true)
   const [monthlyData, setMonthlyData] = useState([])
   const [stats, setStats] = useState(null)
+  // The API sends decimals as strings; "0.00" is truthy, so a plain `&&` guard produced Infinity%.
+  const billed = Number(stats?.total_billed) || 0
+  const collectedPercent = billed > 0 ? Math.round((Number(stats?.total_revenue) / billed) * 100) : 0
 
   useEffect(() => {
     fetchReportData()
@@ -249,10 +252,7 @@ function Reports() {
             </h3>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                {stats?.total_revenue && stats?.total_billed 
-                  ? Math.round((stats.total_revenue / stats.total_billed) * 100)
-                  : 0
-                }%
+                {collectedPercent}%
               </span>
               <span className="text-gray-500 text-sm mb-1">of billed amount</span>
             </div>
@@ -260,10 +260,7 @@ function Reports() {
               <div 
                 className="h-full bg-green-500 rounded-full"
                 style={{ 
-                  width: `${stats?.total_revenue && stats?.total_billed 
-                    ? Math.min((stats.total_revenue / stats.total_billed) * 100, 100)
-                    : 0
-                  }%` 
+                  width: `${Math.min(collectedPercent, 100)}%`
                 }}
               />
             </div>
@@ -278,8 +275,8 @@ function Reports() {
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(
-                  stats?.total_invoices 
-                    ? stats.total_billed / stats.total_invoices 
+                  Number(stats?.total_invoices) > 0
+                    ? Number(stats.total_billed) / Number(stats.total_invoices)
                     : 0
                 )}
               </span>
