@@ -7,23 +7,11 @@ from django.utils import timezone
 
 class TimeLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='time_logs'
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='time_logs')
     invoice = models.ForeignKey(
-        'invoices.Invoice',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='time_logs'
+        'invoices.Invoice', on_delete=models.SET_NULL, null=True, blank=True, related_name='time_logs'
     )
-    client = models.ForeignKey(
-        'clients.Client',
-        on_delete=models.CASCADE,
-        related_name='time_logs'
-    )
+    client = models.ForeignKey('clients.Client', on_delete=models.CASCADE, related_name='time_logs')
     description = models.CharField(max_length=500, help_text='What was worked on')
     work_date = models.DateField(default=timezone.now)
     hours = models.DecimalField(max_digits=5, decimal_places=2)

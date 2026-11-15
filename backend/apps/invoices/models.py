@@ -20,16 +20,8 @@ class Invoice(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='invoices'
-    )
-    client = models.ForeignKey(
-        'clients.Client',
-        on_delete=models.CASCADE,
-        related_name='invoices'
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='invoices')
+    client = models.ForeignKey('clients.Client', on_delete=models.CASCADE, related_name='invoices')
     invoice_number = models.CharField(max_length=50, editable=False)
     reference_number = models.CharField(max_length=100, blank=True)
     issue_date = models.DateTimeField(default=timezone.now)
@@ -41,7 +33,7 @@ class Invoice(models.Model):
     pdf_file = models.FileField(upload_to='invoices/pdfs/', blank=True, null=True)
     stripe_payment_url = models.URLField(blank=True)
     stripe_session_id = models.CharField(max_length=255, blank=True)
-    
+
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -99,6 +91,7 @@ class Invoice(models.Model):
 
     def calculate_totals(self):
         from decimal import Decimal
+
         self.subtotal = sum(item.line_total for item in self.items.all())
         discount = Decimal(str(self.discount_amount or 0))
         tax_rate = Decimal(str(self.tax_rate or 0))
@@ -108,10 +101,7 @@ class Invoice(models.Model):
 
     @property
     def is_overdue(self):
-        return (
-            self.status == 'sent' and 
-            self.due_date < timezone.now()
-        )
+        return self.status == 'sent' and self.due_date < timezone.now()
 
     @property
     def is_editable(self):
@@ -145,11 +135,7 @@ class Invoice(models.Model):
 
 class InvoiceItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice = models.ForeignKey(
-        Invoice,
-        on_delete=models.CASCADE,
-        related_name='items'
-    )
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
     description = models.CharField(max_length=500)
     quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)

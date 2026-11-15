@@ -1,4 +1,3 @@
-import stripe
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -6,7 +5,10 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+import stripe
+
 from apps.invoices.models import Invoice
+
 from .models import Payment
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -14,26 +16,23 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def create_checkout_session(request, invoice_id):
     """Create a Stripe Checkout session for an invoice."""
-    invoice = get_object_or_404(
-        Invoice,
-        pk=invoice_id,
-        user=request.user,
-        status__in=['draft', 'sent', 'overdue']
-    )
+    invoice = get_object_or_404(Invoice, pk=invoice_id, user=request.user, status__in=['draft', 'sent', 'overdue'])
 
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
-        line_items=[{
-            'price_data': {
-                'currency': invoice.user.currency.lower(),
-                'unit_amount': int(invoice.total * 100),
-                'product_data': {
-                    'name': f'Invoice {invoice.invoice_number}',
-                    'description': f'Payment for invoice from {invoice.user.get_display_name()}',
+        line_items=[
+            {
+                'price_data': {
+                    'currency': invoice.user.currency.lower(),
+                    'unit_amount': int(invoice.total * 100),
+                    'product_data': {
+                        'name': f'Invoice {invoice.invoice_number}',
+                        'description': f'Payment for invoice from {invoice.user.get_display_name()}',
+                    },
                 },
-            },
-            'quantity': 1,
-        }],
+                'quantity': 1,
+            }
+        ],
         mode='payment',
         success_url=f'{settings.SITE_URL}/invoices/{invoice.id}/?payment=success',
         cancel_url=f'{settings.SITE_URL}/invoices/{invoice.id}/?payment=cancelled',
@@ -57,9 +56,7 @@ def stripe_webhook(request):
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
     except ValueError:
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError:
@@ -95,7 +92,7 @@ def handle_successful_payment(session):
         stripe_payment_id=session.get('payment_intent', ''),
         stripe_session_id=session['id'],
         paid_on=timezone.now().date(),
-        method='stripe'
+        method='stripe',
     )
 
 

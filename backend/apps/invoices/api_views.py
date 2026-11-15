@@ -1,13 +1,14 @@
 from django.db import models
 from django.http import FileResponse, HttpResponse
+
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Invoice
 from .serializers import (
-    InvoiceSerializer,
     InvoiceDetailSerializer,
+    InvoiceSerializer,
     InvoiceWriteSerializer,
 )
 from .tasks import generate_and_store_pdf, send_invoice_email
@@ -60,9 +61,7 @@ class InvoiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         return InvoiceDetailSerializer
 
     def get_queryset(self):
-        return Invoice.objects.filter(user=self.request.user).select_related(
-            'client', 'user'
-        ).prefetch_related('items')
+        return Invoice.objects.filter(user=self.request.user).select_related('client', 'user').prefetch_related('items')
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -76,10 +75,7 @@ class InvoiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         invoice = self.get_object()
         if not invoice.is_editable:
-            return Response(
-                {'error': 'Only draft invoices can be deleted.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'Only draft invoices can be deleted.'}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(request, *args, **kwargs)
 
 
@@ -93,10 +89,7 @@ class InvoiceSendView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if invoice.status not in ['draft', 'sent']:
-            return Response(
-                {'error': 'This invoice cannot be sent.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'This invoice cannot be sent.'}, status=status.HTTP_400_BAD_REQUEST)
 
         generate_and_store_pdf.delay(str(invoice.id))
         send_invoice_email.delay(str(invoice.id))
@@ -109,9 +102,11 @@ class InvoicePDFView(APIView):
 
     def get(self, request, pk):
         try:
-            invoice = Invoice.objects.select_related(
-                'client', 'user', 'payment'
-            ).prefetch_related('items').get(pk=pk, user=request.user)
+            invoice = (
+                Invoice.objects.select_related('client', 'user', 'payment')
+                .prefetch_related('items')
+                .get(pk=pk, user=request.user)
+            )
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -121,16 +116,12 @@ class InvoicePDFView(APIView):
 
         if invoice.pdf_file and not request.query_params.get('regenerate'):
             response = FileResponse(invoice.pdf_file, content_type='application/pdf')
-            response['Content-Disposition'] = (
-                f'attachment; filename="{invoice.invoice_number}.pdf"'
-            )
+            response['Content-Disposition'] = f'attachment; filename="{invoice.invoice_number}.pdf"'
             return response
 
         pdf_bytes = generate_pdf(invoice, template=template, color=color, timezone_str=timezone_str)
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = (
-            f'attachment; filename="{invoice.invoice_number}.pdf"'
-        )
+        response['Content-Disposition'] = f'attachment; filename="{invoice.invoice_number}.pdf"'
         return response
 
 
@@ -160,8 +151,8 @@ class InvoiceMarkPaidView(APIView):
                 'notes': 'Marked paid manually',
             },
         )
-        invoice = Invoice.objects.select_related(
-            'client', 'user', 'payment'
-        ).prefetch_related('items').get(pk=invoice.pk)
+        invoice = (
+            Invoice.objects.select_related('client', 'user', 'payment').prefetch_related('items').get(pk=invoice.pk)
+        )
         serializer = InvoiceDetailSerializer(invoice, context={'request': request})
         return Response(serializer.data)

@@ -6,11 +6,7 @@ from django.db import models
 
 class Client(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='clients'
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='clients')
     name = models.CharField(max_length=255)
     email = models.EmailField(help_text='Invoice delivery email')
     company = models.CharField(max_length=255, blank=True)
@@ -51,21 +47,18 @@ class Client(models.Model):
 
     def get_total_revenue(self):
         from apps.invoices.models import Invoice
-        return Invoice.objects.filter(
-            client=self,
-            status='paid'
-        ).aggregate(
-            total=models.Sum('total')
-        )['total'] or 0
+
+        return Invoice.objects.filter(client=self, status='paid').aggregate(total=models.Sum('total'))['total'] or 0
 
     def get_invoice_count(self):
         return self.invoices.count()
 
     def get_outstanding_amount(self):
         from apps.invoices.models import Invoice
-        return Invoice.objects.filter(
-            client=self,
-            status__in=['sent', 'overdue']
-        ).aggregate(
-            total=models.Sum('total')
-        )['total'] or 0
+
+        return (
+            Invoice.objects.filter(client=self, status__in=['sent', 'overdue']).aggregate(total=models.Sum('total'))[
+                'total'
+            ]
+            or 0
+        )

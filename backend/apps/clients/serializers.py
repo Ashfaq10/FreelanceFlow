@@ -11,10 +11,23 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = [
-            'id', 'name', 'email', 'company', 'address', 'city', 'state', 'zip_code', 'country',
-            'phone', 'notes',
-            'is_archived', 'created_at', 'updated_at',
-            'invoice_count', 'total_revenue', 'outstanding_amount'
+            'id',
+            'name',
+            'email',
+            'company',
+            'address',
+            'city',
+            'state',
+            'zip_code',
+            'country',
+            'phone',
+            'notes',
+            'is_archived',
+            'created_at',
+            'updated_at',
+            'invoice_count',
+            'total_revenue',
+            'outstanding_amount',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

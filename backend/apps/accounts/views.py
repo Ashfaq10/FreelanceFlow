@@ -15,7 +15,7 @@ def settings_view(request):
             return redirect('accounts:settings')
     else:
         form = UserProfileForm(instance=request.user)
-    
+
     return render(request, 'accounts/settings.html', {'form': form})
 
 

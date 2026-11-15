@@ -9,24 +9,10 @@ class TimeLogForm(forms.ModelForm):
         fields = ['client', 'description', 'work_date', 'hours', 'hourly_rate']
         widgets = {
             'client': forms.Select(attrs={'class': 'form-select'}),
-            'description': forms.TextInput(attrs={
-                'class': 'form-input',
-                'placeholder': 'What did you work on?'
-            }),
-            'work_date': forms.DateInput(attrs={
-                'class': 'form-input',
-                'type': 'date'
-            }),
-            'hours': forms.NumberInput(attrs={
-                'class': 'form-input',
-                'step': '0.25',
-                'min': '0.25'
-            }),
-            'hourly_rate': forms.NumberInput(attrs={
-                'class': 'form-input',
-                'step': '0.01',
-                'min': '0'
-            }),
+            'description': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'What did you work on?'}),
+            'work_date': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'hours': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.25', 'min': '0.25'}),
+            'hourly_rate': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.01', 'min': '0'}),
         }
 
     def __init__(self, user, *args, **kwargs):

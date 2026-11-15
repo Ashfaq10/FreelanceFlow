@@ -43,7 +43,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255, blank=True)
     business_name = models.CharField(max_length=255, blank=True)
     business_tagline = models.CharField(
-        max_length=255, blank=True,
+        max_length=255,
+        blank=True,
         help_text='Short tagline shown below business name on invoices',
     )
     business_email = models.EmailField(
@@ -51,7 +52,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         help_text='Business contact email shown on invoices',
     )
     business_phone = models.CharField(
-        max_length=20, blank=True,
+        max_length=20,
+        blank=True,
         help_text='Business contact phone shown on invoices',
     )
     logo = models.ImageField(upload_to='logos/', blank=True, null=True)

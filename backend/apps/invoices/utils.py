@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 
-import weasyprint
 from django.conf import settings
 from django.template.loader import render_to_string
+
+import weasyprint
 
 DEFAULT_INVOICE_TERMS = [
     'All amounts are quoted in the currency shown on this invoice.',
@@ -101,6 +102,7 @@ def _format_datetime_local(dt, timezone_str=None):
     if timezone_str:
         try:
             from zoneinfo import ZoneInfo
+
             tz = ZoneInfo(timezone_str)
             dt = dt.astimezone(tz)
         except (TypeError, ValueError, KeyError):
@@ -135,7 +137,8 @@ def build_pdf_context(invoice, template='professional', color='indigo', timezone
         'bank_lines': _bank_lines(user.bank_details),
         'terms_list': _terms_list(user),
         'discount': invoice.discount_amount or 0,
-        'notes_text': invoice.notes or (
+        'notes_text': invoice.notes
+        or (
             'Thank you for your payment. This invoice serves as your official receipt. '
             'Please retain it for your records and for any tax, audit, or support-related requirements.'
         ),

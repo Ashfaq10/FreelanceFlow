@@ -15,11 +15,7 @@ class Payment(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice = models.OneToOneField(
-        'invoices.Invoice',
-        on_delete=models.CASCADE,
-        related_name='payment'
-    )
+    invoice = models.OneToOneField('invoices.Invoice', on_delete=models.CASCADE, related_name='payment')
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     paid_on = models.DateField(default=timezone.now)
     stripe_payment_id = models.CharField(max_length=255, blank=True)

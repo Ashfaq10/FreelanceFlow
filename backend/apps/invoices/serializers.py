@@ -1,4 +1,5 @@
 from django.utils import timezone
+
 from rest_framework import serializers
 
 from .models import Invoice, InvoiceItem
@@ -15,6 +16,7 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
 
 class InvoiceItemWriteSerializer(serializers.Serializer):
     """Accepts `rate` from the React frontend (maps to model `unit_price`)."""
+
     description = serializers.CharField(max_length=500)
     quantity = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=1)
     rate = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
@@ -33,14 +35,24 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = [
-            'id', 'invoice_number', 'client', 'client_name',
-            'reference_number', 'issue_date', 'due_date', 'status',
-            'subtotal', 'discount_amount', 'tax_rate', 'tax_amount', 'total',
-            'notes', 'items_count', 'created_at'
+            'id',
+            'invoice_number',
+            'client',
+            'client_name',
+            'reference_number',
+            'issue_date',
+            'due_date',
+            'status',
+            'subtotal',
+            'discount_amount',
+            'tax_rate',
+            'tax_amount',
+            'total',
+            'notes',
+            'items_count',
+            'created_at',
         ]
-        read_only_fields = [
-            'id', 'invoice_number', 'subtotal', 'tax_amount', 'total', 'created_at'
-        ]
+        read_only_fields = ['id', 'invoice_number', 'subtotal', 'tax_amount', 'total', 'created_at']
 
     def get_items_count(self, obj):
         return obj.items.count()
@@ -54,8 +66,16 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = [
-            'id', 'client', 'reference_number', 'issue_date', 'due_date', 'status',
-            'discount_amount', 'tax_rate', 'notes', 'items',
+            'id',
+            'client',
+            'reference_number',
+            'issue_date',
+            'due_date',
+            'status',
+            'discount_amount',
+            'tax_rate',
+            'notes',
+            'items',
         ]
         read_only_fields = ['id']
 
@@ -126,20 +146,58 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = [
-            'id', 'invoice_number', 'client', 'client_name', 'client_email',
-            'client_address', 'client_full_address', 'client_phone', 'client_company', 'client_display_name',
-            'reference_number', 'issue_date', 'due_date', 'status',
-            'subtotal', 'discount_amount', 'tax_rate', 'tax_amount', 'total',
-            'notes', 'stripe_payment_url', 'pdf_file',
-            'items', 'created_at', 'updated_at', 'sent_at',
-            'business_name', 'business_tagline', 'business_email', 'business_phone',
-            'website', 'tax_number',
-            'bank_details', 'invoice_terms', 'user_address', 'user_phone',
-            'user_email', 'currency', 'logo_url', 'payment_date',
+            'id',
+            'invoice_number',
+            'client',
+            'client_name',
+            'client_email',
+            'client_address',
+            'client_full_address',
+            'client_phone',
+            'client_company',
+            'client_display_name',
+            'reference_number',
+            'issue_date',
+            'due_date',
+            'status',
+            'subtotal',
+            'discount_amount',
+            'tax_rate',
+            'tax_amount',
+            'total',
+            'notes',
+            'stripe_payment_url',
+            'pdf_file',
+            'items',
+            'created_at',
+            'updated_at',
+            'sent_at',
+            'business_name',
+            'business_tagline',
+            'business_email',
+            'business_phone',
+            'website',
+            'tax_number',
+            'bank_details',
+            'invoice_terms',
+            'user_address',
+            'user_phone',
+            'user_email',
+            'currency',
+            'logo_url',
+            'payment_date',
         ]
         read_only_fields = [
-            'id', 'invoice_number', 'subtotal', 'tax_amount', 'total',
-            'stripe_payment_url', 'pdf_file', 'created_at', 'updated_at', 'sent_at',
+            'id',
+            'invoice_number',
+            'subtotal',
+            'tax_amount',
+            'total',
+            'stripe_payment_url',
+            'pdf_file',
+            'created_at',
+            'updated_at',
+            'sent_at',
         ]
 
     def get_logo_url(self, obj):
