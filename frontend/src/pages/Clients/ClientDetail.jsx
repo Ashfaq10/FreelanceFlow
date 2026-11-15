@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { 
   ArrowLeft, 
   Edit, 
-  Trash2, 
+  Archive,
   Mail, 
   Phone, 
   MapPin,
@@ -20,9 +20,9 @@ function ClientDetail() {
   const [client, setClient] = useState(null)
   const [clientInvoices, setInvoices] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showArchiveModal, setShowArchiveModal] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
-  const [deleting, setDeleting] = useState(false)
+  const [archiving, setArchiving] = useState(false)
 
   useEffect(() => {
     const fetchClient = async () => {
@@ -50,17 +50,17 @@ function ClientDetail() {
     fetchClientInvoices()
   }, [id, navigate])
 
-  const handleDelete = async () => {
-    setDeleting(true)
+  const handleArchive = async () => {
+    setArchiving(true)
     try {
-      await clientApi.delete(id)
-      toast.success('Client deleted')
+      await clientApi.archive(id)
+      toast.success('Client archived')
       navigate('/clients')
     } catch (error) {
-      toast.error('Failed to delete client')
+      toast.error(error.response?.data?.error || 'Failed to archive client')
     } finally {
-      setDeleting(false)
-      setShowDeleteModal(false)
+      setArchiving(false)
+      setShowArchiveModal(false)
     }
   }
 
@@ -164,12 +164,12 @@ function ClientDetail() {
                   <button
                     onClick={() => {
                       setShowDropdown(false)
-                      setShowDeleteModal(true)
+                      setShowArchiveModal(true)
                     }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <Trash2 className="w-4 h-4 mr-3" />
-                    Delete Client
+                    <Archive className="w-4 h-4 mr-3" />
+                    Archive Client
                   </button>
                 </div>
               </>
@@ -319,26 +319,25 @@ function ClientDetail() {
         </div>
       </div>
 
-      {/* Delete Modal */}
+      {/* Archive Modal: invoices and payments are never deleted (DATA-1) */}
       <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title="Delete Client"
+        isOpen={showArchiveModal}
+        onClose={() => setShowArchiveModal(false)}
+        title="Archive Client"
       >
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Are you sure you want to delete <strong>{client?.name || client?.company}</strong>? 
-          This will also remove all associated invoices. This action cannot be undone.
+          Archive <strong>{client?.name || client?.company}</strong>? They disappear from the client list and from new
+          invoices. Their invoices, payments and history stay exactly as they are.
         </p>
         <div className="flex justify-end gap-3">
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+          <Button variant="secondary" onClick={() => setShowArchiveModal(false)}>
             Cancel
           </Button>
-          <Button 
-            variant="danger" 
-            onClick={handleDelete}
-            loading={deleting}
+          <Button
+            onClick={handleArchive}
+            loading={archiving}
           >
-            Delete Client
+            Archive Client
           </Button>
         </div>
       </Modal>

@@ -26,7 +26,7 @@ export const clients = {
   create: (data) => api.post('/api/clients/', data),
   update: (id, data) => api.patch(`/api/clients/${id}/`, data),
   delete: (id) => api.delete(`/api/clients/${id}/`),
-  archive: (id) => api.post(`/api/clients/${id}/archive/`),
+  archive: (id) => api.patch(`/api/clients/${id}/`, { is_archived: true }),
 }
 
 export const timeLogs = {

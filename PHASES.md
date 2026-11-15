@@ -65,7 +65,7 @@ flowchart LR
 - [ ] Throttle auth endpoints; run password validators; lower-case emails; 400 on signup race ([SEC-4](docs/AUDIT.md#sec-4)) — **M**
 - [ ] Remove `django-debug-toolbar` from production requirements ([SEC-7](docs/AUDIT.md#sec-7)) — **S**
 - [ ] `default_currency` → `ChoiceField` ([SEC-8](docs/AUDIT.md#sec-8)) — **S**
-- [ ] `Invoice.client` → `PROTECT`; client delete returns 409 when invoices exist; UI archives instead ([DATA-1](docs/AUDIT.md#data-1)) — **M**
+- [x] `Invoice.client` → `PROTECT`; client delete returns 409 when invoices exist; UI archives instead ([DATA-1](docs/AUDIT.md#data-1)) — **M**
 - [x] Make `status` read-only; enforce transitions in model methods; add a cancel endpoint ([DATA-2](docs/AUDIT.md#data-2)) — **M**
 - [x] Quantize `line_total`, `tax_amount`, `total` (`ROUND_HALF_UP`) ([DATA-3](docs/AUDIT.md#data-3), backend half) — **S**
 - [x] SPA shows server-computed money; integer-cent preview for unsaved drafts ([DATA-3](docs/AUDIT.md#data-3), frontend half) — **M**

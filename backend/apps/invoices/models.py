@@ -30,7 +30,8 @@ class Invoice(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='invoices')
-    client = models.ForeignKey('clients.Client', on_delete=models.CASCADE, related_name='invoices')
+    # PROTECT: deleting a client must never take its invoices, payments and revenue with it (DATA-1).
+    client = models.ForeignKey('clients.Client', on_delete=models.PROTECT, related_name='invoices')
     invoice_number = models.CharField(max_length=50, editable=False)
     reference_number = models.CharField(max_length=100, blank=True)
     issue_date = models.DateTimeField(default=timezone.now)

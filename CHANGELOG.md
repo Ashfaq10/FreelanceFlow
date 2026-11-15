@@ -18,6 +18,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Invoice and time-log writes only accept clients and invoices owned by the caller; a cross-user id now returns 400 instead of attaching (and emailing) someone else's client (SEC-1).
 - Invoice `status` is read-only over the API: `POST {"status": "paid"}` no longer creates revenue without a payment. Transitions are enforced in the model (`draft→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`) and illegal ones return 400 (DATA-2).
 - `config.settings.production` refuses to start without `SECRET_KEY` and `ALLOWED_HOSTS` (no more published-default fallback) and trusts `X-Forwarded-Proto`, so `SECURE_SSL_REDIRECT` cannot loop behind a TLS proxy (SEC-2).
+- Deleting a client no longer cascades to its invoices, payments and revenue: `Invoice.client` is `PROTECT`, the API answers 409 when invoices exist, and the SPA offers "Archive Client" instead (DATA-1).
 
 ### Changed
 - Line quantities accept fractions (0.5 h is valid; `0` is not). Discounts must be between zero and the subtotal, tax between 0 and 100%, and the SPA sends decimal strings with `step="0.01"` instead of `parseInt`-ing quantities down (DATA-5).

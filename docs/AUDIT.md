@@ -73,7 +73,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Data integrity & money
 
 ### <a id="data-1"></a>DATA-1 — Deleting a client deletes its paid invoices and payments
-`Must` · Phase 1 · `apps/invoices/models.py` (`Invoice.client` `on_delete=CASCADE`), `apps/clients/api_views.py`, `frontend/src/pages/Clients/ClientDetail.jsx`
+`Must` · Phase 1 · `apps/invoices/models.py` (`Invoice.client` `on_delete=CASCADE`), `apps/clients/api_views.py`, `frontend/src/pages/Clients/ClientDetail.jsx` · **Done 2026-11-15**: `PROTECT` + migration 0008, DELETE returns 409, SPA archives; `tests/test_clients.py`. `TimeLog.client` is still `CASCADE`, so deleting a client with time logs but no invoices still drops those logs.
 **Problem:** "Delete Client" removes every invoice (including paid), their `Payment` rows and time logs — accounting records gone. The SPA's `clients.archive` calls `/api/clients/{id}/archive/`, which does not exist.
 **Fix:** `on_delete=PROTECT` (migration); API delete returns 409 when invoices exist; replace the UI delete with archive (`PATCH {is_archived:true}` already works); add an archived filter.
 
