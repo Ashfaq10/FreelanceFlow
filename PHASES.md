@@ -14,7 +14,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 
 | Phase | Theme | Status | Done |
 |---|---|---|---|
-| 0 | Baseline: green tests, working CI, honest docs | 🟡 Items done; exit check: CI green on `main` after push | 11 / 11 |
+| 0 | Baseline: green tests, working CI, honest docs | ✅ Done (CI green on `main`, run 43703445329) | 11 / 11 |
 | 1 | Security & money integrity | ⚪ Not started | 0 / 14 |
 | 2 | Fix broken user flows | ⚪ Not started | 0 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ⚪ Not started | 0 / 8 |

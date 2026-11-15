@@ -27,10 +27,11 @@ Entry template:
 - OPS-12/13 Celery defaults to local settings; `lib/` ignore anchored.
 - TEST-4 Vitest + RTL + MSW, 3 tests on `api/client.js`; `npm test` in CI.
 - Smoke-checked the refactored effects in the browser (clients, invoices list/detail/edit/new, settings, dashboard): pages load, no refetch loops.
+- Pushed; three follow-up fixes for things only CI could show: `ubuntu-latest` is Ubuntu 26.04 and dropped `libgdk-pixbuf2.0-0` (removed from the workflow and the Dockerfile — WeasyPrint 60 does not use it), and `ClientFactory.phone` exceeded `max_length=20` on Postgres.
 
-**State:** all green locally (pytest, `npm test`, `npm run lint`, `npm run build`, black/isort/flake8). Not pushed yet; CI on GitHub has not run these changes. Not verified locally: tests on Postgres and the Docker build (Docker daemon was off).
+**State:** Phase 0 done. CI green on `main` (run 43703445329): lint, frontend, test (Postgres), build. Local checks green too.
 
-**Next:** push, confirm CI green on `main` (Phase 0 exit criterion), then BACKLOG "Now": [SEC-1](docs/AUDIT.md#sec-1).
+**Next:** BACKLOG "Now": [SEC-1](docs/AUDIT.md#sec-1) — scope serializer querysets to `request.user`, with a cross-user regression test.
 
 ### Open questions
 

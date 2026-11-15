@@ -25,6 +25,8 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ### Fixed
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).
+- `ClientFactory.phone` stays within `Client.phone`'s `max_length=20`; Postgres rejected the longer Faker values that SQLite accepted (TEST-1).
+- Dropped `libgdk-pixbuf2.0-0` from the CI test job and `backend/Dockerfile`: the package is gone from Ubuntu 26.04 and the slim base image, and WeasyPrint 60 does not use it (OPS-1).
 
 ### Removed
 - `TestInvoiceViews`: tests for the dead server-rendered invoice views (TEST-1, LEAN-1).
