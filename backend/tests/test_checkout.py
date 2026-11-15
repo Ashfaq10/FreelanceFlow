@@ -98,7 +98,7 @@ class TestCheckoutEndpoint:
 
 @pytest.mark.django_db
 class TestSendCreatesPayLink:
-    def test_link_is_in_the_email(self, invoice, stripe_mock, mailoutbox):
+    def test_sending_creates_the_pay_link(self, invoice, stripe_mock, mailoutbox):
         InvoiceItem.objects.create(invoice=invoice, description='Work', quantity=1, unit_price=Decimal('10.00'))
         invoice.save()
 
@@ -107,7 +107,10 @@ class TestSendCreatesPayLink:
 
             send_invoice(str(invoice.id))
 
-        assert SESSION['url'] in mailoutbox[0].body
+        invoice.refresh_from_db()
+        # The email links the public invoice page (FEAT-3); this is the link its Pay button uses.
+        assert invoice.stripe_payment_url == SESSION['url']
+        assert f'/pay/{invoice.public_token}' in mailoutbox[0].body
 
     def test_send_survives_stripe_being_down(self, invoice, settings, mailoutbox):
         settings.STRIPE_SECRET_KEY = ''  # Stripe not configured at all

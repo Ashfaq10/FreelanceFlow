@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] Public tokenized invoice page with Pay button — [FEAT-3](docs/AUDIT.md#feat-3)
 - [ ] Email tasks retry with backoff — [OPS-9](docs/AUDIT.md#ops-9)
+- [ ] Then Phase 4: delete the server-rendered UI — [LEAN-1](docs/AUDIT.md#lean-1)
 
 ## Next
 

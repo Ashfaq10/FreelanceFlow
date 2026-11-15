@@ -48,6 +48,17 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 
 **Statuses:** `draft` → `sent` → (`overdue`) → `paid`; `cancelled`. `overdue` is set daily by Celery. Transitions are enforced in `Invoice` model methods and nowhere else ([DATA-2](AUDIT.md#data-2)): `draft|sent→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`, and `paid→sent|overdue` when a Stripe refund arrives ([PAY-4](AUDIT.md#pay-4)).
 
+## Public invoice page — `apps/invoices/public_views.py` (no authentication)
+
+The token in the URL is the credential; the SPA serves it at `/pay/<token>`. Only `sent`, `overdue` and `paid` invoices resolve — anything else is a 404. All three are throttled at 60/hour per IP ([FEAT-3](AUDIT.md#feat-3)).
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/public/invoices/{token}/` | The invoice as the client sees it: number, dates, lines, totals, balance, sender name and email |
+| GET | `/api/public/invoices/{token}/pdf/` | PDF download |
+| POST | `/api/public/invoices/{token}/checkout/` | Starts a Stripe payment: `{url}`; 400 once paid, 503 if Stripe is unavailable |
+
+
 ## Time logs — `apps/time_tracker/api_urls.py` (DRF router)
 
 | Method | Path | Description | Known issues |

@@ -8,7 +8,7 @@ from rest_framework import serializers
 from apps.payments.serializers import PaymentSerializer
 
 from .models import Invoice, InvoiceItem
-from .utils import PDF_COLORS
+from .utils import PDF_COLORS, public_invoice_url
 
 
 class InvoiceFilterSerializer(serializers.Serializer):
@@ -199,6 +199,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email', read_only=True)
     currency = serializers.CharField(read_only=True)
     logo_url = serializers.SerializerMethodField()
+    public_url = serializers.SerializerMethodField()
     payment_date = serializers.SerializerMethodField()
     payments = PaymentSerializer(many=True, read_only=True)
     amount_paid = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
@@ -251,6 +252,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'payments',
             'amount_paid',
             'amount_due',
+            'public_url',
         ]
         read_only_fields = [
             'id',
@@ -276,3 +278,42 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     def get_payment_date(self, obj):
         last = obj.payments.order_by('paid_on').last()
         return last.paid_on if last else None
+
+    def get_public_url(self, obj):
+        return public_invoice_url(obj)
+
+
+class PublicInvoiceSerializer(serializers.ModelSerializer):
+    """What a client holding the link may see — no account, no other invoices (FEAT-3)."""
+
+    items = InvoiceItemSerializer(many=True, read_only=True)
+    client_name = serializers.CharField(source='client.display_name', read_only=True)
+    business_name = serializers.SerializerMethodField()
+    business_email = serializers.CharField(source='user.business_email', read_only=True)
+    amount_paid = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    amount_due = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            'invoice_number',
+            'status',
+            'issue_date',
+            'due_date',
+            'currency',
+            'items',
+            'subtotal',
+            'discount_amount',
+            'tax_rate',
+            'tax_amount',
+            'total',
+            'amount_paid',
+            'amount_due',
+            'notes',
+            'client_name',
+            'business_name',
+            'business_email',
+        ]
+
+    def get_business_name(self, obj):
+        return obj.user.get_display_name()

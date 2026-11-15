@@ -33,13 +33,11 @@
             </table>
         </div>
         
-        {% if invoice.stripe_payment_url %}
         <div style="text-align: center; margin: 30px 0;">
-            <a href="{{ invoice.stripe_payment_url }}" style="display: inline-block; background-color: #0ea5e9; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                Pay Now
+            <a href="{{ public_url }}" style="display: inline-block; background-color: #0ea5e9; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                View &amp; pay invoice
             </a>
         </div>
-        {% endif %}
         
         <p>If you've already sent payment, please disregard this reminder.</p>
         

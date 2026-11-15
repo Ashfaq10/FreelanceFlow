@@ -36,6 +36,11 @@ def _default_notes(invoice):
     return 'Please settle this invoice by the due date shown above. Thank you for your business.'
 
 
+def public_invoice_url(invoice):
+    """Link the client follows to view and pay the invoice without an account (FEAT-3)."""
+    return f'{settings.FRONTEND_URL}/pay/{invoice.public_token}'
+
+
 def get_currency_symbol(currency_code):
     symbols = {
         'USD': '$',

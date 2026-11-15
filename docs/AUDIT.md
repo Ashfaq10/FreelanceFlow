@@ -225,7 +225,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 `Should` · Phase 3 · duplicate (only the dead view has it, and it mutates on GET), cancel/void, re-send and manual reminder for overdue invoices (`InvoiceSendView` rejects `overdue`) · **Done 2026-11-15**: `POST /{id}/duplicate/` copies lines and terms into a new draft, `/{id}/remind/` queues the overdue or due-soon email by status, and `/{id}/send/` accepts `overdue` without resetting it to `sent`. `/{id}/cancel/` arrived with [DATA-2](#data-2); all four are in the invoice menu (`tests/test_invoice_actions.py`).
 
 ### <a id="feat-3"></a>FEAT-3 — Public, tokenized invoice page for clients
-`Should` · Phase 3 · Clients currently have no way to view or pay an invoice except the PDF attachment.
+`Should` · Phase 3 · Clients currently have no way to view or pay an invoice except the PDF attachment · **Done 2026-11-15**: `Invoice.public_token` (migration `0011`, backfilled) powers `/pay/:token` in the SPA and `GET|POST /api/public/invoices/<token>/{,pdf/,checkout/}`. The page needs no account, shows one invoice (sent, overdue or paid only — never a draft or a cancelled one), and its Pay button creates the Stripe session. Rate-limited at 60/hour per IP against token guessing; Stripe misconfiguration is not quoted at the client. The three client emails link to it, and the owner's invoice menu has "Copy client link" (`tests/test_public_invoice.py`).
 
 ### <a id="feat-4"></a>FEAT-4 — Growth features
 `Nice` · Phase 6 · recurring invoices, quotes/estimates, credit notes, CSV export, per-line and multiple taxes, percentage discounts, per-user invoice prefix, activity/audit log, notification settings, GDPR export/delete, email verification, i18n.

@@ -51,6 +51,8 @@ class Invoice(models.Model):
     pdf_file = models.FileField(upload_to='invoices/pdfs/', blank=True, null=True)
     # Frozen at creation from the user's setting: changing the account currency must not restate old invoices (DATA-7).
     currency = models.CharField(max_length=3, blank=True)
+    # Capability URL handed to the client so they can view and pay without an account (FEAT-3).
+    public_token = models.CharField(max_length=32, unique=True, blank=True)
     # Accent colour of the rendered PDF; ids come from PDF_COLORS in utils.py (BUG-16).
     pdf_color = models.CharField(max_length=20, default='indigo')
     stripe_payment_url = models.URLField(blank=True)
@@ -81,6 +83,9 @@ class Invoice(models.Model):
 
         if not self.currency:
             self.currency = self.user.currency or 'USD'
+
+        if not self.public_token:
+            self.public_token = uuid.uuid4().hex
 
         if not self.invoice_number:
             for _ in range(10):

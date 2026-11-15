@@ -15,6 +15,7 @@ import ClientCreate from './pages/Clients/ClientCreate'
 import TimeTracker from './pages/TimeTracker/TimeTracker'
 import Reports from './pages/Reports/Reports'
 import Settings from './pages/Settings/Settings'
+import PublicInvoice from './pages/Public/PublicInvoice'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -60,6 +61,8 @@ function App() {
       <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
       <Route path="/reset-password/:uid/:token" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+      {/* The client's invoice page: no account, token is the credential (FEAT-3) */}
+      <Route path="/pay/:token" element={<PublicInvoice />} />
 
       {/* Private routes */}
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>

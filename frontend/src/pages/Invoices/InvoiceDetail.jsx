@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Edit, Send, Download, CheckCircle, Trash2,
-  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard, Plus, Copy, Bell, Ban
+  MoreVertical, Palette, LayoutTemplate, ChevronDown, ChevronUp, CreditCard, Plus, Copy, Bell, Ban,
+  Link as LinkIcon
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Badge, Button, Modal, Skeleton, Input, Select } from '../../components/ui'
@@ -139,6 +140,17 @@ function InvoiceDetail() {
     }
   }
 
+  // The tokenised page the client sees; the email links here too (FEAT-3).
+  const handleCopyClientLink = async () => {
+    setShowDropdown(false)
+    try {
+      await navigator.clipboard.writeText(invoice.public_url)
+      toast.success('Client link copied')
+    } catch {
+      toast.error('Could not copy the link')
+    }
+  }
+
   // Stripe Checkout link for the client; the freelancer copies or opens it (PAY-2).
   const handlePayLink = async () => {
     setActionLoading('paylink')
@@ -272,6 +284,9 @@ function InvoiceDetail() {
                 <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
                   style={{ backdropFilter: 'blur(16px)' }}>
                   <MenuItem icon={Copy} label="Duplicate" onClick={handleDuplicate} />
+                  {['sent', 'overdue', 'paid'].includes(invoice.status) && (
+                    <MenuItem icon={LinkIcon} label="Copy client link" onClick={handleCopyClientLink} />
+                  )}
                   {['sent', 'overdue'].includes(invoice.status) && (
                     <>
                       <MenuItem icon={Send} label="Send again" onClick={handleSend} />

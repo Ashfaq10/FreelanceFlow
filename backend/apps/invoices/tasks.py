@@ -9,7 +9,7 @@ from celery import shared_task
 
 from apps.payments.services import CheckoutUnavailable, payment_link
 
-from .utils import get_currency_symbol
+from .utils import get_currency_symbol, public_invoice_url
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +69,7 @@ def send_overdue_reminder(invoice_id):
             'client': invoice.client,
             'user': invoice.user,
             'currency_symbol': get_currency_symbol(invoice.currency),
+            'public_url': public_invoice_url(invoice),
         },
     )
 
@@ -136,6 +137,7 @@ def send_invoice(invoice_id, custom_message=''):
             'user': invoice.user,
             'custom_message': custom_message,
             'currency_symbol': get_currency_symbol(invoice.currency),
+            'public_url': public_invoice_url(invoice),
         },
     )
 
@@ -162,6 +164,7 @@ def send_due_soon_email(invoice):
             'client': invoice.client,
             'user': invoice.user,
             'currency_symbol': get_currency_symbol(invoice.currency),
+            'public_url': public_invoice_url(invoice),
         },
     )
 

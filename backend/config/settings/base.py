@@ -142,6 +142,8 @@ REST_FRAMEWORK = {
         'login': '10/min',
         'signup': '5/hour',
         'password_reset': '5/hour',
+        # Token guessing on the public invoice page (FEAT-3).
+        'public_invoice': '60/hour',
     },
 }
 
