@@ -135,17 +135,17 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Broken user flows
 
 ### <a id="bug-1"></a>BUG-1 — Wrong password reloads the page with no error
-`Must` · Phase 2 · `frontend/src/api/client.js:L30-33`
+`Must` · Phase 2 · `frontend/src/api/client.js:L30-33` · **Done 2026-11-15**: the interceptor redirects only when a token was sent and the URL is not `/api/auth/*`; `api/client.test.js` covers both paths.
 **Problem:** Login returns 401 for bad credentials; the global interceptor treats every 401 as "session expired", deletes the token and does `window.location.href='/login'`, wiping the error toast.
 **Fix:** Redirect only when a token was sent and the URL is not `/api/auth/*`; use router navigation and clear auth state.
 
 ### <a id="bug-2"></a>BUG-2 — Client money totals always show $0.00
-`Must` · Phase 2 · `frontend/src/pages/Clients/ClientList.jsx:L135`, `ClientDetail.jsx:L235-243`, `apps/clients/serializers.py`
+`Must` · Phase 2 · `frontend/src/pages/Clients/ClientList.jsx:L135`, `ClientDetail.jsx:L235-243`, `apps/clients/serializers.py` · **Done 2026-11-15**: the serializer now returns `total_billed` (sent + overdue + paid), `total_paid` and `outstanding`; `tests/test_time_logs.py`.
 **Problem:** SPA reads `total_billed`, `total_paid`, `outstanding`; the API returns `total_revenue`, `outstanding_amount`, `invoice_count`.
 **Fix:** Align names (add `total_billed` to the serializer if "billed" ≠ "paid").
 
 ### <a id="bug-3"></a>BUG-3 — Saving a time log without an hourly rate always fails
-`Must` · Phase 2 · `frontend/src/pages/TimeTracker/TimeTracker.jsx:L124,L375-381`, `apps/time_tracker/models.py:L30`
+`Must` · Phase 2 · `frontend/src/pages/TimeTracker/TimeTracker.jsx:L124,L375-381`, `apps/time_tracker/models.py:L30` · **Done 2026-11-15**: `hourly_rate` is nullable (migration 0002) and `total_amount` is `None` without it, matching the "optional" label.
 **Problem:** Field labelled "optional" sends `null`; model column is non-null → 400 "Failed to save time log".
 **Fix:** Default the rate from client or user settings on the backend, or make it required in the form.
 

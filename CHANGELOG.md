@@ -35,12 +35,15 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Backend formatted with black and isort; flake8 clean. `logout_view` catches `Token.DoesNotExist` instead of a bare `except` (OPS-2).
 - Frontend lint clean: fetch-on-mount effects declare their dependencies; unused code removed (OPS-2).
 - Celery defaults to `config.settings.local`, like `manage.py` (OPS-12).
-- Dev tooling: `scripts/check.sh` runs every CI check locally (`--pg` for Postgres), pre-commit hooks for black/isort/flake8/eslint, Dependabot for pip/npm/actions/docker.
+- Dev tooling: `scripts/check.sh` runs every CI check locally (`--pg` for Postgres), pre-commit hooks for black/isort/flake8/eslint, and `npm audit` in CI (Dependabot was removed: one branch policy).
 - `.gitignore` anchors `lib/`/`lib64/` to `/backend/` (OPS-13).
 - README rewritten to match the code: correct ports and commands, honest project status, links to the roadmap (OPS-10).
 - Single root `.env.example` covering SQLite/Postgres, SMTP/SendGrid, Stripe and S3 (OPS-6).
 
 ### Fixed
+- A wrong password shows "Invalid email or password" instead of silently reloading the login page; the global 401 handler now redirects only for authenticated requests outside `/api/auth/*` (BUG-1).
+- Client screens show real money: the API returns `total_billed`, `total_paid` and `outstanding` under the names the SPA reads, instead of always rendering $0.00 (BUG-2).
+- Time logs save without an hourly rate, as the "optional" label promised; `total_amount` is empty for those entries (BUG-3).
 - Editing a draft keeps its saved issue and due dates instead of resetting them to today and today + 30 days (DATA-6).
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).
 - `ClientFactory.phone` stays within `Client.phone`'s `max_length=20`; Postgres rejected the longer Faker values that SQLite accepted (TEST-1).

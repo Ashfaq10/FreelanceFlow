@@ -25,7 +25,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 
 | Method | Path | Description | Known issues |
 |---|---|---|---|
-| GET | `/api/clients/` | Active clients with `invoice_count`, `total_revenue`, `outstanding_amount`; `?archived=true` lists archived ones | `?search=` ignored ([BUG-11](AUDIT.md#bug-11)); N+1 ([PERF-1](AUDIT.md#perf-1)) |
+| GET | `/api/clients/` | Active clients with `invoice_count`, `total_billed` (sent + overdue + paid), `total_paid`, `outstanding`; `?archived=true` lists archived ones | `?search=` ignored ([BUG-11](AUDIT.md#bug-11)); N+1 ([PERF-1](AUDIT.md#perf-1)) |
 | POST | `/api/clients/` | Create client (`email` unique per user) | |
 | GET / PATCH / PUT | `/api/clients/{id}/` | Detail / update; `PATCH {"is_archived": true}` is the supported way to retire a client | |
 | DELETE | `/api/clients/{id}/` | Only for clients with no invoices and no time logs; 409 otherwise | |
@@ -49,7 +49,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 
 | Method | Path | Description | Known issues |
 |---|---|---|---|
-| GET / POST | `/api/time-logs/` | List / create (`client`, `description`, `work_date`, `hours`, `hourly_rate`) | [SEC-1](AUDIT.md#sec-1), [BUG-3](AUDIT.md#bug-3) |
+| GET / POST | `/api/time-logs/` | List / create (`client`, `description`, `date`, `hours`; `hourly_rate` optional — `total_amount` is null without it) | |
 | GET / PATCH / PUT / DELETE | `/api/time-logs/{id}/` | Detail / update / delete | |
 
 ## Dashboard — `apps/dashboard/api_urls.py`

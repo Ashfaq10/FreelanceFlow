@@ -27,9 +27,16 @@ api.interceptors.response.use(
     if (error.response) {
       const { status } = error.response
       
+      // A 401 from /api/auth/* means "those credentials are wrong", not "your session expired";
+      // redirecting there wiped the login page's own error message (BUG-1).
+      const isAuthRequest = (error.config?.url || '').includes('/api/auth/')
+      const hadToken = !!localStorage.getItem('token')
+
       if (status === 401) {
-        localStorage.removeItem('token')
-        window.location.href = '/login'
+        if (hadToken && !isAuthRequest) {
+          localStorage.removeItem('token')
+          window.location.href = '/login'
+        }
       } else if (status === 403) {
         toast.error('You do not have permission to perform this action')
       } else if (status === 404) {

@@ -16,7 +16,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 |---|---|---|---|
 | 0 | Baseline: green tests, working CI, honest docs | ✅ Done (CI green on `main`, run 43703445329) | 11 / 11 |
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
-| 2 | Fix broken user flows | ⚪ Not started | 0 / 17 |
+| 2 | Fix broken user flows | 🟡 In progress | 3 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ⚪ Not started | 0 / 8 |
 | 4 | Code health, performance, UX & a11y | ⚪ Not started | 0 / 16 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
@@ -80,9 +80,9 @@ flowchart LR
 
 **Exit criteria:** manual QA script (login → client → invoice → send → mark paid → reports) passes with the `seed_demo` account switched to EUR · each fix has a backend or Vitest test.
 
-- [ ] Login errors show instead of reloading the page ([BUG-1](docs/AUDIT.md#bug-1)) — **S**
-- [ ] Client totals use the API's field names ([BUG-2](docs/AUDIT.md#bug-2)) — **S**
-- [ ] Time logs save without an explicit rate (default from client/user) ([BUG-3](docs/AUDIT.md#bug-3)) — **S**
+- [x] Login errors show instead of reloading the page ([BUG-1](docs/AUDIT.md#bug-1)) — **S**
+- [x] Client totals use the API's field names ([BUG-2](docs/AUDIT.md#bug-2)) — **S**
+- [x] Time logs save without an explicit rate ([BUG-3](docs/AUDIT.md#bug-3)) — **S**
 - [ ] "Mark Paid" available on overdue invoices ([BUG-4](docs/AUDIT.md#bug-4)) — **S**
 - [ ] One `formatCurrency` everywhere, including all preview templates and emails ([BUG-5](docs/AUDIT.md#bug-5)) — **M**
 - [ ] Real password reset: email → `/reset-password/:uid/:token` → confirm endpoint ([BUG-6](docs/AUDIT.md#bug-6)) — **M**

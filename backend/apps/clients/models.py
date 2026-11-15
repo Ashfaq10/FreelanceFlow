@@ -45,20 +45,22 @@ class Client(models.Model):
             parts.append(self.country)
         return ', '.join([p for p in parts if p])
 
-    def get_total_revenue(self):
+    def _invoice_total(self, statuses):
         from apps.invoices.models import Invoice
 
-        return Invoice.objects.filter(client=self, status='paid').aggregate(total=models.Sum('total'))['total'] or 0
+        return (
+            Invoice.objects.filter(client=self, status__in=statuses).aggregate(total=models.Sum('total'))['total'] or 0
+        )
 
     def get_invoice_count(self):
         return self.invoices.count()
 
-    def get_outstanding_amount(self):
-        from apps.invoices.models import Invoice
+    def get_total_billed(self):
+        """Everything actually sent to the client; drafts and cancelled invoices are not billed."""
+        return self._invoice_total(['sent', 'overdue', 'paid'])
 
-        return (
-            Invoice.objects.filter(client=self, status__in=['sent', 'overdue']).aggregate(total=models.Sum('total'))[
-                'total'
-            ]
-            or 0
-        )
+    def get_total_paid(self):
+        return self._invoice_total(['paid'])
+
+    def get_outstanding(self):
+        return self._invoice_total(['sent', 'overdue'])

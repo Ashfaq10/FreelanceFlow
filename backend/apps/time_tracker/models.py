@@ -15,7 +15,8 @@ class TimeLog(models.Model):
     description = models.CharField(max_length=500, help_text='What was worked on')
     work_date = models.DateField(default=timezone.now)
     hours = models.DecimalField(max_digits=5, decimal_places=2)
-    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2)
+    # Optional, as the form says: fixed-price work is still worth logging (BUG-3).
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     is_billed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -24,11 +25,12 @@ class TimeLog(models.Model):
         ordering = ['-work_date', '-created_at']
 
     def __str__(self):
-        return f'{self.description} - {self.hours}h @ {self.hourly_rate}/hr'
+        rate = f'{self.hourly_rate}/hr' if self.hourly_rate is not None else 'no rate'
+        return f'{self.description} - {self.hours}h @ {rate}'
 
     @property
     def total_amount(self):
-        return self.hours * self.hourly_rate
+        return self.hours * self.hourly_rate if self.hourly_rate is not None else None
 
     def link_to_invoice(self, invoice):
         """Link this time log to an invoice and mark as billed."""
