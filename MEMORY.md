@@ -34,6 +34,10 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 - **2026-11-15 — Removing a package from `requirements.txt` can break the image build.** `backend/Dockerfile` runs `collectstatic` through `manage.py`, which loads *local* settings; anything those settings import must exist in the production image, or be guarded (see `debug_toolbar` in `config/settings/local.py`). Proper fix is [OPS-4](docs/AUDIT.md#ops-4).
 - **2026-11-15 — DRF throttles count in the Django cache.** Tests that hit `/api/auth/*` leak counters into later tests; `tests/conftest.py` clears the cache around every test.
 - **2026-11-15 — An `IntegrityError` inside a test's transaction poisons it.** Wrap the failing write in `transaction.atomic()` (savepoint) before catching, as `signup_view` does, or the next query raises `TransactionManagementError`.
+- **2026-11-15 — A `<select>` silently drops a value whose `<option>` has not loaded yet.** React Hook Form `defaultValues.client` from `?client=` was lost because the client list arrives later; re-apply with `setValue` after the options are in state ([BUG-12](docs/AUDIT.md#bug-12)).
+- **2026-11-15 — DRF sends decimals as strings, and `"0.00"` is truthy.** `stats.total_revenue && stats.total_billed ? … : 0` therefore divided by zero and printed `Infinity%`. Guard with `Number(x) > 0` ([BUG-14](docs/AUDIT.md#bug-14)).
+- **2026-11-15 — `.delay()` hangs when Redis is down.** `task_publish_retry=False`, `broker_connection_retry=False` and `socket_connect_timeout` did not make it raise on Windows; the request just waits. The send endpoint already turns `kombu.exceptions.OperationalError` into a 503 for the day the publish does fail fast ([OPS-9](docs/AUDIT.md#ops-9)).
+- **2026-11-15 — `black apps tests` reformats 20 test files.** CI and `scripts/check.sh` only check `apps`; format new test files individually or you ship a 500-line unrelated diff.
 
 ## Debugging recipes
 
