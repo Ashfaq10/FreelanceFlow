@@ -173,16 +173,16 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Clear the token only on `401`.
 
 ### <a id="bug-9"></a>BUG-9 — "Send" reports success while only queued; stored PDF is stale
-`Should` · Phase 2 · `InvoiceDetail.jsx:L56-63`, `apps/invoices/api_views.py` (`InvoiceSendView`), `apps/invoices/tasks.py`
+`Should` · Phase 2 · `InvoiceDetail.jsx:L56-63`, `apps/invoices/api_views.py` (`InvoiceSendView`), `apps/invoices/tasks.py` · **Done 2026-11-15**: one `send_invoice` task marks sent → renders the PDF → emails it; the UI says "Queued"; `mark_as_paid`/`mark_as_overdue`/`cancel` drop the stored PDF so the next download re-renders. Sending with no items returns 400. Broker-down behaviour: see [OPS-9](#ops-9).
 **Problem:** Send queues `generate_and_store_pdf` and `send_invoice_email` in parallel; `mark_as_sent` runs later. UI says "sent", status is still `draft`, a second click emails twice, and the stored PDF is rendered as DRAFT and served forever after (also after payment).
 **Fix:** Single task (or `chain`) that marks sent → renders PDF → emails; UI shows "Queued", disables Send until status changes; regenerate or invalidate `pdf_file` on every status change.
 
 ### <a id="bug-10"></a>BUG-10 — Delete offered for sent/paid invoices; API error text discarded
-`Should` · Phase 2 · `InvoiceDetail.jsx:L96-104,L166-183`
+`Should` · Phase 2 · `InvoiceDetail.jsx:L96-104,L166-183` · **Done 2026-11-15**: the delete menu renders only for drafts and every action shows the API's own error text.
 **Fix:** Render Delete only for drafts; show `error.response.data.error`.
 
 ### <a id="bug-11"></a>BUG-11 — Client search does nothing
-`Should` · Phase 2 · `apps/clients/api_views.py:L11-12`
+`Should` · Phase 2 · `apps/clients/api_views.py:L11-12` · **Done 2026-11-15**: `?search=` filters name, company and email (`tests/test_client_search.py`).
 **Fix:** Filter `name|company|email__icontains` on `?search=`.
 
 ### <a id="bug-12"></a>BUG-12 — "Create invoice" from a client does not preselect that client
@@ -375,6 +375,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 
 ### <a id="ops-9"></a>OPS-9 — No observability or task resilience
 `Should` · Phase 5 · No Sentry/error tracking; Celery email tasks have no `autoretry_for`/backoff; no structured logging in tasks; no health check that touches DB/Redis (nginx `/health/` returns a static 200).
+**Also (found 2026-11-15):** with Redis down, `POST /api/invoices/{id}/send/` hangs instead of failing — kombu/redis-py keep retrying the connection, and `task_publish_retry=False`, `broker_connection_retry=False` and `socket_connect_timeout` did not change it (measured on Windows, no listener on 6379). The view already converts `kombu.exceptions.OperationalError` into 503; the missing piece is making the publish give up. Needs a connection check or a thread timeout around `delay()`.
 
 ### <a id="ops-10"></a>OPS-10 — README described a setup that did not work
 `Should` · Phase 0 · **Done 2026-11-15**: wrong frontend port (5173 vs 3000), nginx in dev compose, `python backend/manage.py` paths, broken `loaddata` fixture, missing status. README rewritten.

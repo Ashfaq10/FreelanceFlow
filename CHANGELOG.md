@@ -48,6 +48,9 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Time logs save without an hourly rate, as the "optional" label promised; `total_amount` is empty for those entries (BUG-3).
 - Money is shown in the user's currency everywhere: six screens, all six invoice templates, both chart axes and the three emails used to print `$` regardless of the account setting (BUG-5).
 - "Mark Paid" appears on overdue invoices, not only sent ones (BUG-4).
+- Sending an invoice is one task — mark sent, render the PDF, email it — so the status is never left at `draft` with the client already emailed, and the stored PDF no longer keeps its DRAFT look after payment. The button now says "Queued" (BUG-9).
+- Delete is offered only on drafts, and every invoice action shows the API's own error text instead of a generic failure (BUG-10).
+- Client search filters on the server across name, company and email; it did nothing before (BUG-11).
 - A failed profile load no longer logs you out: only a 401 clears the stored token (BUG-8).
 - Editing a draft keeps its saved issue and due dates instead of resetting them to today and today + 30 days (DATA-6).
 - Backend test suite green: aware datetimes for `Invoice.due_date`, partial-payment test uses real items, webhook signature test keeps the real exception class, PDF task tests patch where the name is looked up (TEST-1).

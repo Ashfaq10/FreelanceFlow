@@ -1,4 +1,4 @@
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q
 
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -13,7 +13,15 @@ class ClientListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         archived = self.request.query_params.get('archived') == 'true'
-        return Client.objects.filter(user=self.request.user, is_archived=archived)
+        queryset = Client.objects.filter(user=self.request.user, is_archived=archived)
+
+        search = (self.request.query_params.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) | Q(company__icontains=search) | Q(email__icontains=search)
+            )
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

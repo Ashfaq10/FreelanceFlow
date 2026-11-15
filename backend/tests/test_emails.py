@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from apps.invoices.models import InvoiceItem
-from apps.invoices.tasks import send_due_soon_email, send_invoice_email, send_overdue_reminder
+from apps.invoices.tasks import send_due_soon_email, send_invoice, send_overdue_reminder
 
 from .factories import InvoiceFactory, UserFactory
 
@@ -27,7 +27,7 @@ def sent_body(mailoutbox):
 @pytest.mark.django_db
 def test_invoice_email_uses_the_users_currency(euro_invoice, mailoutbox):
     with patch('apps.invoices.utils.generate_pdf', return_value=b'PDF'):
-        send_invoice_email(str(euro_invoice.id))
+        send_invoice(str(euro_invoice.id))
 
     body = sent_body(mailoutbox)
     assert '€120.00' in body

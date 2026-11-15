@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import FileResponse, HttpResponse
 
+from kombu.exceptions import OperationalError
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,7 +13,7 @@ from .serializers import (
     InvoiceSerializer,
     InvoiceWriteSerializer,
 )
-from .tasks import generate_and_store_pdf, send_invoice_email
+from .tasks import send_invoice
 from .utils import generate_pdf
 
 
@@ -92,10 +93,19 @@ class InvoiceSendView(APIView):
         if invoice.status not in ['draft', 'sent']:
             return Response({'error': 'This invoice cannot be sent.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        generate_and_store_pdf.delay(str(invoice.id))
-        send_invoice_email.delay(str(invoice.id))
+        if not invoice.items.exists():
+            return Response({'error': 'Add at least one line item before sending.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'status': 'Invoice is being sent.'})
+        try:
+            send_invoice.delay(str(invoice.id), request.data.get('message', ''))
+        except OperationalError:
+            # Broker down: say so instead of leaving the request hanging or claiming success.
+            return Response(
+                {'error': 'Sending is temporarily unavailable. Please try again shortly.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response({'status': 'queued', 'message': 'Invoice is being sent.'})
 
 
 class InvoicePDFView(APIView):

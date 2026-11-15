@@ -140,20 +140,29 @@ class Invoice(models.Model):
         self.sent_at = timezone.now()
         self.save(update_fields=['status', 'sent_at'])
 
+    def _discard_stored_pdf(self):
+        """The stored PDF shows the old status; drop it so the next download re-renders (BUG-9)."""
+        if self.pdf_file:
+            self.pdf_file.delete(save=False)
+            self.pdf_file = None
+
     def mark_as_paid(self):
         self._require_status('paid', ('sent', 'overdue'))
         self.status = 'paid'
-        self.save(update_fields=['status'])
+        self._discard_stored_pdf()
+        self.save(update_fields=['status', 'pdf_file'])
 
     def mark_as_overdue(self):
         if self.status == 'sent':
             self.status = 'overdue'
-            self.save(update_fields=['status'])
+            self._discard_stored_pdf()
+            self.save(update_fields=['status', 'pdf_file'])
 
     def cancel(self):
         self._require_status('cancelled', ('draft', 'sent', 'overdue'))
         self.status = 'cancelled'
-        self.save(update_fields=['status'])
+        self._discard_stored_pdf()
+        self.save(update_fields=['status', 'pdf_file'])
 
 
 class InvoiceItem(models.Model):

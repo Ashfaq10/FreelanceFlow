@@ -79,8 +79,8 @@ def send_overdue_reminder(invoice_id):
 
 
 @shared_task
-def generate_and_store_pdf(invoice_id):
-    """Generate PDF and store it in file storage."""
+def send_invoice(invoice_id, custom_message=''):
+    """Mark sent, render the PDF for that state, then email it — in that order (BUG-9)."""
     from django.core.files.base import ContentFile
 
     from .models import Invoice
@@ -91,23 +91,10 @@ def generate_and_store_pdf(invoice_id):
     except Invoice.DoesNotExist:
         return f'Invoice {invoice_id} not found'
 
+    invoice.mark_as_sent()
+
     pdf_bytes = generate_pdf(invoice)
-    filename = f'{invoice.invoice_number}.pdf'
-    invoice.pdf_file.save(filename, ContentFile(pdf_bytes), save=True)
-
-    return f'PDF generated for {invoice.invoice_number}'
-
-
-@shared_task
-def send_invoice_email(invoice_id, custom_message=''):
-    """Send invoice email with PDF attachment."""
-    from .models import Invoice
-    from .utils import generate_pdf
-
-    try:
-        invoice = Invoice.objects.select_related('client', 'user').prefetch_related('items').get(id=invoice_id)
-    except Invoice.DoesNotExist:
-        return f'Invoice {invoice_id} not found'
+    invoice.pdf_file.save(f'{invoice.invoice_number}.pdf', ContentFile(pdf_bytes), save=True)
 
     subject = f'Invoice {invoice.invoice_number} from {invoice.user.get_display_name()}'
     html_content = render_to_string(
@@ -121,11 +108,6 @@ def send_invoice_email(invoice_id, custom_message=''):
         },
     )
 
-    if invoice.pdf_file:
-        pdf_content = invoice.pdf_file.read()
-    else:
-        pdf_content = generate_pdf(invoice)
-
     email = EmailMessage(
         subject=subject,
         body=html_content,
@@ -133,10 +115,8 @@ def send_invoice_email(invoice_id, custom_message=''):
         to=[invoice.client.email],
     )
     email.content_subtype = 'html'
-    email.attach(f'{invoice.invoice_number}.pdf', pdf_content, 'application/pdf')
+    email.attach(f'{invoice.invoice_number}.pdf', pdf_bytes, 'application/pdf')
     email.send()
-
-    invoice.mark_as_sent()
 
     return f'Invoice {invoice.invoice_number} sent to {invoice.client.email}'
 

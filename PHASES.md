@@ -16,7 +16,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 |---|---|---|---|
 | 0 | Baseline: green tests, working CI, honest docs | ✅ Done (CI green on `main`, run 43703445329) | 11 / 11 |
 | 1 | Security & money integrity | ✅ Done | 14 / 14 |
-| 2 | Fix broken user flows | 🟡 In progress | 8 / 17 |
+| 2 | Fix broken user flows | 🟡 In progress | 11 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ⚪ Not started | 0 / 8 |
 | 4 | Code health, performance, UX & a11y | ⚪ Not started | 0 / 16 |
 | 5 | Production readiness | ⚪ Not started | 0 / 11 |
@@ -88,9 +88,9 @@ flowchart LR
 - [x] Real password reset: email → `/reset-password/:uid/:token` → confirm endpoint ([BUG-6](docs/AUDIT.md#bug-6)) — **M**
 - [x] Pagination controls, `page_size` param, totals over every row ([BUG-7](docs/AUDIT.md#bug-7)) — **M**
 - [x] Only a 401 clears the session on page load ([BUG-8](docs/AUDIT.md#bug-8)) — **S**
-- [ ] Single send pipeline (mark sent → PDF → email); UI shows queued state; PDF regenerated on status change ([BUG-9](docs/AUDIT.md#bug-9)) — **M**
-- [ ] Delete only on drafts; show API error messages ([BUG-10](docs/AUDIT.md#bug-10)) — **S**
-- [ ] Client search filters on the backend ([BUG-11](docs/AUDIT.md#bug-11)) — **S**
+- [x] Single send pipeline (mark sent → PDF → email); UI shows queued state; PDF regenerated on status change ([BUG-9](docs/AUDIT.md#bug-9)) — **M**
+- [x] Delete only on drafts; show API error messages ([BUG-10](docs/AUDIT.md#bug-10)) — **S**
+- [x] Client search filters on the backend ([BUG-11](docs/AUDIT.md#bug-11)) — **S**
 - [ ] `?client=` preselects the client on new invoices ([BUG-12](docs/AUDIT.md#bug-12)) — **S**
 - [ ] Date-only values parsed as local dates ([BUG-13](docs/AUDIT.md#bug-13)) — **S**
 - [ ] Reports: no `NaN%` ([BUG-14](docs/AUDIT.md#bug-14)) — **S**

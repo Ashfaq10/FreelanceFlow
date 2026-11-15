@@ -4,12 +4,7 @@ from unittest.mock import patch, MagicMock
 from django.utils import timezone
 
 from apps.invoices.models import Invoice
-from apps.invoices.tasks import (
-    check_overdue_invoices,
-    send_due_soon_reminders,
-    send_invoice_email,
-    generate_and_store_pdf,
-)
+from apps.invoices.tasks import check_overdue_invoices, send_due_soon_reminders, send_invoice
 from .factories import InvoiceFactory, InvoiceItemFactory
 
 
@@ -81,42 +76,24 @@ class TestSendDueSoonReminders:
 
 
 @pytest.mark.django_db
-class TestSendInvoiceEmail:
+class TestSendInvoice:
     @patch('apps.invoices.tasks.EmailMessage')
-    def test_sends_email_with_pdf(self, mock_email_class, invoice):
+    def test_marks_sent_then_stores_and_attaches_the_pdf(self, mock_email_class, invoice):
         InvoiceItemFactory(invoice=invoice)
-        
+        invoice.save()
         mock_email = MagicMock()
         mock_email_class.return_value = mock_email
-        
+
         # tasks.py imports generate_pdf inside the function, so patch it where it is defined.
         with patch('apps.invoices.utils.generate_pdf') as mock_pdf:
             mock_pdf.return_value = b'PDF content'
-            result = send_invoice_email(str(invoice.id))
-        
+            send_invoice(str(invoice.id))
+
         mock_email.send.assert_called_once()
         mock_email.attach.assert_called_once()
-        
         invoice.refresh_from_db()
         assert invoice.status == 'sent'
+        assert invoice.pdf_file  # rendered after the status change, so it is not a DRAFT copy
 
     def test_handles_missing_invoice(self):
-        result = send_invoice_email('00000000-0000-0000-0000-000000000000')
-        assert 'not found' in result
-
-
-@pytest.mark.django_db
-class TestGenerateAndStorePDF:
-    def test_generates_and_stores_pdf(self, invoice):
-        InvoiceItemFactory(invoice=invoice)
-        
-        with patch('apps.invoices.utils.generate_pdf') as mock_pdf:
-            mock_pdf.return_value = b'PDF content'
-            result = generate_and_store_pdf(str(invoice.id))
-        
-        invoice.refresh_from_db()
-        assert invoice.pdf_file is not None or 'PDF generated' in result
-
-    def test_handles_missing_invoice(self):
-        result = generate_and_store_pdf('00000000-0000-0000-0000-000000000000')
-        assert 'not found' in result
+        assert 'not found' in send_invoice('00000000-0000-0000-0000-000000000000')

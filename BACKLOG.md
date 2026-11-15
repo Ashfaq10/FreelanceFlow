@@ -10,21 +10,21 @@ Rules:
 
 ## Now
 
-- [ ] Client search filters on the backend — [BUG-11](docs/AUDIT.md#bug-11)
-- [ ] Single send pipeline; UI shows queued state — [BUG-9](docs/AUDIT.md#bug-9)
-- [ ] Delete only on drafts; show API error messages — [BUG-10](docs/AUDIT.md#bug-10)
+- [ ] `?client=` preselects the client on new invoices — [BUG-12](docs/AUDIT.md#bug-12)
+- [ ] Date-only values parsed as local dates — [BUG-13](docs/AUDIT.md#bug-13)
+- [ ] Reports: no `NaN%` — [BUG-14](docs/AUDIT.md#bug-14)
 
 ## Next
 
-1. Client search filters on the backend — [BUG-11](docs/AUDIT.md#bug-11)
-2. `?client=` preselects the client on new invoices — [BUG-12](docs/AUDIT.md#bug-12)
-3. Date-only values parsed as local dates — [BUG-13](docs/AUDIT.md#bug-13)
-4. Reports: no `NaN%` — [BUG-14](docs/AUDIT.md#bug-14)
-5. Error + retry states; `Promise.allSettled` on the Dashboard — [BUG-15](docs/AUDIT.md#bug-15)
+1. Error + retry states; `Promise.allSettled` on the Dashboard — [BUG-15](docs/AUDIT.md#bug-15)
+2. PDF labels: "Due Date", receipt text only when paid — [BUG-16](docs/AUDIT.md#bug-16)
+3. Invalid query params return 400 — [BUG-17](docs/AUDIT.md#bug-17)
+4. Then Phase 3: Stripe checkout from the SPA — [PAY-2](docs/AUDIT.md#pay-2)
+5. Per-invoice currency — [DATA-7](docs/AUDIT.md#data-7)
 
 ## Later
 
-- Rest of Phase 1 (security & money), then Phase 2 (broken flows) — see [PHASES.md](PHASES.md)
+- Rest of Phase 2, then Phase 3 (core product) — see [PHASES.md](PHASES.md)
 - Phases 3–6: core product, code health, production, growth
 
 ## Blocked / needs a decision

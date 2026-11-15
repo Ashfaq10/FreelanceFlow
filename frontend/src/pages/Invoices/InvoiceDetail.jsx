@@ -53,14 +53,19 @@ function InvoiceDetail() {
 
   useEffect(() => { fetchInvoice() }, [fetchInvoice])
 
+  const apiError = (error, fallback) =>
+    error.response?.data?.error || error.response?.data?.message || fallback
+
   const handleSend = async () => {
     setActionLoading('send')
     try {
       await invoiceApi.send(id)
-      toast.success('Invoice sent to client')
+      // The task runs in the background; the invoice is only "sent" once its status says so (BUG-9).
+      toast.success('Queued — the invoice is being sent to your client')
       fetchInvoice()
-    } catch { toast.error('Failed to send invoice') }
-    finally { setActionLoading('') }
+    } catch (error) {
+      toast.error(apiError(error, 'Failed to send invoice'))
+    } finally { setActionLoading('') }
   }
 
   const handleMarkPaid = async () => {
@@ -99,8 +104,9 @@ function InvoiceDetail() {
       await invoiceApi.delete(id)
       toast.success('Invoice deleted')
       navigate('/invoices')
-    } catch { toast.error('Failed to delete invoice') }
-    finally { setActionLoading(''); setShowDeleteModal(false) }
+    } catch (error) {
+      toast.error(apiError(error, 'Failed to delete invoice'))
+    } finally { setActionLoading(''); setShowDeleteModal(false) }
   }
 
   const getStatusBadge = (status) => {
@@ -164,26 +170,28 @@ function InvoiceDetail() {
             <Download className="w-4 h-4 mr-1.5" />Download PDF
           </Button>
 
-          {/* More menu */}
-          <div className="relative">
-            <Button variant="ghost" size="sm" onClick={() => setShowDropdown(!showDropdown)}>
-              <MoreVertical className="w-4 h-4" />
-            </Button>
-            {showDropdown && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
-                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
-                  style={{ backdropFilter: 'blur(16px)' }}>
-                  <button
-                    onClick={() => { setShowDropdown(false); setShowDeleteModal(true) }}
-                    className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/8 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 mr-3" />Delete Invoice
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+          {/* More menu: only drafts can be deleted, so hide it otherwise (BUG-10) */}
+          {invoice.status === 'draft' && (
+            <div className="relative">
+              <Button variant="ghost" size="sm" onClick={() => setShowDropdown(!showDropdown)}>
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+              {showDropdown && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                  <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border border-gray-200/80 dark:border-white/10 py-1.5 z-20"
+                    style={{ backdropFilter: 'blur(16px)' }}>
+                    <button
+                      onClick={() => { setShowDropdown(false); setShowDeleteModal(true) }}
+                      className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/8 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 mr-3" />Delete Invoice
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

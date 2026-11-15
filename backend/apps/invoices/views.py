@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 
 from .forms import InvoiceForm, InvoiceItemFormSet, InvoiceSendForm
 from .models import Invoice
-from .tasks import generate_and_store_pdf, send_invoice_email
+from .tasks import send_invoice
 from .utils import generate_pdf
 
 
@@ -188,10 +188,8 @@ def invoice_send(request, pk):
     if request.method == 'POST':
         form = InvoiceSendForm(request.POST)
         if form.is_valid():
-            generate_and_store_pdf.delay(str(invoice.id))
-
             if form.cleaned_data.get('send_email'):
-                send_invoice_email.delay(str(invoice.id), form.cleaned_data.get('message', ''))
+                send_invoice.delay(str(invoice.id), form.cleaned_data.get('message', ''))
                 messages.success(request, f'Invoice {invoice.invoice_number} is being sent to {invoice.client.email}.')
             else:
                 invoice.mark_as_sent()
