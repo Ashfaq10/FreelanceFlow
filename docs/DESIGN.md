@@ -9,11 +9,22 @@
 | Topic | Current state | Decision needed | Tracked in |
 |---|---|---|---|
 | Product name | **Decided 2026-11-15: the product is FreelanceFlow, made by Penough.** One `Wordmark` component (`components/ui/Wordmark.jsx`) is the only brand mark in the SPA | — | [UX-6](AUDIT.md#ux-6) |
-| Dark mode | Toggle copied into each auth page and `Header`; Settings → Appearance does nothing | One theme provider, persisted per user | [UX-5](AUDIT.md#ux-5) |
-| Invoice templates | 6 templates in `InvoicePreview.jsx`; the PDF ignores the template and colour choices | Either render the selected template in the PDF or drop the picker | [BUG-16](AUDIT.md#bug-16) |
+| Dark mode | The four auth pages share one toggle in `AuthShell`; `Header` has its own copy; Settings → Appearance does nothing. Same `darkMode` localStorage key | One theme provider, persisted per user | [UX-5](AUDIT.md#ux-5) |
+| Invoice templates | 6 templates in `InvoicePreview.jsx` change the on-screen preview only. The PDF has one layout and uses the invoice's accent colour (`pdf_color`); the picker says so | Build the six layouts for the PDF | [BUG-16](AUDIT.md#bug-16) |
+
+## Auth pages (sign in, sign up, forgot and reset password)
+
+Redesigned 2026-11-15. All four use `components/auth/AuthShell.jsx`, so the flow looks like one thing.
+
+- **Idea:** the first thing a visitor sees is the product doing its job. A sample invoice goes from *Sent* to *Paid* once, 1.8 s after load (`SampleInvoice.jsx`). With `prefers-reduced-motion` it shows *Paid* immediately. It is labelled "Sample invoice" and hidden from screen readers.
+- **Layout:** dark left panel (`primary-900`, headline + invoice), form directly on the page on the right, left-aligned, 24 rem wide. Below `lg` the panel is dropped and the wordmark sits above the form.
+- **Colour:** brand blue only; the one extra colour is green for "Paid". The submit button is solid `primary-600` (`AUTH_SUBMIT`); the app's gradient button stays inside the app.
+- **Type:** Inter. Headline 600 with -0.02em tracking; money uses tabular numerals.
+- **Forms:** labels tied to inputs (`Input` now generates the `id`), errors use `role="alert"`, `autoComplete` is set, show/hide password has an accessible name. Copy names the problem ("Enter your email"), not the rule.
+- **Avoided on purpose:** outlined or gradient headline text, grid overlays, benefit checklists, card-inside-a-panel.
 
 ## UI conventions
 
 - Tailwind CSS 3, Inter font, `lucide-react` icons.
-- Shared primitives live in `frontend/src/components/ui/` (`Button`, `Input`, `Select`, `Modal`, `Table`, `Card`, `Badge`, `Skeleton`, `EmptyState`, `StatsCard`). Use them before adding new markup.
+- Shared primitives live in `frontend/src/components/ui/` (`Button`, `Input`, `Select`, `Modal`, `Table`, `Card`, `Badge`, `Skeleton`, `EmptyState`, `ErrorState`, `StatsCard`, `Pagination`, `Wordmark`). Use them before adding new markup.
 - Money is always shown with the invoice's currency; never hardcode `$` (see [BUG-5](AUDIT.md#bug-5)).

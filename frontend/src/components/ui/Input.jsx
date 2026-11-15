@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 
 const Input = forwardRef(({
   label,
@@ -8,24 +8,25 @@ const Input = forwardRef(({
   hint,
   ...props
 }, ref) => {
+  const generatedId = useId()
+  const id = props.id || generatedId
   return (
     <div className={className}>
       {label && (
-        <label className="label">{label}</label>
+        <label htmlFor={id} className="label">{label}</label>
       )}
       <input
         ref={ref}
+        id={id}
         type={type}
+        aria-invalid={error ? 'true' : undefined}
         className={`input ${error ? 'border-red-400 focus:ring-red-400/30 focus:border-red-400' : ''}`}
         {...props}
       />
       {error ? (
-        <p className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400 flex items-center gap-1">
-          <span className="inline-block w-3.5 h-3.5 rounded-full bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-center leading-3.5 text-[9px] font-bold">!</span>
-          {error}
-        </p>
+        <p role="alert" className="mt-1.5 text-sm text-red-600 dark:text-red-400">{error}</p>
       ) : hint ? (
-        <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{hint}</p>
+        <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{hint}</p>
       ) : null}
     </div>
   )

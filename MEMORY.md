@@ -37,6 +37,12 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 - **2026-11-15 — A `<select>` silently drops a value whose `<option>` has not loaded yet.** React Hook Form `defaultValues.client` from `?client=` was lost because the client list arrives later; re-apply with `setValue` after the options are in state ([BUG-12](docs/AUDIT.md#bug-12)).
 - **2026-11-15 — DRF sends decimals as strings, and `"0.00"` is truthy.** `stats.total_revenue && stats.total_billed ? … : 0` therefore divided by zero and printed `Infinity%`. Guard with `Number(x) > 0` ([BUG-14](docs/AUDIT.md#bug-14)).
 - **2026-11-15 — `.delay()` hangs when Redis is down.** `task_publish_retry=False`, `broker_connection_retry=False` and `socket_connect_timeout` did not make it raise on Windows; the request just waits. The send endpoint already turns `kombu.exceptions.OperationalError` into a 503 for the day the publish does fail fast ([OPS-9](docs/AUDIT.md#ops-9)).
+- **2026-11-15 — Stale `runserver` processes keep port 8000.** Restarting a "service" that Windows already lost leaves the old server answering, so new code looks missing while tests pass. Kill them all (`pkill -f "manage.py runserver"`) and start one.
+- **2026-11-15 — Stripe's `amount_refunded` is cumulative.** `charge.refunded` repeats after every later refund; book `amount_refunded - already_booked`, never the raw value ([PAY-4](docs/AUDIT.md#pay-4)).
+- **2026-11-15 — Add a unique column in three steps.** Add it blank, backfill each row with its own value in `RunPython`, then `AlterField(unique=True)`. A single `AddField(unique=True)` fails on existing rows (`public_token`, migration `0011`).
+- **2026-11-15 — Emails must link the permanent page, not the Stripe URL.** A Checkout session expires after 24 h; `/pay/<token>` mints a fresh one on demand ([FEAT-3](docs/AUDIT.md#feat-3)).
+- **2026-11-15 — Automated browsers may report `prefers-reduced-motion: reduce`.** Motion then never plays; emulate `no-preference` before judging an animation.
+- **2026-11-15 — The Impeccable detector (`impeccable detect --json <files>`) runs once, after the UI is built.** It reads the changed files and prints `[]` when clean.
 - **2026-11-15 — `black apps tests` reformats 20 test files.** CI and `scripts/check.sh` only check `apps`; format new test files individually or you ship a 500-line unrelated diff.
 
 ## Debugging recipes

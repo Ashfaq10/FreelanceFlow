@@ -58,9 +58,10 @@ backend/
   config/urls.py                               /api/** is live; everything else except /admin and /payments/webhook is dead
   apps/accounts/      custom User (email login, business profile, currency), auth API, seed_demo command
   apps/clients/       Client (per user, unique email per user, is_archived)
-  apps/invoices/      Invoice, InvoiceItem, numbering, totals, PDF (utils.py), Celery tasks
-  apps/payments/      Payment (OneToOne → Invoice), Stripe webhook + checkout (template side)
-  apps/time_tracker/  TimeLog (DRF ViewSet)
+  apps/invoices/      Invoice (frozen currency, public_token, pdf_color), InvoiceItem, numbering, totals, PDF (utils.py),
+                      Celery tasks (send_invoice, reminders, retried with backoff), public_views.py (client page, no auth)
+  apps/payments/      Payment (many per Invoice; refunds are negative), services.py (Checkout + record_payment), api_views.py, Stripe webhook
+  apps/time_tracker/  TimeLog (DRF ViewSet), billing.py (hours → invoice lines)
   apps/dashboard/     summary + monthly revenue aggregates (no models)
   templates/invoices/ invoice_pdf.html + email/*.html — the only real templates
   tests/              pytest + factory_boy (conftest.py, factories.py)
@@ -70,6 +71,8 @@ frontend/src/
   context/AuthContext.jsx
   pages/<Area>/       one folder per screen
   components/ui/      shared primitives — reuse before writing new markup
+  components/auth/    AuthShell (frame for sign in / sign up / password reset), PasswordField, SampleInvoice
+  pages/Public/       PublicInvoice — the client's /pay/<token> page, no login
 docs/                 AUDIT.md (findings), API.md, DESIGN.md, adr/
 ```
 

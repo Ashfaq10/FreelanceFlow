@@ -15,6 +15,26 @@ Entry template:
 
 ---
 
+## 2026-11-15 — Phase 3: core product (8/8), link preview, auth redesign
+
+**Goal:** finish Phase 3, add a LinkedIn-ready preview image, redesign sign in / sign up, and bring every `.md` up to date.
+
+**Done:**
+- PAY-2 authenticated Stripe checkout (`POST /api/invoices/{id}/checkout/`), anonymous template-side view deleted. PAY-3 deposits and instalments (`Payment.invoice` is a ForeignKey, `amount_due`), dashboard counts money received. PAY-4 refunds as negative payments, expired sessions clear the link.
+- DATA-7 `Invoice.currency` frozen at creation (migration `0010`). FEAT-1 bill time logs onto a draft invoice. FEAT-2 duplicate, send again, manual reminder, cancel in one status-aware menu.
+- FEAT-3 public page `/pay/<token>` (`public_token`, migration `0011`, throttled 60/hour); client emails link to it. OPS-9 (part): email tasks retry with backoff.
+- `frontend/public/og-image.png` (1200×630) + Open Graph tags + README banner.
+- Auth redesign: `AuthShell` with a sample invoice going Sent → Paid, used by login, signup, forgot and reset password; `Input` labels now linked to inputs.
+- Tests: 122 → 191 backend, 16 frontend. CI green on every push; only `main` exists.
+
+**State:** Phases 0–3 done (50 of 50 items); Phases 4–6 not started. Not proven: a real Stripe test-mode payment (everything is mocked), email delivery through a real worker, Docker image builds locally.
+
+**Next:** run one Stripe test-mode payment (`stripe listen`), then Phase 4 from [BACKLOG.md](BACKLOG.md): LEAN-1 delete the server-rendered UI. For a portfolio, add the Phase 5 live deploy and Playwright smoke test; skip most of Phase 6.
+
+**Open questions:** rebuild `backend/venv` on Python 3.12; set the repo's social preview image in GitHub settings (LinkedIn uses it for the repo link); portfolio only, or real users (decides how much of Phase 5 is needed)?
+
+---
+
 ## 2026-11-15 — Phase 2: broken user flows (17/17)
 
 **Goal:** close every Phase 2 item, one commit per item or tight group, pushed to `main` with CI green.

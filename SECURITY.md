@@ -10,18 +10,13 @@ Only `main` is supported. The project has not had a production release yet.
 
 ## Known open issues
 
-These are already tracked publicly in [docs/AUDIT.md](docs/AUDIT.md) and scheduled in [PHASES.md](PHASES.md) (Phase 1 and Phase 5). **Do not deploy to production until Phase 1 is complete.**
+Phase 1 closed the issues that allowed cross-user access, forged revenue or stored XSS (SEC-1, SEC-2, SEC-3, SEC-4, SEC-8, PAY-1 and related; see [docs/AUDIT.md](docs/AUDIT.md)). What is still open is tracked in [PHASES.md](PHASES.md). **Do not deploy to production until Phase 5 is complete.**
 
 | ID | Issue | Phase |
 |---|---|---|
-| [SEC-1](docs/AUDIT.md#sec-1) | Invoice/time-log writes accept another user's client or invoice ID | 1 |
-| [SEC-2](docs/AUDIT.md#sec-2) | Production falls back to a public default `SECRET_KEY` | 1 |
-| [SEC-3](docs/AUDIT.md#sec-3) | Logo upload trusts client content type (stored XSS) | 1 |
-| [SEC-4](docs/AUDIT.md#sec-4) | No auth rate limiting; password validators skipped on signup | 1 |
-| [SEC-8](docs/AUDIT.md#sec-8) | Unvalidated currency code can multiply Stripe charges | 1 |
-| [PAY-1](docs/AUDIT.md#pay-1) | Stripe webhook not idempotent; amount not verified | 1 |
 | [SEC-5](docs/AUDIT.md#sec-5) | Non-expiring API tokens in `localStorage` | 5 |
 | [SEC-6](docs/AUDIT.md#sec-6) | Unsigned S3 URLs for invoice PDFs | 5 |
+| (by design) | The client page `/pay/<token>` is a capability link: anyone holding it can view and pay that one invoice. It is permanent and cannot be revoked yet | 6 |
 
 ## Secrets
 
