@@ -2,6 +2,8 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Count, DecimalField, Q, Sum, Value
+from django.db.models.functions import Coalesce
 
 
 class Client(models.Model):
@@ -45,22 +47,23 @@ class Client(models.Model):
             parts.append(self.country)
         return ', '.join([p for p in parts if p])
 
-    def _invoice_total(self, statuses):
-        from apps.invoices.models import Invoice
 
-        return (
-            Invoice.objects.filter(client=self, status__in=statuses).aggregate(total=models.Sum('total'))['total'] or 0
+BILLED_STATUSES = ('sent', 'overdue', 'paid')  # drafts and cancelled invoices are not billed
+
+
+def with_totals(queryset):
+    """Annotate invoice_count / total_billed / total_paid / outstanding in one query (PERF-1)."""
+
+    def total(statuses):
+        return Coalesce(
+            Sum('invoices__total', filter=Q(invoices__status__in=statuses)),
+            Value(0),
+            output_field=DecimalField(max_digits=12, decimal_places=2),
         )
 
-    def get_invoice_count(self):
-        return self.invoices.count()
-
-    def get_total_billed(self):
-        """Everything actually sent to the client; drafts and cancelled invoices are not billed."""
-        return self._invoice_total(['sent', 'overdue', 'paid'])
-
-    def get_total_paid(self):
-        return self._invoice_total(['paid'])
-
-    def get_outstanding(self):
-        return self._invoice_total(['sent', 'overdue'])
+    return queryset.annotate(
+        invoice_count=Count('invoices'),
+        total_billed=total(BILLED_STATUSES),
+        total_paid=total(('paid',)),
+        outstanding=total(('sent', 'overdue')),
+    )

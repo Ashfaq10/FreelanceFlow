@@ -3,7 +3,7 @@ from django.db.models import ProtectedError, Q
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
-from .models import Client
+from .models import Client, with_totals
 from .serializers import ClientSerializer
 
 
@@ -13,7 +13,7 @@ class ClientListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         archived = self.request.query_params.get('archived') == 'true'
-        queryset = Client.objects.filter(user=self.request.user, is_archived=archived)
+        queryset = with_totals(Client.objects.filter(user=self.request.user, is_archived=archived))
 
         search = (self.request.query_params.get('search') or '').strip()
         if search:
@@ -32,7 +32,7 @@ class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Client.objects.filter(user=self.request.user)
+        return with_totals(Client.objects.filter(user=self.request.user))
 
     def destroy(self, request, *args, **kwargs):
         client = self.get_object()

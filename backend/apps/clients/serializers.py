@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from .models import Client
+from .models import Client, with_totals
 
 
 class ClientSerializer(serializers.ModelSerializer):
+    # Annotated by with_totals() in the views; field names are the ones the SPA reads (BUG-2).
     invoice_count = serializers.SerializerMethodField()
-    # Field names the SPA reads; the old total_revenue/outstanding_amount names were never consumed (BUG-2).
     total_billed = serializers.SerializerMethodField()
     total_paid = serializers.SerializerMethodField()
     outstanding = serializers.SerializerMethodField()
@@ -34,14 +34,20 @@ class ClientSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def _total(self, obj, name):
+        if not hasattr(obj, name):
+            # Just created or updated, so it did not come through the annotated queryset.
+            obj = with_totals(Client.objects.filter(pk=obj.pk)).get()
+        return getattr(obj, name)
+
     def get_invoice_count(self, obj):
-        return obj.get_invoice_count()
+        return self._total(obj, 'invoice_count')
 
     def get_total_billed(self, obj):
-        return obj.get_total_billed()
+        return self._total(obj, 'total_billed')
 
     def get_total_paid(self, obj):
-        return obj.get_total_paid()
+        return self._total(obj, 'total_paid')
 
     def get_outstanding(self, obj):
-        return obj.get_outstanding()
+        return self._total(obj, 'outstanding')

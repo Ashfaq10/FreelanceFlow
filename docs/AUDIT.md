@@ -234,7 +234,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ## Performance
 
 ### <a id="perf-1"></a>PERF-1 — Client list runs 3 queries per client
-`Should` · Phase 4 · `apps/clients/serializers.py:L21-28`
+`Should` · Phase 4 · `apps/clients/serializers.py:L21-28` · **Done 2026-11-15**: `with_totals()` annotates invoice count, billed, paid and outstanding in the list query itself. 14 clients went from 58 queries to 10 (the same 10 for any number of clients) (`tests/test_client_query_count.py`). Totals keep their old meaning (status-based), so a deposit on a sent invoice is not subtracted here, unlike on the dashboard.
 **Problem:** `get_invoice_count`, `get_total_revenue`, `get_outstanding_amount` each query per row → 61 queries per page of 20.
 **Fix:** `annotate(Count(...), Sum(..., filter=Q(...)))` in `get_queryset`.
 
