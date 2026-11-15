@@ -252,7 +252,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Delete; move the Stripe webhook under `/api/payments/webhook/`; keep `allauth` only if email confirmation is adopted.
 
 ### <a id="lean-2"></a>LEAN-2 — Unused dependencies
-`Should` · Phase 4 · backend: `sendgrid` (mail goes through SMTP), `django-crispy-forms`, `crispy-tailwind`; frontend: `@types/react`, `@types/react-dom` (no TypeScript).
+`Should` · Phase 4 · backend: `sendgrid` (mail goes through SMTP), `django-crispy-forms`, `crispy-tailwind`; frontend: `@types/react`, `@types/react-dom` (no TypeScript). · **Done 2026-11-15**: removed the `sendgrid` Python package (production mail still goes through SendGrid's SMTP relay, which needs no library) and `@types/react`, `@types/react-dom` (no TypeScript). `django-crispy-forms` and `crispy-tailwind` left with LEAN-1. `depcheck` finds nothing else unused.
 
 ### <a id="lean-3"></a>LEAN-3 — Dead backend helpers
 `Nice` · Phase 4 · `invoices/utils.py:format_currency`, `templatetags/invoice_filters.py:abs_value`, `Invoice.days_until_due`, `handle_payment_intent_succeeded`, `config/celery.py:debug_task`, the `color` param in `utils.py`. Keep `TimeLog.link_to_invoice` for [FEAT-1](#feat-1).
