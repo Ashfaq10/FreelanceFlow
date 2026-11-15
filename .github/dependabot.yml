@@ -9,10 +9,12 @@ updates:
     groups:
       backend:
         patterns: ['*']
+        # Django 5.2 LTS is its own migration (OPS-7); monthly bumps stay small.
+        update-types: [minor, patch]
     ignore:
-      # Django and allauth majors need their own migration work; crispy is being deleted (LEAN-1/LEAN-2).
-      - dependency-name: Django
+      - dependency-name: '*'
         update-types: [version-update:semver-major]
+      # Deletion candidates (LEAN-1/LEAN-2): not worth updating.
       - dependency-name: django-allauth
       - dependency-name: django-crispy-forms
       - dependency-name: crispy-tailwind
