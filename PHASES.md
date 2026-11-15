@@ -68,7 +68,7 @@ flowchart LR
 - [ ] `Invoice.client` → `PROTECT`; client delete returns 409 when invoices exist; UI archives instead ([DATA-1](docs/AUDIT.md#data-1)) — **M**
 - [x] Make `status` read-only; enforce transitions in model methods; add a cancel endpoint ([DATA-2](docs/AUDIT.md#data-2)) — **M**
 - [x] Quantize `line_total`, `tax_amount`, `total` (`ROUND_HALF_UP`) ([DATA-3](docs/AUDIT.md#data-3), backend half) — **S**
-- [ ] SPA shows server-computed money; integer-cent preview for unsaved drafts ([DATA-3](docs/AUDIT.md#data-3), frontend half) — **M**
+- [x] SPA shows server-computed money; integer-cent preview for unsaved drafts ([DATA-3](docs/AUDIT.md#data-3), frontend half) — **M**
 - [ ] Atomic invoice create/update; `bulk_create` items; one totals calculation; drop the per-item signal ([DATA-4](docs/AUDIT.md#data-4)) — **M**
 - [ ] Fractional quantities end-to-end; non-negative discount/tax; tax ≤ 100 ([DATA-5](docs/AUDIT.md#data-5)) — **S**
 - [ ] Editing a draft keeps its saved dates ([DATA-6](docs/AUDIT.md#data-6)) — **S**

@@ -6,6 +6,8 @@ import toast from 'react-hot-toast'
 import { Card, Button, Input, Select } from '../../components/ui'
 import { useAuth } from '../../context/AuthContext'
 import { invoices as invoiceApi, clients as clientApi } from '../../api/endpoints'
+import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { fromCents, lineTotalCents, previewTotalsCents } from '../../utils/money'
 
 function InvoiceCreate() {
   const { id } = useParams()
@@ -102,32 +104,12 @@ function InvoiceCreate() {
     }
   }, [id, isEditing, reset, navigate])
 
-  const calculateSubtotal = () => {
-    return items.reduce((sum, item) => {
-      return sum + (parseFloat(item.quantity) || 0) * (parseFloat(item.rate) || 0)
-    }, 0)
-  }
+  // Draft preview only: the server recomputes and returns the authoritative amounts (DATA-3).
+  const previewTotals = previewTotalsCents(items, discountAmount, taxRate)
 
-  const calculateTotal = () => {
-    const subtotal = calculateSubtotal()
-    const discounted = Math.max(subtotal - discountAmount, 0)
-    const tax = discounted * (taxRate / 100)
-    return discounted + tax
-  }
+  const formatCurrency = (amount) => formatMoney(amount, user?.default_currency || 'USD')
 
-  const calculateTax = () => {
-    const subtotal = calculateSubtotal()
-    const discounted = Math.max(subtotal - discountAmount, 0)
-    return discounted * (taxRate / 100)
-  }
-
-  const formatCurrency = (amount) => {
-    const currency = user?.default_currency || 'USD'
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-    }).format(amount || 0)
-  }
+  const formatCents = (cents) => formatCurrency(fromCents(cents))
 
   const formatApiError = (error) => {
     const data = error.response?.data
@@ -336,10 +318,7 @@ function InvoiceCreate() {
                       </div>
                       <div className="col-span-3 md:col-span-1 flex items-center h-10">
                         <span className="text-sm font-medium">
-                          {formatCurrency(
-                            (parseFloat(items[index]?.quantity) || 0) * 
-                            (parseFloat(items[index]?.rate) || 0)
-                          )}
+                          {formatCents(lineTotalCents(items[index]?.quantity, items[index]?.rate))}
                         </span>
                       </div>
                       <div className="col-span-1 flex items-center h-10">
@@ -392,24 +371,24 @@ function InvoiceCreate() {
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
-                    <span className="font-medium">{formatCurrency(calculateSubtotal())}</span>
+                    <span className="font-medium">{formatCents(previewTotals.subtotal)}</span>
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500 dark:text-gray-400">Discount</span>
-                      <span className="font-medium text-emerald-600">-{formatCurrency(discountAmount)}</span>
+                      <span className="font-medium text-emerald-600">-{formatCents(previewTotals.discount)}</span>
                     </div>
                   )}
                   {taxRate > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500 dark:text-gray-400">VAT ({taxRate}%)</span>
-                      <span className="font-medium">{formatCurrency(calculateTax())}</span>
+                      <span className="font-medium">{formatCents(previewTotals.tax)}</span>
                     </div>
                   )}
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div className="flex justify-between text-lg">
                       <span className="font-semibold">Total</span>
-                      <span className="font-bold text-primary-600">{formatCurrency(calculateTotal())}</span>
+                      <span className="font-bold text-primary-600">{formatCents(previewTotals.total)}</span>
                     </div>
                   </div>
                 </div>

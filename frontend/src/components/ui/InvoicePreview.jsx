@@ -3,6 +3,8 @@
  * 5 professional templates × 6 color palettes
  */
 
+import { fromCents, lineTotalCents } from '../../utils/money'
+
 // ── Colour palettes ───────────────────────────────────────────────────
 // eslint-disable-next-line react-refresh/only-export-components -- shared template config; splitting this file is LEAN-5
 export const COLOR_PALETTES = [
@@ -80,6 +82,12 @@ function fmt(amount, currency = 'USD') {
     const sym = CURRENCY_SYMBOLS[currency] || `${currency} `
     const n = Number(amount) || 0
     return `${sym}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+/** Saved items carry the server's rounded line_total; unsaved drafts fall back to cent-exact math (DATA-3). */
+function itemLineTotal(item) {
+    if (item.line_total !== undefined && item.line_total !== null) return Number(item.line_total)
+    return fromCents(lineTotalCents(item.quantity, item.rate ?? item.unit_price))
 }
 
 function fmtDate(d) {
@@ -223,7 +231,7 @@ function ProfessionalTemplate({ invoice }) {
                                 {fmt(item.rate || item.unit_price || 0, cur)}
                             </td>
                             <td className="border border-gray-200 px-2 py-2 text-right font-bold">
-                                {fmt((item.quantity || 0) * (item.rate || item.unit_price || 0), cur)}
+                                {fmt(itemLineTotal(item), cur)}
                             </td>
                         </tr>
                     ))}
@@ -609,7 +617,7 @@ function ItemsTable({ invoice, color, striped, minimal, compact }) {
                         <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', color: '#6b7280' }}>{item.quantity}</td>
                         <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', color: '#6b7280' }}>{fmt(item.rate || item.unit_price)}</td>
                         <td style={{ padding: compact ? '6px 8px' : '10px 12px', textAlign: 'right', fontWeight: 600, color: '#111827' }}>
-                            {fmt((item.quantity || 0) * (item.rate || item.unit_price || 0))}
+                            {fmt(itemLineTotal(item))}
                         </td>
                     </tr>
                 ))}

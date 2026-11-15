@@ -20,6 +20,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `config.settings.production` refuses to start without `SECRET_KEY` and `ALLOWED_HOSTS` (no more published-default fallback) and trusts `X-Forwarded-Proto`, so `SECURE_SSL_REDIRECT` cannot loop behind a TLS proxy (SEC-2).
 
 ### Changed
+- The SPA previews unsaved drafts in integer cents (`utils/money.js`) and displays the server's `line_total` for saved items, so the live total and the saved invoice agree to the cent (DATA-3, frontend half).
 - Money is quantized to the cent with `ROUND_HALF_UP` before it is stored (`to_cents`), so `subtotal - discount + tax == total` always holds; Django's half-even rounding on save no longer loses a cent (DATA-3, backend half).
 - `POST /api/invoices/{id}/cancel/` cancels a draft, sent or overdue invoice (DATA-2).
 - CI runs backend jobs from `backend/`, tests against the Postgres service, builds the image from `./backend`, and pins flake8/black/isort (OPS-1, OPS-2).

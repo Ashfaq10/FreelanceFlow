@@ -10,7 +10,7 @@ Rules:
 
 ## Now
 
-- [ ] SPA shows server-computed money — [DATA-3](docs/AUDIT.md#data-3) (frontend half)
+- [ ] Fractional quantities; non-negative discount/tax — [DATA-5](docs/AUDIT.md#data-5)
 - [ ] Atomic invoice create/update; drop the per-item signal — [DATA-4](docs/AUDIT.md#data-4)
 - [ ] `PROTECT` invoices from client deletion; archive in the UI — [DATA-1](docs/AUDIT.md#data-1)
 
@@ -39,4 +39,5 @@ Rules:
 - [x] 2026-11-15 — Cross-tenant related fields scoped to the caller (SEC-1)
 - [x] 2026-11-15 — Money quantized to cents on the backend (DATA-3); invoice status locked to its state machine with a cancel endpoint (DATA-2)
 - [x] 2026-11-15 — Production refuses the published default `SECRET_KEY`; `ALLOWED_HOSTS` required; proxy TLS header (SEC-2)
+- [x] 2026-11-15 — SPA money matches the server to the cent (DATA-3, frontend half)
 - [x] 2026-11-15 — Repo cleanup, `seed_demo`, single `.env.example`, docs set (OPS-6, OPS-10, OPS-11)
