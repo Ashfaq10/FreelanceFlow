@@ -76,7 +76,8 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+          # No gdk-pixbuf: WeasyPrint 60 does not use it, and Ubuntu 26 renamed the package.
+          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 libffi-dev shared-mime-info
 
       - name: Install dependencies
         run: |
