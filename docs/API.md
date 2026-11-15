@@ -44,7 +44,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 | POST | `/api/invoices/{id}/cancel/` | Cancels a draft, sent or overdue invoice (400 otherwise) | |
 | GET | `/api/invoices/{id}/pdf/` | PDF download in the invoice's `pdf_color`; `?regenerate=true` re-renders, `?timezone=` formats the dates. The stored copy is dropped on every status or colour change | |
 
-**Statuses:** `draft` → `sent` → (`overdue`) → `paid`; `cancelled`. `overdue` is set daily by Celery. Transitions are enforced in `Invoice` model methods and nowhere else ([DATA-2](AUDIT.md#data-2)): `draft|sent→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`.
+**Statuses:** `draft` → `sent` → (`overdue`) → `paid`; `cancelled`. `overdue` is set daily by Celery. Transitions are enforced in `Invoice` model methods and nowhere else ([DATA-2](AUDIT.md#data-2)): `draft|sent→sent`, `sent|overdue→paid`, `draft|sent|overdue→cancelled`, and `paid→sent|overdue` when a Stripe refund arrives ([PAY-4](AUDIT.md#pay-4)).
 
 ## Time logs — `apps/time_tracker/api_urls.py` (DRF router)
 
@@ -67,7 +67,7 @@ Routes are defined in `backend/config/urls.py` and each app's `api_urls.py`. Kno
 |---|---|---|---|
 | POST | `/api/invoices/{id}/checkout/` | Stripe Checkout link for your own sent/overdue invoice: `{url}`. Reuses the open session; 400 on a draft, 503 when Stripe is unconfigured or refuses | |
 | POST | `/api/invoices/{id}/payments/` | Record a full or partial payment: `{amount, method?, paid_on?, notes?}`. 400 if it exceeds the balance; the invoice becomes `paid` when nothing is due | |
-| POST | `/payments/webhook/` | Stripe webhook (signature-verified, no auth) | |
+| POST | `/payments/webhook/` | Stripe webhook (signature-verified, no auth): handles `checkout.session.completed`, `charge.refunded`, `checkout.session.expired` | |
 | GET | `/payments/success/{invoice_id}/`, `/payments/cancelled/{invoice_id}/` | Legacy redirect targets; Checkout now returns to the SPA at `/invoices/{id}?payment=success\|cancelled` | [LEAN-1](AUDIT.md#lean-1) |
 
 Local webhook testing:

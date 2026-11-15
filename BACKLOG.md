@@ -10,8 +10,8 @@ Rules:
 
 ## Now
 
-- [ ] Handle refunds and expired Stripe sessions — [PAY-4](docs/AUDIT.md#pay-4)
 - [ ] API: duplicate, cancel/void, re-send, manual reminder — [FEAT-2](docs/AUDIT.md#feat-2)
+- [ ] Public tokenized invoice page with Pay button — [FEAT-3](docs/AUDIT.md#feat-3)
 
 ## Next
 

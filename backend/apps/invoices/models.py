@@ -174,6 +174,13 @@ class Invoice(models.Model):
             self._discard_stored_pdf()
             self.save(update_fields=['status', 'pdf_file'])
 
+    def reopen_after_refund(self):
+        """Money went back to the client, so the invoice owes again (PAY-4)."""
+        self._require_status('sent', ('paid',))
+        self.status = 'overdue' if self.due_date < timezone.now() else 'sent'
+        self._discard_stored_pdf()
+        self.save(update_fields=['status', 'pdf_file'])
+
     def cancel(self):
         self._require_status('cancelled', ('draft', 'sent', 'overdue'))
         self.status = 'cancelled'

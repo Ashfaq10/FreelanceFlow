@@ -35,11 +35,11 @@ def stripe_webhook(request):
         return HttpResponse(status=400)
 
     if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        handle_successful_payment(session)
-    elif event['type'] == 'payment_intent.succeeded':
-        payment_intent = event['data']['object']
-        handle_payment_intent_succeeded(payment_intent)
+        handle_successful_payment(event['data']['object'])
+    elif event['type'] == 'charge.refunded':
+        handle_refund(event['data']['object'])
+    elif event['type'] == 'checkout.session.expired':
+        handle_expired_session(event['data']['object'])
 
     return HttpResponse(status=200)
 
@@ -101,9 +101,42 @@ def handle_successful_payment(session):
         )
 
 
-def handle_payment_intent_succeeded(payment_intent):
-    """Handle payment intent succeeded event."""
-    pass
+@transaction.atomic
+def handle_refund(charge):
+    """Give the money back in our ledger too, so the invoice owes again (PAY-4)."""
+    payment_intent = charge.get('payment_intent')
+    if not payment_intent:
+        return
+
+    payments = Payment.objects.select_related('invoice').filter(stripe_payment_id=payment_intent)
+    if not payments:
+        logger.warning('Refund for unknown payment intent %s', payment_intent)
+        return
+
+    invoice = Invoice.objects.select_for_update().get(pk=payments[0].invoice_id)
+    refunded_total = to_cents(Decimal(charge.get('amount_refunded') or 0) / 100)
+    already_refunded = -sum((payment.amount_paid for payment in payments if payment.amount_paid < 0), Decimal('0'))
+    outstanding_refund = refunded_total - already_refunded
+    if outstanding_refund <= 0:
+        # Stripe redelivers `charge.refunded` after every later refund on the same charge.
+        return
+
+    was_paid = invoice.status == 'paid'
+    Payment.objects.create(
+        invoice=invoice,
+        amount_paid=-outstanding_refund,
+        method='stripe',
+        stripe_payment_id=payment_intent,
+        notes=f'Refund of {outstanding_refund}',
+    )
+
+    if was_paid and invoice.amount_due > 0:
+        invoice.reopen_after_refund()
+
+
+def handle_expired_session(session):
+    """The pay link is dead; drop it so the next request mints a fresh one (PAY-4)."""
+    Invoice.objects.filter(stripe_session_id=session.get('id', '')).update(stripe_session_id='', stripe_payment_url='')
 
 
 def payment_success(request, invoice_id):

@@ -367,9 +367,11 @@ function InvoiceDetail() {
                 {invoice.payments.map(payment => (
                   <li key={payment.id} className="flex items-center justify-between py-2">
                     <span className="text-gray-600 dark:text-gray-400">
-                      {formatDate(payment.paid_on)} · {payment.method}{payment.notes ? ` · ${payment.notes}` : ''}
+                      {formatDate(payment.paid_on)} · {Number(payment.amount) < 0 ? 'refund' : payment.method}{payment.notes && Number(payment.amount) > 0 ? ` · ${payment.notes}` : ''}
                     </span>
-                    <span className="font-medium">{formatCurrency(payment.amount)}</span>
+                    <span className={`font-medium ${Number(payment.amount) < 0 ? 'text-red-600' : ''}`}>
+                      {formatCurrency(payment.amount)}
+                    </span>
                   </li>
                 ))}
               </ul>

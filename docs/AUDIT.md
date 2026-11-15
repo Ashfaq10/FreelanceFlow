@@ -127,10 +127,8 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `ForeignKey` + `amount_due = total - sum(payments)`; status becomes `paid` when `amount_due <= 0`; add a "Record payment" form.
 
 ### <a id="pay-4"></a>PAY-4 — Refunds and expired sessions are ignored
-`Nice` · Phase 3 · `apps/payments/views.py` (`handle_payment_intent_succeeded` is `pass`)
+`Nice` · Phase 3 · `apps/payments/views.py` (`handle_payment_intent_succeeded` is `pass`) · **Done 2026-11-15**: `charge.refunded` records the refund as a negative payment (cumulative amounts, so a redelivery or a second refund only books the difference) and reopens a paid invoice as `sent`/`overdue`; `checkout.session.expired` clears the dead pay link so the next request mints a fresh session. The empty `payment_intent.succeeded` handler is gone (`tests/test_refunds.py`).
 **Fix:** Handle `charge.refunded` and `checkout.session.expired`; delete the empty handler.
-
----
 
 ## Broken user flows
 
