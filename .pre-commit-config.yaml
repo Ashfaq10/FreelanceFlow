@@ -1,0 +1,36 @@
+# Install once: cd backend && venv/Scripts/python -m pip install pre-commit && venv/Scripts/pre-commit install
+# Versions match .github/workflows/ci.yml; bump both together.
+repos:
+  # Hook-level excludes: black/isort ignore their own exclude settings for explicitly passed files.
+  - repo: https://github.com/psf/black
+    rev: 26.10.1
+    hooks:
+      - id: black
+        files: ^backend/apps/
+        exclude: /migrations/
+        args: [--config, backend/pyproject.toml]
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 9.0.2
+    hooks:
+      - id: isort
+        files: ^backend/apps/
+        exclude: /migrations/
+        args: [--settings-path, backend/setup.cfg]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.5.0
+    hooks:
+      - id: flake8
+        files: ^backend/apps/
+        exclude: /migrations/
+        args: [--config, backend/setup.cfg]
+
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: npm --prefix frontend run lint --
+        language: system
+        files: ^frontend/src/.*\.jsx?$
+        pass_filenames: false

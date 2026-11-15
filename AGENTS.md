@@ -21,6 +21,8 @@ The SPA is the only real UI. The server-rendered Django views (`views.py`, `urls
 
 Run backend commands from `backend/`, frontend commands from `frontend/`. The `.env` lives in the repo root.
 
+Everything CI runs, from the repo root: `bash scripts/check.sh` (add `--pg` to run the backend tests against the compose Postgres, as CI does).
+
 ```bash
 # Backend (Windows: venv\Scripts\python; macOS/Linux: venv/bin/python)
 python -m venv venv && venv/Scripts/python -m pip install -r requirements-dev.txt
@@ -46,7 +48,7 @@ npm run build
 docker compose up --build
 ```
 
-Baseline is green (2026-11-15): `pytest`, `npm test`, `npm run lint`, `npm run build`, backend `black`/`isort`/`flake8`; CI runs all of them. Keep it green. Backend style is black with single quotes (`backend/pyproject.toml`): run `black apps && isort apps` from `backend/` before committing.
+Baseline is green (2026-11-15): `pytest`, `npm test`, `npm run lint`, `npm run build`, backend `black`/`isort`/`flake8`; CI runs all of them. Keep it green. Backend style is black with single quotes (`backend/pyproject.toml`). Install the hooks once with `venv/Scripts/pre-commit install` and black/isort/flake8/eslint run on every commit.
 
 ## Layout
 
