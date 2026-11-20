@@ -19,6 +19,12 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 
 ## Lessons
 
+- **2026-11-20 — `@embedpdf/*` pins `zod` 3.x, which `npm audit` flags high (GHSA-mrhx-c7xc-m3w5, memory exhaustion on oversized collections; 39 "vulnerable" packages, all one advisory) with no upstream fix.** `package.json` overrides `zod` to `^4.6.7`; the editor's e2e flows pass on it. Re-check on every EmbedPDF upgrade and drop the override once they move to zod 4.
+- **2026-11-20 — Every e2e test signs up a user, and signup is throttled at 5 an hour.** `config.settings.e2e` raises it; the first PDF a fresh server renders takes 5+ s, so the Playwright expect timeout is 20 s.
+- **2026-11-20 — PDF editor: PDFium has no in-place text rewrite, so "edit text" is redact and redraw.** The redaction plugin paints a black box by default; `replaceSelection` sets `overlay.fill = null` for the call and restores it. A replacement is a free-text annotation, which search does not read; assert on `annotation.list()`.
+- **2026-11-20 — The EmbedPDF viewer reads `identity` and the config once**; pass stable values (`useMemo`) or it warns and ignores the change. In dev only, `PdfEditor` exposes the viewer as `window.__pdfViewer` for the e2e tests.
+- **2026-11-20 — pdf-lib's standard fonts quietly swap characters they cannot encode** (`widthOfTextAtSize` does not throw). Check `font.getCharacterSet()` first (`checkLatin`).
+- **2026-11-20 — The devtools MCP browser can hang for good on a heavy page; drive the editor with Playwright and `channel: 'chrome'` instead.** Playwright's `webServer` for Django will not start while a dev server already holds port 8000.
 - **2026-11-20 — Eager Celery still builds a producer, so `delay()` imports the Redis transport even in tests.** `kombu[redis]` needs `packaging`; our lock only had it through the dev file. Use `celery[redis]` in `requirements.in`, and check production requirements in a clean 3.12 venv before blaming CI.
 - **2026-11-20 — CI logs are readable with `gh run view <run> --repo Ashfaq10/FreelanceFlow --job <job> --log`** (the web page needs a login). The e2e settings print 500 tracebacks so they show up there.
 - **2026-11-20 — `InvoiceItem` ordered by a UUID primary key, so lines came back shuffled.** Order is now `position`; set it when you create items in bulk (serializer, duplicate, billing, recurring, quotes all do). [BUG-20](docs/AUDIT.md#bug-20).

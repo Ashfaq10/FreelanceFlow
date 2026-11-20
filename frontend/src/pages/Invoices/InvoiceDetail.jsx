@@ -18,6 +18,7 @@ import {
   Bell,
   Ban,
   Link as LinkIcon,
+  FilePenLine,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, Button, Modal, Skeleton, Input, Select, StatusBadge } from '../../components/ui'
@@ -202,6 +203,21 @@ function InvoiceDetail() {
     }
   }
 
+  // A copy opens in the PDF editor; the invoice saved in FreelanceFlow is never replaced (ADR-0003).
+  const handleEditCopy = async () => {
+    setShowDropdown(false)
+    try {
+      const response = await invoiceApi.getPdf(id, {
+        regenerate: true,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+      const file = new File([response.data], `${invoice.invoice_number}.pdf`, { type: 'application/pdf' })
+      navigate('/pdf-editor', { state: { file, copyOf: `invoice ${invoice.invoice_number}` } })
+    } catch (error) {
+      toast.error(apiError(error, 'Failed to open the PDF'))
+    }
+  }
+
   const handleDownload = async () => {
     setActionLoading('download')
     try {
@@ -333,6 +349,7 @@ function InvoiceDetail() {
                   style={{ backdropFilter: 'blur(16px)' }}
                 >
                   <MenuItem icon={Copy} label="Duplicate" onClick={handleDuplicate} />
+                  <MenuItem icon={FilePenLine} label="Edit PDF copy" onClick={handleEditCopy} />
                   {['sent', 'overdue', 'paid'].includes(invoice.status) && (
                     <MenuItem icon={LinkIcon} label="Copy client link" onClick={handleCopyClientLink} />
                   )}

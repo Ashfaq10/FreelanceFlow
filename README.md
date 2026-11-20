@@ -49,6 +49,7 @@
 | **Recurring** | Weekly to yearly schedules make an invoice by themselves (draft or emailed) | |
 | **Credit notes & activity** | Append-only credit notes with PDF; a timeline of everything that happened to each invoice | |
 | **Tax & export** | Per-line tax rates, percentage discounts, CSV export of invoices, payments and time | |
+| **PDF editor** | Open any PDF from your device: annotate, draw, text boxes, images, signatures, forms, true redaction, page tools, edit text (redact and redraw), watermark, page numbers, merge, crop. Runs in the browser; the file is never uploaded | No paragraph reflow, no OCR yet; signed PDFs lose their signature when edited |
 
 ## Quick start
 

@@ -74,6 +74,7 @@ frontend/src/
   pages/<Area>/       one folder per screen
   components/ui/      shared primitives — reuse before writing new markup
   components/invoice/ InvoicePreview + one file per template (palettes.js, format.js, parts.jsx are shared)
+  pages/PdfEditor/    browser-only PDF editor on the EmbedPDF viewer: replaceText.js (redact + redraw), pdfTools.js (pdf-lib), ToolDialogs.jsx
   components/auth/    AuthShell (frame for sign in / sign up / password reset), PasswordField, SampleInvoice
   pages/Public/       PublicInvoice — the client's /pay/<token> page, no login
 docs/                 AUDIT.md (findings), API.md, DESIGN.md, adr/

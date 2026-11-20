@@ -15,6 +15,7 @@ const InvoiceDetail = lazy(() => import('./pages/Invoices/InvoiceDetail'))
 const ClientList = lazy(() => import('./pages/Clients/ClientList'))
 const ClientDetail = lazy(() => import('./pages/Clients/ClientDetail'))
 const ClientCreate = lazy(() => import('./pages/Clients/ClientCreate'))
+const PdfEditor = lazy(() => import('./pages/PdfEditor/PdfEditor'))
 const QuoteList = lazy(() => import('./pages/Quotes/QuoteList'))
 const QuoteForm = lazy(() => import('./pages/Quotes/QuoteForm'))
 const PublicQuote = lazy(() => import('./pages/Public/PublicQuote'))
@@ -116,6 +117,7 @@ function App() {
           <Route path="clients/new" element={<ClientCreate />} />
           <Route path="clients/:id" element={<ClientDetail />} />
           <Route path="clients/:id/edit" element={<ClientCreate />} />
+          <Route path="pdf-editor" element={<PdfEditor />} />
           <Route path="quotes" element={<QuoteList />} />
           <Route path="quotes/new" element={<QuoteForm />} />
           <Route path="quotes/:id/edit" element={<QuoteForm />} />

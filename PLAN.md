@@ -6,6 +6,10 @@ The shape of the product. Read before proposing features or architecture; if a c
 
 A solo freelancer goes from tracked work to money in the bank without spreadsheets: log time → invoice → client pays online → reminders chase late payers automatically.
 
+## Tools
+
+Beyond invoicing, signed-in users get a browser-side **PDF editor** ([ADR-0003](docs/adr/0003-pdf-editor-in-the-browser.md)): files are processed on the device and never uploaded. It stays a tool, not a document-management product: no storage, sharing or collaboration.
+
 ## Users
 
 - **Primary:** solo freelancers and one-person studios (designers, developers, consultants) billing 5–50 clients, 5–100 invoices a month, in one currency per invoice.
@@ -42,6 +46,7 @@ Say no to these unless this file is changed first:
 | Payments | Stripe Checkout + webhooks; manual payments recorded by the user | [PAY-1](docs/AUDIT.md#pay-1), [PAY-2](docs/AUDIT.md#pay-2) |
 | Background work | Celery + Redis; every task idempotent and retryable | [OPS-9](docs/AUDIT.md#ops-9) |
 | Records | Invoices with payments and clients with invoices are never hard-deleted | [DATA-1](docs/AUDIT.md#data-1) |
+| PDF editor | EmbedPDF (PDFium WASM) in the SPA, signed-in only, no backend | [ADR-0003](docs/adr/0003-pdf-editor-in-the-browser.md) |
 | Hosting | Single Docker Compose stack; S3 for files in production | [OPS-3](docs/AUDIT.md#ops-3) |
 
 ## Success measures

@@ -19,3 +19,9 @@ LOGGING = {
     'handlers': {'console': {'class': 'logging.StreamHandler'}},
     'loggers': {'django.request': {'handlers': ['console'], 'level': 'ERROR'}},
 }
+
+# Every e2e test signs up its own user; the production limit (5 an hour) would fail the sixth.
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK,  # noqa: F405
+    'DEFAULT_THROTTLE_RATES': {**REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'], 'signup': '1000/hour'},  # noqa: F405
+}

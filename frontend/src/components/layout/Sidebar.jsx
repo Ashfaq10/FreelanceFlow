@@ -1,5 +1,16 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, Users, Clock, BarChart3, Repeat, FileSignature, Settings, X } from 'lucide-react'
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  Clock,
+  BarChart3,
+  Repeat,
+  FileSignature,
+  FilePenLine,
+  Settings,
+  X,
+} from 'lucide-react'
 import { Wordmark } from '../ui'
 
 const navigation = [
@@ -10,6 +21,7 @@ const navigation = [
   { name: 'Recurring', href: '/recurring', icon: Repeat },
   { name: 'Time Tracker', href: '/time-tracker', icon: Clock },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'PDF Editor', href: '/pdf-editor', icon: FilePenLine },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

@@ -71,6 +71,16 @@ function QuoteList() {
     }
   }
 
+  const editCopy = async (quote) => {
+    try {
+      const { data } = await quotesApi.pdf(quote.id)
+      const file = new File([data], `${quote.number}.pdf`, { type: 'application/pdf' })
+      navigate('/pdf-editor', { state: { file, copyOf: `quote ${quote.number}` } })
+    } catch {
+      toast.error('Could not open the PDF')
+    }
+  }
+
   const remove = (quote) =>
     window.confirm(`Delete draft ${quote.number}?`) && run(() => quotesApi.delete(quote.id), 'Quote deleted')
 
@@ -138,6 +148,9 @@ function QuoteList() {
                     )}
                     <Button size="sm" variant="secondary" onClick={() => download(quote)}>
                       PDF
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => editCopy(quote)}>
+                      Edit PDF
                     </Button>
                     {['draft', 'sent', 'accepted'].includes(quote.status) && (
                       <Button size="sm" onClick={() => convert(quote)}>

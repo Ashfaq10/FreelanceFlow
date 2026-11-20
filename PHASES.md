@@ -169,6 +169,15 @@ In scope since 2026-11-20 ("finish the project completely"). Each needs a short 
 - [x] Notification settings (reminder cadence, opt-out per client) — **M**
 - [x] Account data export & deletion (GDPR), email verification — **M**
 
+## Phase 6b — PDF editor (added 2026-11-20)
+
+**Goal:** signed-in users edit any PDF in the browser ([ADR-0003](docs/adr/0003-pdf-editor-in-the-browser.md), [spec](docs/specs/pdf-editor.md)).
+
+- [x] Spike: EmbedPDF capabilities, redact-and-redraw for existing text — **S**
+- [x] Viewer with annotate, shapes, stamps, signatures, forms, redaction, page tools, search; route, nav, invoice/quote entry points — **M**
+- [x] Edit text, watermark, page numbers, merge, crop; tests incl. a no-upload check and axe in both themes — **M**
+- [ ] Server-side OCR, compress, password protect, Word conversion — **L**, with Phase 7 (needs system binaries and a sandboxed worker)
+
 ## Phase 7 — Containers & deploy (last)
 
 **Goal:** one command deploys a secure stack that survives restarts and bad days. Starts only when Phases 5 and 6 are done.

@@ -9,6 +9,9 @@ const backend = `node -e "require('fs').rmSync('../backend/e2e.sqlite3',{force:t
 
 export default defineConfig({
   testDir: './e2e',
+  // The first PDF WeasyPrint renders in a fresh server (font cache) can take 5+ seconds; 5s is Playwright's default.
+  timeout: 90_000,
+  expect: { timeout: 20_000 },
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
