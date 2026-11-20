@@ -19,7 +19,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
 | 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
-| 5 | Production readiness | ⚪ Not started | 0 / 11 |
+| 5 | Production readiness | 🟡 In progress | 1 / 11 |
 | 6 | Growth features | ⚪ Not started | 0 / 9 |
 
 ```mermaid
@@ -144,13 +144,13 @@ flowchart LR
 
 **Exit criteria:** staging deploy from CI · TLS A grade · Sentry receives a test error from backend and SPA · Playwright smoke passes against staging · restore from backup rehearsed once.
 
-- [ ] Fix prod compose: build `./backend`, serve the SPA from nginx, proxy `/api` `/admin` `/static` `/media`, TLS, migrate on release ([OPS-3](docs/AUDIT.md#ops-3)) — **M**
-- [ ] `collectstatic` with production settings in the image ([OPS-4](docs/AUDIT.md#ops-4)) — **S**
-- [ ] Multi-stage frontend image + `.dockerignore`; `VITE_API_URL` as build arg ([OPS-5](docs/AUDIT.md#ops-5)) — **S**
+- [ ] _(written 2026-11-20; tick after the first real `compose up`)_ Fix prod compose: build `./backend`, serve the SPA from nginx, proxy `/api` `/admin` `/static` `/media`, TLS, migrate on release ([OPS-3](docs/AUDIT.md#ops-3)) — **M**
+- [x] `collectstatic` with production settings in the image ([OPS-4](docs/AUDIT.md#ops-4)) — **S**
+- [ ] _(written 2026-11-20; tick once CI builds it)_ Multi-stage frontend image + `.dockerignore`; `VITE_API_URL` as build arg ([OPS-5](docs/AUDIT.md#ops-5)) — **S**
 - [ ] PDFs with logos work on S3 ([BUG-18](docs/AUDIT.md#bug-18)) — **S**
 - [ ] Signed, private S3 URLs ([SEC-6](docs/AUDIT.md#sec-6)) — **S**
 - [ ] Session-cookie auth (or expiring tokens) per [ADR-0002](docs/adr/0002-auth-session-cookies.md) ([SEC-5](docs/AUDIT.md#sec-5)) — **M**
-- [ ] Sentry (backend + SPA), structured logging, `/healthz` that checks DB and Redis ([OPS-9](docs/AUDIT.md#ops-9)) — **M**
+- [ ] _(`/healthz` and the Redis-down 503 done 2026-11-20; Sentry and structured logging remain)_ Sentry (backend + SPA), structured logging, `/healthz` that checks DB and Redis ([OPS-9](docs/AUDIT.md#ops-9)) — **M**
 - [ ] Playwright smoke test in CI ([TEST-5](docs/AUDIT.md#test-5)) — **M**
 - [ ] Automated Postgres backups + documented restore — **S**
 - [ ] Dependabot (pip, npm, actions, docker) + `pip-audit`/`npm audit` in CI — **S**

@@ -10,7 +10,7 @@ Rules:
 
 ## Now
 
-Phase 4 is done. Nothing is in progress.
+Phase 5 container work: tick OPS-3 after a real `docker compose -f docker-compose.prod.yml up` (OPS-5 once CI builds the proxy image), then Sentry + structured logging ([OPS-9](docs/AUDIT.md#ops-9)).
 
 ## Next
 

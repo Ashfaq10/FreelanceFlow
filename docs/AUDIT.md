@@ -349,17 +349,17 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** One formatting-only commit (`black apps && isort apps`, or set `skip-string-normalization` if single quotes are preferred), then fix the remaining flake8 findings; keep that commit separate so `git blame --ignore-rev` can skip it.
 
 ### <a id="ops-3"></a>OPS-3 — Production compose cannot deploy the app
-`Must` · Phase 5 · `docker-compose.prod.yml`, `nginx.conf`
+`Must` · Phase 5 · `docker-compose.prod.yml`, `nginx.conf` · **Written 2026-11-20, not yet run**: Caddy replaces nginx, `migrate` release service, `.env.prod.example`. Pending: first real `compose up`.
 **Problem:** `build: .` (no root Dockerfile); no frontend service; nginx proxies `/` to Django so the SPA is never served; port 443 published with no TLS server block; no migrate step; `.env.prod.db` undocumented.
 **Fix:** Build `./backend`; multi-stage frontend image served by nginx with `try_files $uri /index.html`; `/api`, `/admin`, `/static`, `/media` proxied to Django; TLS (Caddy or certbot); release step runs `migrate`.
 
 ### <a id="ops-4"></a>OPS-4 — Backend image runs `collectstatic` with local settings
-`Should` · Phase 5 · `backend/Dockerfile:L28`
+`Should` · Phase 5 · `backend/Dockerfile:L28` · **Done 2026-11-20** (`collectstatic --dry-run` under production settings passes locally; the image build runs in CI).
 **Problem:** `manage.py` defaults to `local` (plain storage, no manifest) while gunicorn runs `production` (`CompressedManifestStaticFilesStorage`) → "Missing staticfiles manifest entry" → admin 500.
 **Fix:** `RUN DJANGO_SETTINGS_MODULE=config.settings.production SECRET_KEY=build python manage.py collectstatic --noinput`.
 
 ### <a id="ops-5"></a>OPS-5 — Frontend image runs the Vite dev server
-`Should` · Phase 5 · `frontend/Dockerfile`
+`Should` · Phase 5 · `frontend/Dockerfile` · **Written 2026-11-20**: `dev`/`build`/`prod` stages, `.dockerignore`, `VITE_API_URL` build arg; not built locally, CI builds it.
 **Problem:** `npm install` (not `npm ci`), `CMD npm run dev`, no `.dockerignore` (copies host `node_modules`/`dist`), `VITE_API_URL` set at runtime although Vite inlines it at build time.
 **Fix:** Multi-stage build → static files; `.dockerignore`; `VITE_API_URL` as a build arg.
 
@@ -377,6 +377,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 
 ### <a id="ops-9"></a>OPS-9 — No observability or task resilience
 `Should` · Phase 5 · No Sentry/error tracking; Celery email tasks have no `autoretry_for`/backoff; no structured logging in tasks; no health check that touches DB/Redis (nginx `/health/` returns a static 200).
+**Done 2026-11-20 (Redis hang, `/healthz`):** `config.celery.broker_reachable()` probes with `ensure_connection(max_retries=0, timeout=1)` before `delay()`; transport options alone did not stop the hang. Sentry and structured logging remain.
 **Also (found 2026-11-15):** with Redis down, `POST /api/invoices/{id}/send/` hangs instead of failing — kombu/redis-py keep retrying the connection, and `task_publish_retry=False`, `broker_connection_retry=False` and `socket_connect_timeout` did not change it (measured on Windows, no listener on 6379). The view already converts `kombu.exceptions.OperationalError` into 503; the missing piece is making the publish give up. Needs a connection check or a thread timeout around `delay()`.
 
 ### <a id="ops-10"></a>OPS-10 — README described a setup that did not work

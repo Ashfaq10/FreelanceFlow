@@ -4,11 +4,11 @@ from django.http import FileResponse, HttpResponse
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from kombu.exceptions import OperationalError
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.celery import broker_reachable
 from config.schema import ErrorSerializer, QueuedSerializer, SendInvoiceSerializer
 
 from .models import Invoice, InvoiceItem
@@ -107,14 +107,13 @@ class InvoiceSendView(APIView):
         if not invoice.items.exists():
             return Response({'error': 'Add at least one line item before sending.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            send_invoice.delay(str(invoice.id), request.data.get('message', ''))
-        except OperationalError:
-            # Broker down: say so instead of leaving the request hanging or claiming success.
+        # delay() retries a dead broker forever, so probe first and say so instead of hanging (OPS-9).
+        if not broker_reachable():
             return Response(
                 {'error': 'Sending is temporarily unavailable. Please try again shortly.'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+        send_invoice.delay(str(invoice.id), request.data.get('message', ''))
 
         return Response({'status': 'queued', 'message': 'Invoice is being sent.'})
 
@@ -257,12 +256,11 @@ class InvoiceRemindView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            send_reminder.delay(str(invoice.id))
-        except OperationalError:
+        if not broker_reachable():
             return Response(
                 {'error': 'Reminders are temporarily unavailable. Please try again shortly.'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+        send_reminder.delay(str(invoice.id))
 
         return Response({'status': 'queued', 'message': 'Reminder is being sent.'})

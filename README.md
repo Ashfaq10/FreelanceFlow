@@ -95,7 +95,14 @@ docker compose exec web python manage.py seed_demo
 | Django API | http://localhost:8000/api/ |
 | Django admin | http://localhost:8000/admin/ (`python manage.py createsuperuser`) |
 
-`docker-compose.prod.yml` does not deploy the app correctly yet ([OPS-3](docs/AUDIT.md#ops-3), Phase 5).
+### Docker (production)
+
+```bash
+cp .env.prod.example .env.prod   # fill in secrets and your domain
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Caddy (the `proxy` service) serves the built SPA, proxies `/api`, `/admin` and `/static` to gunicorn, and gets a TLS certificate for `SITE_ADDRESS`. A one-shot `migrate` service runs before `web`, `celery` and `celery-beat` start. `GET /healthz/` checks the database and the Celery broker. **Not yet run end to end** (Docker was unavailable when it was written); CI builds both images.
 
 ## Architecture
 

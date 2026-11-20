@@ -24,7 +24,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+# Same settings as gunicorn: the manifest storage must see the same files it will serve (OPS-4).
+RUN DJANGO_SETTINGS_MODULE=config.settings.production SECRET_KEY=build ALLOWED_HOSTS=build \
+    python manage.py collectstatic --noinput
 
 # Create non-root user
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+### Changed
+- Production stack: `docker-compose.prod.yml` builds `./backend`, runs `migrate` as a release step, and puts Caddy in front (SPA from a multi-stage `frontend/Dockerfile`, `/api` `/admin` `/static` proxied, automatic TLS). `nginx.conf` is gone; `.env.prod.example` documents every variable and replaces the undocumented `.env.prod.db`. The backend image runs `collectstatic` with production settings, and both images get a `.dockerignore`; CI builds the proxy image too (OPS-3, OPS-4, OPS-5).
+
+### Fixed
+- `POST /invoices/{id}/send/` and `/remind/` returned nothing for minutes when Redis was down; they now probe the broker and answer 503 (`config.celery.broker_reachable`) (OPS-9, part).
+
+### Added
+- `GET /healthz/` reports database and broker status (200 or 503); the prod compose `web` healthcheck uses it (OPS-9, part).
+
 ### Added
 - Accessibility guard: `eslint-plugin-jsx-a11y` runs in `npm run lint`, so unlabelled controls and icon-only buttons fail CI.
 - OpenAPI schema: `GET /api/schema/` and a committed `docs/openapi.json` covering all 27 endpoints. A backend test fails when the file is stale, and a frontend test fails when the API stops offering a field the SPA reads (the BUG-2 class of bug).

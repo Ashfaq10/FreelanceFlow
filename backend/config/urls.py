@@ -8,7 +8,10 @@ from django.urls import include, path
 
 from drf_spectacular.views import SpectacularAPIView
 
+from .health import healthz
+
 urlpatterns = [
+    path('healthz/', healthz),
     path('admin/', admin.site.urls),
     # The SPA is the only UI (ADR-0001): everything below is JSON.
     path('api/payments/', include('apps.payments.urls')),  # Stripe webhook

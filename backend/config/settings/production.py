@@ -15,6 +15,8 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_SSL_REDIRECT = True
 # TLS terminates at the proxy; without this Django sees http:// and SECURE_SSL_REDIRECT loops.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Container health probes hit gunicorn over plain http; a redirect would read as unhealthy.
+SECURE_REDIRECT_EXEMPT = [r'^healthz/$']
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000

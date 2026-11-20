@@ -121,3 +121,13 @@ class TestReminder:
 
         assert 'Overdue' not in mailoutbox[0].subject
         assert filled_invoice.invoice_number in mailoutbox[0].subject
+
+
+@pytest.mark.django_db
+class TestBrokerDown:
+    @pytest.mark.parametrize('action', ['send', 'remind'])
+    def test_queueing_returns_503_instead_of_hanging(self, api_client, filled_invoice, action):
+        with patch('apps.invoices.api_views.broker_reachable', return_value=False):
+            response = api_client.post(f'/api/invoices/{filled_invoice.id}/{action}/')
+
+        assert response.status_code == 503

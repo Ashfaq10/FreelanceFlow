@@ -1,67 +1,88 @@
-version: '3.8'
+# Production stack: `docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build`.
+# Copy .env.prod.example to .env.prod first. Caddy is the only published service (80/443).
+x-backend: &backend
+  build: ./backend
+  env_file: .env.prod
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.production
+  restart: unless-stopped
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    redis:
+      condition: service_healthy
 
 services:
-  web:
-    build: .
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
-    volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-    expose:
-      - "8000"
-    env_file:
-      - .env.prod
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.production
+  # Release step: runs once per deploy; web, celery and beat wait for it.
+  migrate:
+    <<: *backend
+    command: python manage.py migrate --noinput
+    restart: 'no'
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+
+  web:
+    <<: *backend
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    expose:
+      - '8000'
+    healthcheck:
+      # Host header: ALLOWED_HOSTS would reject the container's own address.
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os, urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:8000/healthz/', headers={'Host': os.environ['ALLOWED_HOSTS'].split(',')[0]}))"
+      interval: 15s
+      retries: 5
+      start_period: 20s
+
+  celery:
+    <<: *backend
+    command: celery -A config worker -l info
+
+  celery-beat:
+    <<: *backend
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
   db:
     image: postgres:15-alpine
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - .env.prod.db
+    env_file: .env.prod
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      retries: 10
 
-  celery:
-    build: .
-    command: celery -A config worker -l info
-    env_file:
-      - .env.prod
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.production
-    depends_on:
-      - db
-      - redis
-
-  celery-beat:
-    build: .
-    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    env_file:
-      - .env.prod
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.production
-    depends_on:
-      - db
-      - redis
-
-  nginx:
-    image: nginx:alpine
+  proxy:
+    build:
+      context: ./frontend
+      target: prod
+      args:
+        VITE_API_URL: ''
+    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
     volumes:
-      - static_volume:/app/staticfiles:ro
-      - media_volume:/app/media:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - caddy_data:/data
     depends_on:
-      - web
+      web:
+        condition: service_healthy
 
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
+  caddy_data:

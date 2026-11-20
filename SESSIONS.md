@@ -15,6 +15,22 @@ Entry template:
 
 ---
 
+## 2026-11-20 — Phase 5 start: production stack, healthz, broker probe
+
+**Goal:** begin Phase 5 with the parts that need no hosting decision.
+
+**Done:**
+- OPS-3/4/5: Caddy `proxy` image (SPA + TLS + reverse proxy), `migrate` release service, `.env.prod.example`, `collectstatic` with production settings, `.dockerignore`s, dev/build/prod stages in `frontend/Dockerfile`; CI builds the proxy image. `nginx.conf` removed.
+- OPS-9 (part): `GET /healthz/` (DB + broker) and `broker_reachable()` so send/remind return 503 with Redis down instead of hanging. 220 backend tests pass.
+
+**State:** uncommitted-to-remote; nothing pushed. Not proven: the prod compose has never run (Docker Desktop was down; `docker compose config` validates, images unbuilt); the Windows probe takes ~4 s to give up on a dead Redis (instant on Linux, [INFERENCE]).
+
+**Next:** start Docker, `cp .env.prod.example .env.prod`, `SITE_ADDRESS=localhost`, `docker compose -f docker-compose.prod.yml up --build`, check `/`, `/api/`, `/admin/` static, `/healthz/`; tick OPS-3/OPS-5. Then Sentry + structured logging, Playwright smoke.
+
+**Open questions:** hosting target (decides the deploy pipeline and S3 vs. other storage).
+
+---
+
 ## 2026-11-15 — Phase 4: code health, performance, UX & a11y (17/17)
 
 **Goal:** close Phase 4 with one pushed, CI-green commit per item.
