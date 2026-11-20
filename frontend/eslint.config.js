@@ -7,7 +7,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y'
 
 // ESLint 9 flat config (OPS-8). Stays on 9 because eslint-plugin-react does not support 10 yet.
 export default [
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'test-results', 'playwright-report'] },
   js.configs.recommended,
   react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
@@ -30,6 +30,10 @@ export default [
   },
   {
     files: ['**/*.test.{js,jsx}', 'src/test/**', '*.config.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['playwright.config.js', 'e2e/**/*.js'],
     languageOptions: { globals: globals.node },
   },
 ]

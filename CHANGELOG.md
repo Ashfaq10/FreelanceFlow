@@ -16,6 +16,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `POST /invoices/{id}/send/` and `/remind/` returned nothing for minutes when Redis was down; they now probe the broker and answer 503 (`config.celery.broker_reachable`) (OPS-9, part).
 
 ### Added
+- Playwright smoke test (`npm run e2e` in `frontend/`): sign up → client → invoice → send → mark paid → PDF download, run in CI; `pip-audit` on the locked requirements runs next to `npm audit` (TEST-5).
 - Sentry for backend and SPA, switched on by `SENTRY_DSN` / `VITE_SENTRY_DSN` (no DSN, no Sentry); production logs are one JSON object per line; a React render crash shows a retry page instead of a blank screen (OPS-9).
 - `GET /healthz/` reports database and broker status (200 or 503); the prod compose `web` healthcheck uses it (OPS-9, part).
 

@@ -62,6 +62,10 @@ uv pip compile requirements-dev.in --universal --python-version 3.12 -c requirem
 
 `uv pip compile` is the pip-tools workflow with cross-platform output, so the lock works on Windows and Linux.
 
+## End-to-end smoke test
+
+`cd frontend && npx playwright install chromium && npm run e2e` starts Django (`config.settings.e2e`, throwaway `backend/e2e.sqlite3`) and Vite, then walks sign up → paid invoice → PDF. Set `PW_CHANNEL=chrome` to use an installed Chrome instead of downloading Chromium. CI runs it as the `e2e` job.
+
 ## API schema
 
 `docs/openapi.json` is generated, and `tests/test_openapi.py` fails if it is stale. After changing an endpoint or serializer:

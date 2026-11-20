@@ -19,7 +19,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
 | 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
-| 5 | Finish the product (no containers) | 🟡 In progress | 6 / 8 |
+| 5 | Finish the product (no containers) | ✅ Done | 8 / 8 |
 | 6 | Growth features (now in scope) | ⚪ Not started | 0 / 9 |
 | 7 | Containers & deploy (last) | ⚪ Not started | 0 / 5 |
 
@@ -152,8 +152,8 @@ flowchart LR
 - [x] `collectstatic` with production settings ([OPS-4](docs/AUDIT.md#ops-4)) — **S**
 - [x] `/healthz` checks DB and broker; send/remind answer 503 when Redis is down ([OPS-9](docs/AUDIT.md#ops-9), part) — **S**
 - [x] Sentry (backend + SPA) and structured logging ([OPS-9](docs/AUDIT.md#ops-9), rest) — **M**
-- [ ] Playwright smoke test: sign up → client → invoice → send → mark paid → PDF ([TEST-5](docs/AUDIT.md#test-5)) — **M**
-- [ ] `pip-audit` in CI next to the existing `npm audit` — **S**
+- [x] Playwright smoke test: sign up → client → invoice → send → mark paid → PDF ([TEST-5](docs/AUDIT.md#test-5)) — **M**
+- [x] `pip-audit` in CI next to the existing `npm audit` — **S**
 
 ## Phase 6 — Growth features
 

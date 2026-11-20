@@ -321,7 +321,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** Vitest + React Testing Library + MSW; first targets: `client.js` 401 handling, `InvoiceCreate` edit/quantity payload, currency formatting, date-only parsing.
 
 ### <a id="test-5"></a>TEST-5 — No end-to-end smoke test
-`Should` · Phase 5 · Playwright: sign up → create client → create invoice → send → mark paid → PDF downloads.
+`Should` · Phase 5 · Playwright: sign up → create client → create invoice → send → mark paid → PDF downloads. **Done 2026-11-20**: `frontend/e2e/smoke.spec.js` against Vite + Django on `config.settings.e2e` (fresh SQLite file, eager Celery, no Stripe); passes locally with installed Chrome (`PW_CHANNEL=chrome`), and runs in CI as the `e2e` job (not yet seen green there).
 
 **Coverage map (backend, 2026-11-15)**
 

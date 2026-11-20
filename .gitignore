@@ -36,7 +36,6 @@ staticfiles/
 # Environment
 .env
 .env.prod
-.env.prod.db
 
 # IDE
 .idea/
@@ -73,3 +72,8 @@ credentials.json
 # Local, personal agent notes
 CLAUDE.local.md
 .claude/settings.local.json
+
+# Playwright smoke database
+backend/e2e.sqlite3
+frontend/test-results/
+frontend/playwright-report/
