@@ -41,6 +41,7 @@ def record_payment(invoice, amount, method='manual', paid_on=None, notes='', **s
         **({'paid_on': paid_on} if paid_on else {}),
         **stripe_ids,
     )
+    invoice.log('payment', f'{invoice.currency} {amount} ({payment.get_method_display()})')
 
     if invoice.amount_due <= Decimal('0') and invoice.status != 'paid':
         invoice.mark_as_paid()

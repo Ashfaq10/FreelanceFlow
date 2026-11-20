@@ -89,18 +89,33 @@ class Invoice(models.Model):
         if not self.public_token:
             self.public_token = uuid.uuid4().hex
 
+        adding = self._state.adding
         if not self.invoice_number:
             for _ in range(10):
                 self.invoice_number = self.generate_invoice_number()
                 self.calculate_totals()
                 try:
                     super().save(*args, **kwargs)
-                    return
+                    break
                 except IntegrityError:
                     self.invoice_number = ''
-            raise IntegrityError('Could not generate a unique invoice number.')
-        self.calculate_totals()
-        super().save(*args, **kwargs)
+            else:
+                raise IntegrityError('Could not generate a unique invoice number.')
+        else:
+            self.calculate_totals()
+            super().save(*args, **kwargs)
+        if adding:
+            self.log('created')
+
+    def log(self, kind, detail=''):
+        """Append to the activity timeline (FEAT-4). Events are never edited or deleted."""
+        return InvoiceEvent.objects.create(invoice=self, kind=kind, detail=detail)
+
+    def log_viewed(self):
+        """A client refreshing the page must not flood the timeline: one `viewed` per hour."""
+        since = timezone.now() - timezone.timedelta(hours=1)
+        if not self.events.filter(kind='viewed', created_at__gte=since).exists():
+            self.log('viewed')
 
     def generate_invoice_number(self):
         """Next number for this user, prefix and year (e.g. INV-2026-004)."""
@@ -167,12 +182,14 @@ class Invoice(models.Model):
         self.status = 'paid'
         self._discard_stored_pdf()
         self.save(update_fields=['status', 'pdf_file'])
+        self.log('paid')
 
     def mark_as_overdue(self):
         if self.status == 'sent':
             self.status = 'overdue'
             self._discard_stored_pdf()
             self.save(update_fields=['status', 'pdf_file'])
+            self.log('overdue')
 
     def reopen_after_refund(self):
         """Money went back to the client, so the invoice owes again (PAY-4)."""
@@ -186,6 +203,34 @@ class Invoice(models.Model):
         self.status = 'cancelled'
         self._discard_stored_pdf()
         self.save(update_fields=['status', 'pdf_file'])
+        self.log('cancelled')
+
+
+class InvoiceEvent(models.Model):
+    KIND_CHOICES = [
+        ('created', 'Created'),
+        ('sent', 'Sent'),
+        ('viewed', 'Viewed by client'),
+        ('reminder', 'Reminder sent'),
+        ('payment', 'Payment received'),
+        ('refund', 'Refunded'),
+        ('paid', 'Paid in full'),
+        ('overdue', 'Became overdue'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='events')
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES)
+    detail = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['created_at']
+        indexes = [models.Index(fields=['invoice', 'created_at'])]
+
+    def __str__(self):
+        return f'{self.invoice.invoice_number}: {self.kind}'
 
 
 class InvoiceItem(models.Model):

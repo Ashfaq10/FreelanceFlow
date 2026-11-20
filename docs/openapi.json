@@ -2447,9 +2447,17 @@
                     "public_url": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "activity": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceEvent"
+                        },
+                        "readOnly": true
                     }
                 },
                 "required": [
+                    "activity",
                     "amount_due",
                     "amount_paid",
                     "bank_details",
@@ -2487,6 +2495,39 @@
                     "user_email",
                     "user_phone",
                     "website"
+                ]
+            },
+            "InvoiceEvent": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "kind": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KindEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "detail": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "detail",
+                    "id",
+                    "kind"
                 ]
             },
             "InvoiceItem": {
@@ -2700,6 +2741,21 @@
                     "client",
                     "items"
                 ]
+            },
+            "KindEnum": {
+                "enum": [
+                    "created",
+                    "sent",
+                    "viewed",
+                    "reminder",
+                    "payment",
+                    "refund",
+                    "paid",
+                    "overdue",
+                    "cancelled"
+                ],
+                "type": "string",
+                "description": "* `created` - Created\n* `sent` - Sent\n* `viewed` - Viewed by client\n* `reminder` - Reminder sent\n* `payment` - Payment received\n* `refund` - Refunded\n* `paid` - Paid in full\n* `overdue` - Became overdue\n* `cancelled` - Cancelled"
             },
             "LoginRequest": {
                 "type": "object",

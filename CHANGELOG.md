@@ -17,6 +17,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - `POST /invoices/{id}/send/` and `/remind/` returned nothing for minutes when Redis was down; they now probe the broker and answer 503 (`config.celery.broker_reachable`) (OPS-9, part).
 
 ### Added
+- Activity timeline on every invoice: created, sent, viewed by the client (at most hourly), reminded, payments, refunds, paid, overdue, cancelled. Written by the code that makes things happen, exposed as `activity` on the invoice and shown on its screen; existing invoices get a backfilled start (FEAT-4, [spec](docs/specs/invoice-activity.md)).
 - Invoice number prefix per user (Settings → Invoicing): `ACME-2026-001` instead of the fixed `INV-…`; the counter is per prefix and year, old numbers are untouched (FEAT-4, [spec](docs/specs/invoice-number-prefix.md)).
 - CSV export of invoices, payments and time logs (`GET /api/exports/{invoices,payments,time-logs}/`, buttons on Reports); formula-looking text is defused, refunds stay numeric (FEAT-4, [spec](docs/specs/csv-export.md)).
 - Playwright smoke test (`npm run e2e` in `frontend/`): sign up → client → invoice → send → mark paid → PDF download, run in CI; `pip-audit` on the locked requirements runs next to `npm audit` (TEST-5).

@@ -45,6 +45,7 @@ class PublicInvoiceView(PublicInvoiceMixin, APIView):
     @extend_schema(responses=PublicInvoiceSerializer)
     def get(self, request, token):
         invoice = self.get_invoice(token)
+        invoice.log_viewed()
         return Response(PublicInvoiceSerializer(invoice).data)
 
 

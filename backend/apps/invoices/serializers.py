@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from apps.payments.serializers import PaymentSerializer
 
-from .models import Invoice, InvoiceItem
+from .models import Invoice, InvoiceEvent, InvoiceItem
 from .utils import PDF_COLORS, PDF_TEMPLATES, public_invoice_url
 
 
@@ -184,7 +184,15 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
         invoice.save()  # recalculates totals from the stored items, once
 
 
+class InvoiceEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InvoiceEvent
+        fields = ['id', 'kind', 'detail', 'created_at']
+        read_only_fields = fields
+
+
 class InvoiceDetailSerializer(serializers.ModelSerializer):
+    activity = InvoiceEventSerializer(source='events', many=True, read_only=True)
     items = InvoiceItemSerializer(many=True, read_only=True)
     client_name = serializers.CharField(source='client.name', read_only=True)
     client_company = serializers.CharField(source='client.company', read_only=True)
@@ -261,6 +269,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'amount_paid',
             'amount_due',
             'public_url',
+            'activity',
         ]
         read_only_fields = [
             'id',

@@ -22,6 +22,7 @@ import {
 import toast from 'react-hot-toast'
 import { Card, Button, Modal, Skeleton, Input, Select, StatusBadge } from '../../components/ui'
 import InvoicePreview from '../../components/invoice/InvoicePreview'
+import ActivityTimeline from './ActivityTimeline'
 import { TEMPLATES, COLOR_PALETTES } from '../../components/invoice/palettes'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
@@ -531,6 +532,8 @@ function InvoiceDetail() {
           </Card.Content>
         </Card>
       )}
+
+      <ActivityTimeline events={invoice.activity} />
 
       {/* ── Record Payment Modal ─────────────────────── */}
       <Modal

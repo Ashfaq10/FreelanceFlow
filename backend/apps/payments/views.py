@@ -128,6 +128,7 @@ def handle_refund(charge):
         stripe_payment_id=payment_intent,
         notes=f'Refund of {outstanding_refund}',
     )
+    invoice.log('refund', f'{invoice.currency} {outstanding_refund}')
 
     if was_paid and invoice.amount_due > 0:
         invoice.reopen_after_refund()

@@ -26,8 +26,10 @@ test('sign up → client → invoice → send → mark paid → download PDF', a
   await expect(page).toHaveURL(/\/invoices\/[0-9a-f-]{36}$/)
 
   // Celery runs eagerly under config.settings.e2e, so the invoice is "sent" once the page reloads its status.
+  await expect(page.getByRole('listitem').filter({ hasText: 'Sent to client' })).toBeVisible() // activity timeline (FEAT-4)
   await page.getByRole('button', { name: 'Mark Paid' }).click()
   await expect(page.getByRole('button', { name: 'Mark Paid' })).toBeHidden()
+  await expect(page.getByRole('listitem').filter({ hasText: 'Paid in full' })).toBeVisible()
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),

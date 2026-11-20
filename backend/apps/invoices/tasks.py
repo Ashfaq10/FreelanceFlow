@@ -91,6 +91,7 @@ def send_overdue_reminder(invoice_id):
     )
     email.content_subtype = 'html'
     email.send()
+    invoice.log('reminder', 'Overdue notice')
 
     return f'Overdue reminder sent for {invoice.invoice_number}'
 
@@ -160,6 +161,7 @@ def send_invoice(invoice_id, custom_message=''):
     email.content_subtype = 'html'
     email.attach(f'{invoice.invoice_number}.pdf', pdf_bytes, 'application/pdf')
     email.send()
+    invoice.log('sent', f'To {invoice.client.email}')
     logger.info('invoice sent', extra={'invoice_id': str(invoice.id), 'invoice_number': invoice.invoice_number})
 
     return f'Invoice {invoice.invoice_number} sent to {invoice.client.email}'
@@ -187,3 +189,4 @@ def send_due_soon_email(invoice):
     )
     email.content_subtype = 'html'
     email.send()
+    invoice.log('reminder', 'Due-soon notice')
