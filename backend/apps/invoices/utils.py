@@ -189,3 +189,20 @@ def generate_pdf(invoice, timezone_str=None):
     pdf_bytes = weasyprint.HTML(string=html_string, base_url=base_url).write_pdf()
 
     return pdf_bytes
+
+
+def generate_credit_note_pdf(note):
+    """PDF bytes for a credit note: one page, the same accent colour as its invoice (FEAT-4)."""
+    invoice = note.invoice
+    user = invoice.user
+    context = {
+        'note': note,
+        'invoice': invoice,
+        'client': invoice.client,
+        'logo_uri': _logo_data_uri(user),
+        'business_name': user.get_display_name(),
+        'currency_symbol': get_currency_symbol(invoice.currency),
+        'accent': PDF_COLORS.get(invoice.pdf_color, PDF_COLORS['indigo']),
+    }
+    html_string = render_to_string('invoices/credit_note_pdf.html', context)
+    return weasyprint.HTML(string=html_string, base_url=str(Path(settings.BASE_DIR))).write_pdf()

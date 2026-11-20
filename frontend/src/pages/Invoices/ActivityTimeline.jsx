@@ -6,6 +6,7 @@ const LABELS = {
   viewed: 'Viewed by client',
   reminder: 'Reminder sent',
   payment: 'Payment received',
+  credit: 'Credit note issued',
   refund: 'Refunded',
   paid: 'Paid in full',
   overdue: 'Became overdue',

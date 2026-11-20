@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.clients.models import Client
-from apps.invoices.models import Invoice, to_cents
+from apps.invoices.models import CreditNote, Invoice, to_cents
 from apps.payments.models import Payment
 from config.schema import DashboardSummarySerializer, MonthlyRevenueRowSerializer
 
@@ -23,7 +23,8 @@ class MonthlyRevenueQuerySerializer(serializers.Serializer):
 def _balance(invoices):
     billed = invoices.aggregate(total=Sum('total'))['total'] or Decimal('0')
     received = Payment.objects.filter(invoice__in=invoices).aggregate(total=Sum('amount_paid'))['total'] or Decimal('0')
-    return to_cents(billed - received)
+    credited = CreditNote.objects.filter(invoice__in=invoices).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    return to_cents(billed - received - credited)
 
 
 class DashboardSummaryView(APIView):

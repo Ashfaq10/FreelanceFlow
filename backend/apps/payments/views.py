@@ -66,13 +66,13 @@ def handle_successful_payment(session):
         return
 
     amount_paid = to_cents(Decimal(session.get('amount_total') or 0) / 100)
-    if amount_paid != invoice.total:
+    if amount_paid != invoice.amount_due:
         logger.error(
-            'Stripe session %s paid %s but invoice %s totals %s; not recording',
+            'Stripe session %s paid %s but invoice %s has %s due; not recording',
             session.get('id'),
             amount_paid,
             invoice.invoice_number,
-            invoice.total,
+            invoice.amount_due,
         )
         return
 

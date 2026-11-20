@@ -20,7 +20,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
 | 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
 | 5 | Finish the product (no containers) | ✅ Done | 8 / 8 |
-| 6 | Growth features (now in scope) | 🟡 In progress | 3 / 9 |
+| 6 | Growth features (now in scope) | 🟡 In progress | 4 / 9 |
 | 7 | Containers & deploy (last) | ⚪ Not started | 0 / 5 |
 
 ```mermaid
@@ -161,7 +161,7 @@ In scope since 2026-11-20 ("finish the project completely"). Each needs a short 
 
 - [ ] Recurring invoices (Celery Beat) — **L**
 - [ ] Quotes/estimates → convert to invoice — **L**
-- [ ] Credit notes / void with audit trail — **M**
+- [x] Credit notes / void with audit trail — **M**
 - [x] Activity timeline per invoice (created, sent, viewed, paid) — **M**
 - [x] CSV export for accounting (invoices, payments, time) — **S**
 - [ ] Per-line tax, multiple tax rates, percentage discounts — **M**

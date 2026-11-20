@@ -55,6 +55,10 @@ class SendInvoiceSerializer(serializers.Serializer):
     message = serializers.CharField(required=False, allow_blank=True, help_text='Optional note above the invoice')
 
 
+class CancelInvoiceSerializer(serializers.Serializer):
+    reason = serializers.CharField(required=False, allow_blank=True, max_length=255, help_text='Kept on the timeline')
+
+
 class DashboardSummarySerializer(serializers.Serializer):
     total_revenue = serializers.DecimalField(max_digits=12, decimal_places=2)
     outstanding_amount = serializers.DecimalField(max_digits=12, decimal_places=2)

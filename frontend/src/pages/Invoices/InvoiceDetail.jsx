@@ -23,6 +23,7 @@ import toast from 'react-hot-toast'
 import { Card, Button, Modal, Skeleton, Input, Select, StatusBadge } from '../../components/ui'
 import InvoicePreview from '../../components/invoice/InvoicePreview'
 import ActivityTimeline from './ActivityTimeline'
+import CreditNotes from './CreditNotes'
 import { TEMPLATES, COLOR_PALETTES } from '../../components/invoice/palettes'
 import { invoices as invoiceApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
@@ -53,6 +54,8 @@ function InvoiceDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
   const [paymentForm, setPaymentForm] = useState({ amount: '', method: 'bank', notes: '' })
 
   const currency = invoice?.currency || 'USD'
@@ -146,10 +149,11 @@ function InvoiceDetail() {
   }
 
   const handleCancel = async () => {
-    setShowDropdown(false)
     try {
-      const { data } = await invoiceApi.cancel(id)
+      const { data } = await invoiceApi.cancel(id, cancelReason)
       setInvoice(data)
+      setShowCancelModal(false)
+      setCancelReason('')
       toast.success('Invoice cancelled')
     } catch (error) {
       toast.error(apiError(error, 'Could not cancel this invoice'))
@@ -339,7 +343,15 @@ function InvoiceDetail() {
                     </>
                   )}
                   {['draft', 'sent', 'overdue'].includes(invoice.status) && (
-                    <MenuItem icon={Ban} label="Cancel invoice" onClick={handleCancel} danger />
+                    <MenuItem
+                      icon={Ban}
+                      label="Cancel invoice"
+                      danger
+                      onClick={() => {
+                        setShowDropdown(false)
+                        setShowCancelModal(true)
+                      }}
+                    />
                   )}
                   {invoice.status === 'draft' && (
                     <MenuItem
@@ -533,6 +545,8 @@ function InvoiceDetail() {
         </Card>
       )}
 
+      <CreditNotes invoice={invoice} onChange={setInvoice} />
+
       <ActivityTimeline events={invoice.activity} />
 
       {/* ── Record Payment Modal ─────────────────────── */}
@@ -576,6 +590,29 @@ function InvoiceDetail() {
           </Button>
           <Button onClick={handleRecordPayment} loading={actionLoading === 'payment'}>
             Record Payment
+          </Button>
+        </div>
+      </Modal>
+
+      {/* ── Cancel Modal ─────────────────────────────── */}
+      <Modal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        title="Cancel invoice"
+        description="The invoice stays on record as cancelled; the reason is kept on its activity timeline."
+      >
+        <Input
+          label="Reason (optional)"
+          maxLength={255}
+          value={cancelReason}
+          onChange={(e) => setCancelReason(e.target.value)}
+        />
+        <div className="flex justify-end gap-3 mt-6">
+          <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
+            Keep invoice
+          </Button>
+          <Button variant="danger" onClick={handleCancel}>
+            Cancel invoice
           </Button>
         </div>
       </Modal>

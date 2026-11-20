@@ -158,8 +158,20 @@ class Invoice(models.Model):
         return to_cents(sum((payment.amount_paid for payment in self.payments.all()), Decimal('0')))
 
     @property
+    def amount_credited(self):
+        """Credit notes lower what is owed without touching the invoice total (FEAT-4)."""
+        return to_cents(sum((note.amount for note in self.credit_notes.all()), Decimal('0')))
+
+    @property
     def amount_due(self):
-        return to_cents(self.total - self.amount_paid)
+        return to_cents(self.total - self.amount_paid - self.amount_credited)
+
+    def clear_pay_link(self):
+        """The Stripe session was priced for an older balance; drop it so the next request mints a fresh one."""
+        if self.stripe_session_id or self.stripe_payment_url:
+            self.stripe_session_id = ''
+            self.stripe_payment_url = ''
+            self.save(update_fields=['stripe_session_id', 'stripe_payment_url'])
 
     def _require_status(self, new_status, allowed_from):
         if self.status not in allowed_from:
@@ -198,12 +210,12 @@ class Invoice(models.Model):
         self._discard_stored_pdf()
         self.save(update_fields=['status', 'pdf_file'])
 
-    def cancel(self):
+    def cancel(self, reason=''):
         self._require_status('cancelled', ('draft', 'sent', 'overdue'))
         self.status = 'cancelled'
         self._discard_stored_pdf()
         self.save(update_fields=['status', 'pdf_file'])
-        self.log('cancelled')
+        self.log('cancelled', reason)
 
 
 class InvoiceEvent(models.Model):
@@ -213,6 +225,7 @@ class InvoiceEvent(models.Model):
         ('viewed', 'Viewed by client'),
         ('reminder', 'Reminder sent'),
         ('payment', 'Payment received'),
+        ('credit', 'Credit note issued'),
         ('refund', 'Refunded'),
         ('paid', 'Paid in full'),
         ('overdue', 'Became overdue'),
@@ -231,6 +244,25 @@ class InvoiceEvent(models.Model):
 
     def __str__(self):
         return f'{self.invoice.invoice_number}: {self.kind}'
+
+
+class CreditNote(models.Model):
+    """Append-only correction against an invoice (FEAT-4). Never edited, never deleted."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='credit_notes')
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='credit_notes')
+    number = models.CharField(max_length=50, editable=False)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    reason = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['created_at']
+        constraints = [models.UniqueConstraint(fields=['user', 'number'], name='unique_credit_note_number_per_user')]
+
+    def __str__(self):
+        return f'{self.number} ({self.amount})'
 
 
 class InvoiceItem(models.Model):

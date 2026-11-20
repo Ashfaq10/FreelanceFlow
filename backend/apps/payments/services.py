@@ -42,6 +42,7 @@ def record_payment(invoice, amount, method='manual', paid_on=None, notes='', **s
         **stripe_ids,
     )
     invoice.log('payment', f'{invoice.currency} {amount} ({payment.get_method_display()})')
+    invoice.clear_pay_link()
 
     if invoice.amount_due <= Decimal('0') and invoice.status != 'paid':
         invoice.mark_as_paid()
@@ -83,7 +84,7 @@ def _create_session(invoice):
                 'price_data': {
                     'currency': (invoice.currency or user.currency or 'USD').lower(),
                     # Decimal cents, never float arithmetic (DATA-3).
-                    'unit_amount': int(to_cents(invoice.total) * 100),
+                    'unit_amount': int(to_cents(invoice.amount_due) * 100),
                     'product_data': {
                         'name': f'Invoice {invoice.invoice_number}',
                         'description': f'Payment for invoice from {user.get_display_name()}',

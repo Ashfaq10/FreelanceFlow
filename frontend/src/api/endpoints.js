@@ -17,7 +17,9 @@ export const invoices = {
   getPdf: (id, params = {}) => api.get(`/api/invoices/${id}/pdf/`, { responseType: 'blob', params }),
   checkout: (id) => api.post(`/api/invoices/${id}/checkout/`),
   recordPayment: (id, data) => api.post(`/api/invoices/${id}/payments/`, data),
-  cancel: (id) => api.post(`/api/invoices/${id}/cancel/`),
+  cancel: (id, reason = '') => api.post(`/api/invoices/${id}/cancel/`, { reason }),
+  createCreditNote: (id, data) => api.post(`/api/invoices/${id}/credit-notes/`, data),
+  getCreditNotePdf: (noteId) => api.get(`/api/credit-notes/${noteId}/pdf/`, { responseType: 'blob' }),
   duplicate: (id) => api.post(`/api/invoices/${id}/duplicate/`),
   remind: (id) => api.post(`/api/invoices/${id}/remind/`),
 }

@@ -601,6 +601,43 @@
                 }
             }
         },
+        "/api/credit-notes/{id}/pdf/": {
+            "get": {
+                "operationId": "credit_notes_pdf_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "credit-notes"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/dashboard/monthly-revenue/": {
             "get": {
                 "operationId": "dashboard_monthly_revenue_list",
@@ -1019,6 +1056,25 @@
                 "tags": [
                     "invoices"
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelInvoiceRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelInvoiceRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelInvoiceRequest"
+                            }
+                        }
+                    }
+                },
                 "security": [
                     {
                         "cookieAuth": []
@@ -1093,6 +1149,73 @@
                         "description": ""
                     },
                     "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/invoices/{id}/credit-notes/": {
+            "post": {
+                "operationId": "invoices_credit_notes_create",
+                "description": "Lower what a sent invoice owes, with a numbered, append-only record (FEAT-4).",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "invoices"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreditNoteCreateRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreditNoteCreateRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreditNoteCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreditNote"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1898,6 +2021,16 @@
                     "time_logs"
                 ]
             },
+            "CancelInvoiceRequest": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "description": "Kept on the timeline",
+                        "maxLength": 255
+                    }
+                }
+            },
             "Client": {
                 "type": "object",
                 "properties": {
@@ -2045,6 +2178,61 @@
                 "required": [
                     "email",
                     "name"
+                ]
+            },
+            "CreditNote": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "number": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "reason": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "amount",
+                    "created_at",
+                    "id",
+                    "number",
+                    "reason"
+                ]
+            },
+            "CreditNoteCreateRequest": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "amount",
+                    "reason"
                 ]
             },
             "DashboardSummary": {
@@ -2454,10 +2642,24 @@
                             "$ref": "#/components/schemas/InvoiceEvent"
                         },
                         "readOnly": true
+                    },
+                    "credit_notes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreditNote"
+                        },
+                        "readOnly": true
+                    },
+                    "amount_credited": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
                     }
                 },
                 "required": [
                     "activity",
+                    "amount_credited",
                     "amount_due",
                     "amount_paid",
                     "bank_details",
@@ -2474,6 +2676,7 @@
                     "client_name",
                     "client_phone",
                     "created_at",
+                    "credit_notes",
                     "currency",
                     "id",
                     "invoice_number",
@@ -2749,13 +2952,14 @@
                     "viewed",
                     "reminder",
                     "payment",
+                    "credit",
                     "refund",
                     "paid",
                     "overdue",
                     "cancelled"
                 ],
                 "type": "string",
-                "description": "* `created` - Created\n* `sent` - Sent\n* `viewed` - Viewed by client\n* `reminder` - Reminder sent\n* `payment` - Payment received\n* `refund` - Refunded\n* `paid` - Paid in full\n* `overdue` - Became overdue\n* `cancelled` - Cancelled"
+                "description": "* `created` - Created\n* `sent` - Sent\n* `viewed` - Viewed by client\n* `reminder` - Reminder sent\n* `payment` - Payment received\n* `credit` - Credit note issued\n* `refund` - Refunded\n* `paid` - Paid in full\n* `overdue` - Became overdue\n* `cancelled` - Cancelled"
             },
             "LoginRequest": {
                 "type": "object",

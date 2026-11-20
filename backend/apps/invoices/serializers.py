@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from apps.payments.serializers import PaymentSerializer
 
-from .models import Invoice, InvoiceEvent, InvoiceItem
+from .models import CreditNote, Invoice, InvoiceEvent, InvoiceItem
 from .utils import PDF_COLORS, PDF_TEMPLATES, public_invoice_url
 
 
@@ -191,7 +191,21 @@ class InvoiceEventSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class CreditNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CreditNote
+        fields = ['id', 'number', 'amount', 'reason', 'created_at']
+        read_only_fields = fields
+
+
+class CreditNoteCreateSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0.01'))
+    reason = serializers.CharField(max_length=255)
+
+
 class InvoiceDetailSerializer(serializers.ModelSerializer):
+    credit_notes = CreditNoteSerializer(many=True, read_only=True)
+    amount_credited = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     activity = InvoiceEventSerializer(source='events', many=True, read_only=True)
     items = InvoiceItemSerializer(many=True, read_only=True)
     client_name = serializers.CharField(source='client.name', read_only=True)
@@ -270,6 +284,8 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'amount_due',
             'public_url',
             'activity',
+            'credit_notes',
+            'amount_credited',
         ]
         read_only_fields = [
             'id',

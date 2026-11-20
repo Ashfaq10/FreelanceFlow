@@ -9,17 +9,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.celery import broker_reachable
-from config.schema import ErrorSerializer, QueuedSerializer, SendInvoiceSerializer
+from config.schema import CancelInvoiceSerializer, ErrorSerializer, QueuedSerializer, SendInvoiceSerializer
 
-from .models import Invoice, InvoiceItem
+from .credit import issue_credit_note
+from .models import CreditNote, Invoice, InvoiceItem
 from .serializers import (
+    CreditNoteCreateSerializer,
+    CreditNoteSerializer,
     InvoiceDetailSerializer,
     InvoiceFilterSerializer,
     InvoiceSerializer,
     InvoiceWriteSerializer,
 )
 from .tasks import send_invoice, send_reminder
-from .utils import generate_pdf
+from .utils import generate_credit_note_pdf, generate_pdf
 
 
 class InvoiceListCreateView(generics.ListCreateAPIView):
@@ -180,7 +183,7 @@ class InvoiceMarkPaidView(APIView):
 class InvoiceCancelView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    @extend_schema(request=None, responses={200: InvoiceDetailSerializer, 400: ErrorSerializer})
+    @extend_schema(request=CancelInvoiceSerializer, responses={200: InvoiceDetailSerializer, 400: ErrorSerializer})
     def post(self, request, pk):
         try:
             invoice = Invoice.objects.get(pk=pk, user=request.user)
@@ -188,12 +191,51 @@ class InvoiceCancelView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         try:
-            invoice.cancel()
+            invoice.cancel(str(request.data.get('reason') or '').strip()[:255])
         except ValidationError as exc:
             return Response({'error': exc.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = InvoiceDetailSerializer(invoice, context={'request': request})
         return Response(serializer.data)
+
+
+class InvoiceCreditNoteView(APIView):
+    """Lower what a sent invoice owes, with a numbered, append-only record (FEAT-4)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        request=CreditNoteCreateSerializer,
+        responses={201: CreditNoteSerializer, 400: ErrorSerializer},
+    )
+    def post(self, request, pk):
+        try:
+            invoice = Invoice.objects.get(pk=pk, user=request.user)
+        except Invoice.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        data = CreditNoteCreateSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        try:
+            note = issue_credit_note(invoice, data.validated_data['amount'], data.validated_data['reason'])
+        except ValidationError as exc:
+            return Response({'error': exc.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(CreditNoteSerializer(note).data, status=status.HTTP_201_CREATED)
+
+
+class CreditNotePDFView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(responses={(200, 'application/pdf'): OpenApiTypes.BINARY})
+    def get(self, request, pk):
+        try:
+            note = CreditNote.objects.select_related('invoice__user', 'invoice__client').get(pk=pk, user=request.user)
+        except CreditNote.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        response = HttpResponse(generate_credit_note_pdf(note), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{note.number}.pdf"'
+        return response
 
 
 class InvoiceDuplicateView(APIView):
