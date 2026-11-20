@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, Users, Clock, BarChart3, Repeat, Settings, X } from 'lucide-react'
+import { LayoutDashboard, FileText, Users, Clock, BarChart3, Repeat, FileSignature, Settings, X } from 'lucide-react'
 import { Wordmark } from '../ui'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Invoices', href: '/invoices', icon: FileText },
   { name: 'Clients', href: '/clients', icon: Users },
+  { name: 'Quotes', href: '/quotes', icon: FileSignature },
   { name: 'Recurring', href: '/recurring', icon: Repeat },
   { name: 'Time Tracker', href: '/time-tracker', icon: Clock },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
@@ -66,7 +67,7 @@ function SidebarContent({ onClose }) {
         <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           Main Menu
         </p>
-        {navigation.slice(0, 5).map((item) => (
+        {navigation.slice(0, 6).map((item) => (
           <NavItem key={item.name} item={item} onClick={onClose} />
         ))}
 
@@ -75,7 +76,7 @@ function SidebarContent({ onClose }) {
         <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
           More
         </p>
-        {navigation.slice(5).map((item) => (
+        {navigation.slice(6).map((item) => (
           <NavItem key={item.name} item={item} onClick={onClose} />
         ))}
       </nav>

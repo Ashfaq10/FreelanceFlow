@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.dashboard',
     'apps.recurring',
+    'apps.quotes',
 ]
 
 MIDDLEWARE = [
@@ -165,6 +166,11 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    # Invoice and quote statuses are different sets under the same field name.
+    'ENUM_NAME_OVERRIDES': {
+        'InvoiceStatusEnum': 'apps.invoices.models.Invoice.STATUS_CHOICES',
+        'QuoteStatusEnum': 'apps.quotes.models.Quote.STATUS_CHOICES',
+    },
 }
 
 # CORS Settings

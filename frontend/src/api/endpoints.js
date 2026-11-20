@@ -50,6 +50,17 @@ export const dashboard = {
   getMonthlyRevenue: (months = 12) => api.get('/api/dashboard/monthly-revenue/', { params: { months } }),
 }
 
+export const quotes = {
+  list: (params) => api.get('/api/quotes/', { params }),
+  get: (id) => api.get(`/api/quotes/${id}/`),
+  create: (data) => api.post('/api/quotes/', data),
+  update: (id, data) => api.patch(`/api/quotes/${id}/`, data),
+  delete: (id) => api.delete(`/api/quotes/${id}/`),
+  send: (id) => api.post(`/api/quotes/${id}/send/`),
+  convert: (id) => api.post(`/api/quotes/${id}/convert/`),
+  pdf: (id) => api.get(`/api/quotes/${id}/pdf/`, { responseType: 'blob' }),
+}
+
 export const recurring = {
   list: (params) => api.get('/api/recurring/', { params }),
   create: (data) => api.post('/api/recurring/', data),

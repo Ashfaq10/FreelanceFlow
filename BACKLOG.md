@@ -10,11 +10,11 @@ Rules:
 
 ## Now
 
-1. Phase 6 features, one spec each in `docs/specs/` (see PHASES.md)
+1. Phase 7 containers & deploy: run `docker-compose.prod.yml` once (OPS-3, OPS-5), backups, deploy pipeline, one real Stripe test payment. Phases 0-6 are done.
 
 ## Next
 
-2. Phase 7 containers & deploy — **last** (owner's decision 2026-11-20); the prod compose/Caddy files exist but have never been run
+Nothing: Phase 7 is the end of the roadmap.
 
 ## Later
 

@@ -15,6 +15,23 @@ Entry template:
 
 ---
 
+## 2026-11-20 — Phases 5 and 6 finished; containers deliberately last
+
+**Goal:** owner's call: finish the whole product first, Docker and deploy last (plan re-ordered: Phase 7).
+
+**Done:**
+- Phase 5: SEC-5 session-cookie auth, BUG-18 + SEC-6 S3 logos and signed URLs, OPS-9 Sentry + JSON logs + error boundary, TEST-5 Playwright smoke (runs in CI), `pip-audit` in CI.
+- Phase 6, one spec each in `docs/specs/`: CSV export, invoice number prefix, activity timeline, credit notes (also fixed Stripe charging `total` after a deposit), per-line tax / percentage discount (found and fixed BUG-20, shuffled line order), reminder settings, data export + erasure + email verification, recurring invoices, quotes.
+- 336 backend tests, 51 frontend tests, two Playwright flows; lint, format, `makemigrations --check`, OpenAPI drift all green locally.
+
+**State:** everything is committed on `main`, nothing pushed, CI not run on any of these commits (the new `e2e` job and `pip-audit` step have never run there). Not proven: the prod Docker stack (never built or run), a real Stripe payment, mail through a real worker, Sentry receiving an event, S3 signing against a real bucket, migrations on Postgres (tests ran on SQLite).
+
+**Next:** Phase 7. Push and watch CI first (`--pg` locally if Docker is up), then `docker compose -f docker-compose.prod.yml up --build`, then backups and the deploy pipeline.
+
+**Open questions:** where to host; whether `EMAIL_VERIFICATION_REQUIRED` should stay on for the demo; the two `react-router` moderate advisories (`npm audit`, fix needs react-router 7).
+
+---
+
 ## 2026-11-20 — Phase 5 start: production stack, healthz, broker probe
 
 **Goal:** begin Phase 5 with the parts that need no hosting decision.

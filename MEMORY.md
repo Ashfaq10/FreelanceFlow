@@ -19,6 +19,14 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 
 ## Lessons
 
+- **2026-11-20 — `InvoiceItem` ordered by a UUID primary key, so lines came back shuffled.** Order is now `position`; set it when you create items in bulk (serializer, duplicate, billing, recurring, quotes all do). [BUG-20](docs/AUDIT.md#bug-20).
+- **2026-11-20 — A Stripe session is priced for the balance at the time it was made.** Charge `invoice.amount_due`, and call `invoice.clear_pay_link()` whenever the balance changes (payment, credit note), or a client can pay a stale amount and the webhook will refuse to record it.
+- **2026-11-20 — Money maths lives in `apps/invoices/totals.py` only**, and `frontend/src/utils/money.js` mirrors it. After touching either, compare them on random invoices (the FEAT-4 parity run found 0 mismatches in 400); a one-cent drift between preview and server is a real bug.
+- **2026-11-20 — A view that prefetches `items` leaves a stale cache after you replace them.** Pop `_prefetched_objects_cache['items']` before recomputing totals (`QuoteSerializer.update`).
+- **2026-11-20 — Vitest picks up `*.spec.js` anywhere.** `vite.config.js` excludes `e2e/**`; a new Playwright spec outside that folder would break `npm test` and the frontend CI job.
+- **2026-11-20 — Celery `delay()` hangs forever on a dead broker; transport options do not help.** Probe first with `config.celery.broker_reachable()` and answer 503. `ensure_connection(max_retries=0, timeout=1)` takes about 4 s on Windows, near-instant on Linux.
+- **2026-11-20 — Sessions, not tokens: unauthenticated requests are 401 only because `config.authentication.SessionAuthentication401` is first in `DEFAULT_AUTHENTICATION_CLASSES`.** The stock class answers 403, which the SPA reads as "not allowed" rather than "signed out".
+- **2026-11-20 — The Playwright smoke runs with `EMAIL_VERIFICATION_REQUIRED=False`** (`config.settings.e2e`): it cannot read mail. The verification gate is covered by backend tests.
 - **2026-11-15 — `Invoice.save()` computes totals from saved items only.** Create the items first, then call `invoice.save()`. The `InvoiceItem` post-save signal that used to do this implicitly was deleted with [DATA-4](docs/AUDIT.md#data-4), so nothing recomputes totals behind your back.
 - **2026-11-15 — Invoice numbers follow creation order, not `issue_date`.** Backdated invoices must be created oldest-first or numbers look shuffled (`seed_demo` sorts by `days_ago`).
 - **2026-11-15 — Tests only use SQLite because `.env` sets `USE_SQLITE=True`.** The `'test' in sys.argv` branch in `local.py` never fires under pytest. Fix tracked as [TEST-2](docs/AUDIT.md#test-2). *(Fixed same day: pytest uses `config.settings.test`.)*

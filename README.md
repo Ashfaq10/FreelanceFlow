@@ -20,7 +20,7 @@
 </p>
 
 > [!WARNING]
-> **Status: feature-complete, not yet deployable.** Phases 0–4 of the 2026-11-15 audit roadmap are done: security and money integrity, broken flows, payments, per-invoice currency, time billing, a public invoice page, and the code-health/accessibility pass (Django 5.2, OpenAPI schema, six real PDF layouts, axe-clean screens in light and dark). What remains is the production setup (Docker/TLS, monitoring, backups, session auth). Stripe has only been tested against mocks. Progress is tracked in **[PHASES.md](PHASES.md)**; findings are in **[docs/AUDIT.md](docs/AUDIT.md)**.
+> **Status: feature-complete; deployment is the last step.** Phases 0–6 of the 2026-11-15 audit roadmap are done: security and money integrity, session-cookie auth, payments, per-invoice currency, time billing, public invoice and quote pages, credit notes, recurring invoices, CSV export, GDPR export/erasure, Sentry, a Playwright smoke test. What remains is Phase 7: running the prod Docker stack for the first time, backups and a deploy pipeline. Stripe has only been tested against mocks. Progress is tracked in **[PHASES.md](PHASES.md)**; findings are in **[docs/AUDIT.md](docs/AUDIT.md)**.
 
 ## Contents
 
@@ -39,12 +39,16 @@
 | **Invoices** | Line items, fractional quantities, tax and discount rounded to the cent, auto numbers (`INV-2026-001`), statuses Draft → Sent → Overdue → Paid / Cancelled enforced in the model, duplicate, send again, reminders, one currency per invoice | The six templates change the on-screen preview only; the PDF uses one layout and your accent colour ([BUG-16](docs/AUDIT.md#bug-16)) |
 | **Clients** | Profiles, archive instead of delete, server-side search, per-client billed / paid / outstanding totals | |
 | **Time tracking** | Timer and manual entries, optional hourly rate, bill selected entries onto a new draft invoice | Fixed-price work has to be invoiced by hand (no rate to bill) |
-| **PDF** | WeasyPrint PDF with logo, business and bank details, status, due date, your chosen layout (six templates) and accent colour | Logo breaks PDFs on S3 ([BUG-18](docs/AUDIT.md#bug-18), Phase 5) |
-| **Email & reminders** | One send pipeline (mark sent, render PDF, email), manual and scheduled reminders, retries with backoff, emails link to the client page | With Redis down, "Send" hangs instead of failing ([OPS-9](docs/AUDIT.md#ops-9)) |
+| **PDF** | WeasyPrint PDF with logo, business and bank details, status, due date, your chosen layout (six templates) and accent colour | |
+| **Email & reminders** | One send pipeline (mark sent, render PDF, email), manual and scheduled reminders, retries with backoff, emails link to the client page | |
 | **Payments** | Stripe Checkout from the app and from the client page, deposits and instalments, refunds mirrored, replay-safe webhook | Only tested against mocks; no live Stripe run yet |
 | **Client page** | `/pay/<token>`: no account, shows one invoice, downloads the PDF, pays | The link is permanent and cannot be revoked |
 | **Dashboard & reports** | Revenue from money received, outstanding after deposits, monthly chart, error and retry states | Totals add different currencies together ([FEAT-4](docs/AUDIT.md#feat-4)) |
-| **Accounts** | Email + password signup/login, working password reset, business profile, logo, currency, throttled auth | API tokens never expire ([SEC-5](docs/AUDIT.md#sec-5), Phase 5) |
+| **Accounts** | Email + password signup/login with an HttpOnly session cookie, email verification, password reset, business profile, logo, currency, invoice number prefix, data export and account erasure, throttled auth | |
+| **Quotes** | Draft, send, the client accepts or declines on `/quote/<token>`, convert to a draft invoice | |
+| **Recurring** | Weekly to yearly schedules make an invoice by themselves (draft or emailed) | |
+| **Credit notes & activity** | Append-only credit notes with PDF; a timeline of everything that happened to each invoice | |
+| **Tax & export** | Per-line tax rates, percentage discounts, CSV export of invoices, payments and time | |
 
 ## Quick start
 
@@ -187,8 +191,9 @@ The 2026-11-15 audit produced **72 findings**: 8 security, 7 data/money, 4 payme
 | **2 · Broken flows** ✅ | Every screen does what its label says | Login errors, client totals, currency everywhere, real password reset, pagination, send pipeline, date handling |
 | **3 · Core product** ✅ | Bill time, pay online, partial payments | Stripe checkout from the app, pay link in emails, per-invoice currency, time → invoice, public invoice page |
 | **4 · Code health** ✅ | Less code, current deps, accessible | Delete dead server-rendered UI (~1,000 lines), Django 5.2 LTS, N+1 fixes, code splitting, accessible modal/forms, one brand name |
-| **5 · Production** | Secure, observable deploy | Working prod compose + TLS, session-cookie auth, signed S3 URLs, Sentry, backups, Playwright smoke test |
-| **6 · Growth** | Features users ask for | Recurring invoices, quotes, credit notes, CSV export, multi-tax |
+| **5 · Finish the product** ✅ | Hardened, observable app | Session-cookie auth, S3 logos and signed URLs, Sentry and JSON logs, Playwright smoke test, `pip-audit` |
+| **6 · Growth** ✅ | Features users ask for | CSV export, invoice prefix, activity timeline, credit notes, per-line tax, reminder settings, GDPR + email verification, recurring invoices, quotes |
+| **7 · Containers & deploy** | Secure stack that survives restarts | Run the prod compose, backups, deploy pipeline, one real Stripe payment |
 
 Details, checkboxes and sizes: **[PHASES.md](PHASES.md)**.
 

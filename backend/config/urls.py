@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/', include('apps.dashboard.api_urls')),
     path('api/', include('apps.payments.api_urls')),
     path('api/', include('apps.recurring.api_urls')),
+    path('api/', include('apps.quotes.api_urls')),
 ]
 
 if settings.DEBUG:

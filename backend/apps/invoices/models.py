@@ -1,5 +1,5 @@
 import uuid
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -7,12 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-CENTS = Decimal('0.01')
-
-
-def to_cents(amount):
-    """Round money half-up to the cent; Django would otherwise round half-even when saving."""
-    return Decimal(str(amount)).quantize(CENTS, rounding=ROUND_HALF_UP)
+from .totals import calculate, tax_breakdown, to_cents
 
 
 def default_due_date():
@@ -148,40 +143,17 @@ class Invoice(models.Model):
         return f'{prefix}{max_num + 1:03d}'
 
     def calculate_totals(self):
-        items = list(self.items.all())
-        self.subtotal = to_cents(sum(item.line_total for item in items))
-        if self.discount_percent:
-            self.discount_amount = to_cents(self.subtotal * self.discount_percent / Decimal('100'))
-        discount = min(to_cents(self.discount_amount or 0), self.subtotal)
-        breakdown = self._tax_breakdown(items, discount)
-        self.tax_amount = sum((row['tax'] for row in breakdown), Decimal('0'))
-        self.total = self.subtotal - discount + self.tax_amount
-
-    def _tax_breakdown(self, items, discount):
-        """Tax per effective rate, with the discount shared across rates by subtotal (FEAT-4)."""
-        default_rate = Decimal(str(self.tax_rate or 0))
-        groups = {}
-        for item in sorted(items, key=lambda item: -(default_rate if item.tax_rate is None else item.tax_rate)):
-            rate = default_rate if item.tax_rate is None else Decimal(str(item.tax_rate))
-            groups[rate] = groups.get(rate, Decimal('0')) + item.line_total
-
-        subtotal = sum(groups.values(), Decimal('0'))
-        rows, shared = [], Decimal('0')
-        for position, (rate, group_subtotal) in enumerate(groups.items()):
-            if position == len(groups) - 1:
-                share = discount - shared  # the last rate absorbs the rounding remainder
-            else:
-                share = to_cents(discount * group_subtotal / subtotal) if subtotal else Decimal('0')
-                shared += share
-            taxable = group_subtotal - share
-            rows.append({'rate': rate, 'taxable': taxable, 'tax': to_cents(taxable * rate / Decimal('100'))})
-        return rows
+        result = calculate(list(self.items.all()), self.tax_rate, self.discount_amount, self.discount_percent)
+        self.subtotal = result['subtotal']
+        self.discount_amount = result['discount_amount']
+        self.tax_amount = result['tax_amount']
+        self.total = result['total']
 
     def tax_breakdown(self):
         """One row per tax rate on the stored invoice, for display."""
         items = list(self.items.all())
         discount = min(to_cents(self.discount_amount or 0), to_cents(sum(i.line_total for i in items)))
-        return self._tax_breakdown(items, discount)
+        return tax_breakdown(items, self.tax_rate, discount)
 
     @property
     def is_overdue(self):

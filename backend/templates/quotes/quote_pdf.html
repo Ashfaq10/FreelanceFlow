@@ -1,0 +1,64 @@
+{% load invoice_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quote {{ quote.number }}</title>
+  <style>
+    @page { size: A4; margin: 16mm 18mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Inter, Roboto, Arial, sans-serif; font-size: 10pt; color: #000; line-height: 1.4; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .brand { display: flex; gap: 14px; align-items: center; }
+    .logo { height: 56px; width: auto; max-width: 80px; object-fit: contain; }
+    .brand-name { font-size: 14pt; font-weight: 700; }
+    h1 { font-size: 22pt; letter-spacing: 1px; color: {{ accent.primary }}; text-align: right; }
+    .rule { border: 0; border-top: 2px solid {{ accent.primary }}; margin: 12px 0 16px; }
+    .meta { display: flex; gap: 40px; margin-bottom: 18px; }
+    .label { font-size: 8pt; text-transform: uppercase; color: #555; letter-spacing: .5px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; background: {{ accent.light }}; padding: 7px 8px; font-size: 8.5pt; text-transform: uppercase; }
+    td { padding: 7px 8px; border-bottom: 1px solid #e5e7eb; }
+    .num { text-align: right; }
+    .totals { width: 55%; margin-left: auto; margin-top: 12px; }
+    .totals td { border: 0; padding: 4px 8px; }
+    .grand td { border-top: 2px solid #000; font-weight: 700; font-size: 12pt; }
+    .notes { margin-top: 22px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      {% if logo_uri %}<img src="{{ logo_uri }}" alt="Logo" class="logo">{% endif %}
+      <div class="brand-name">{{ business_name }}</div>
+    </div>
+    <div><h1>QUOTE</h1><div style="text-align:right">{{ quote.number }}</div></div>
+  </div>
+  <hr class="rule">
+  <div class="meta">
+    <div><div class="label">Prepared for</div>{{ client.display_name }}</div>
+    <div><div class="label">Issued</div>{{ quote.issue_date|date:"M d, Y" }}</div>
+    <div><div class="label">Valid until</div>{{ quote.valid_until|date:"M d, Y" }}</div>
+  </div>
+  <table>
+    <thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.description }}</td>
+        <td class="num">{{ item.quantity|floatformat:"-2" }}</td>
+        <td class="num">{{ item.unit_price|currency:currency_symbol }}</td>
+        <td class="num">{{ item.line_total|currency:currency_symbol }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <table class="totals">
+    <tr><td>Subtotal</td><td class="num">{{ quote.subtotal|currency:currency_symbol }}</td></tr>
+    {% if quote.discount_amount > 0 %}<tr><td>Discount</td><td class="num">{{ quote.discount_amount|currency:currency_symbol }}</td></tr>{% endif %}
+    {% for row in tax_rows %}<tr><td>VAT ({{ row.rate|floatformat:"-2" }}%)</td><td class="num">{{ row.tax|currency:currency_symbol }}</td></tr>{% endfor %}
+    <tr class="grand"><td>Total</td><td class="num">{{ quote.total|currency:currency_symbol }}</td></tr>
+  </table>
+  {% if quote.notes %}<div class="notes"><div class="label">Notes</div>{{ quote.notes|linebreaksbr }}</div>{% endif %}
+</body>
+</html>

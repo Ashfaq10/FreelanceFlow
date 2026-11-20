@@ -15,6 +15,9 @@ const InvoiceDetail = lazy(() => import('./pages/Invoices/InvoiceDetail'))
 const ClientList = lazy(() => import('./pages/Clients/ClientList'))
 const ClientDetail = lazy(() => import('./pages/Clients/ClientDetail'))
 const ClientCreate = lazy(() => import('./pages/Clients/ClientCreate'))
+const QuoteList = lazy(() => import('./pages/Quotes/QuoteList'))
+const QuoteForm = lazy(() => import('./pages/Quotes/QuoteForm'))
+const PublicQuote = lazy(() => import('./pages/Public/PublicQuote'))
 const RecurringList = lazy(() => import('./pages/Recurring/RecurringList'))
 const RecurringCreate = lazy(() => import('./pages/Recurring/RecurringCreate'))
 const TimeTracker = lazy(() => import('./pages/TimeTracker/TimeTracker'))
@@ -93,6 +96,7 @@ function App() {
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         {/* The client's invoice page: no account, token is the credential (FEAT-3) */}
         <Route path="/pay/:token" element={<PublicInvoice />} />
+        <Route path="/quote/:token" element={<PublicQuote />} />
 
         {/* Private routes */}
         <Route
@@ -112,6 +116,9 @@ function App() {
           <Route path="clients/new" element={<ClientCreate />} />
           <Route path="clients/:id" element={<ClientDetail />} />
           <Route path="clients/:id/edit" element={<ClientCreate />} />
+          <Route path="quotes" element={<QuoteList />} />
+          <Route path="quotes/new" element={<QuoteForm />} />
+          <Route path="quotes/:id/edit" element={<QuoteForm />} />
           <Route path="recurring" element={<RecurringList />} />
           <Route path="recurring/new" element={<RecurringCreate />} />
           <Route path="time-tracker" element={<TimeTracker />} />

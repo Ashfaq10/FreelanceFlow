@@ -42,3 +42,43 @@ test('sign up → client → invoice → send → mark paid → download PDF', a
   for await (const chunk of await download.createReadStream()) chunks.push(chunk)
   expect(Buffer.concat(chunks).subarray(0, 4).toString()).toBe('%PDF')
 })
+
+// FEAT-4: a proposal the client accepts from the emailed link, then converted into an invoice.
+test('quote → send → client accepts → convert to invoice', async ({ page, browser }) => {
+  await page.goto('/signup')
+  await page.getByLabel('Email', { exact: true }).fill(`quote-${Date.now()}@example.com`)
+  await page.getByLabel('Password', { exact: true }).fill('tr0ubled-gardener')
+  await page.getByLabel('Confirm password').fill('tr0ubled-gardener')
+  await page.getByRole('button', { name: 'Create account' }).click()
+  await expect(page).toHaveURL('/')
+
+  await page.goto('/clients/new')
+  await page.getByLabel('Contact Name').fill('Grace Hopper')
+  await page.getByLabel('Email', { exact: true }).fill('grace@example.com')
+  await page.getByRole('button', { name: 'Create Client' }).click()
+  await expect(page).toHaveURL('/clients')
+
+  await page.goto('/quotes/new')
+  await page.getByLabel('Client').selectOption({ index: 1 })
+  await page.getByLabel('Line 1 description').fill('Brand refresh')
+  await page.getByLabel('Line 1 rate').fill('800')
+  await page.getByRole('button', { name: 'Create quote' }).click()
+  await expect(page).toHaveURL('/quotes')
+
+  await page.getByRole('button', { name: 'Send', exact: true }).click()
+  await expect(page.getByText(/· Sent ·/)).toBeVisible()
+
+  const link = await page.evaluate(async () => {
+    const response = await fetch('/api/quotes/', { credentials: 'include' })
+    return (await response.json()).results[0].public_url
+  })
+  const client = await (await browser.newContext()).newPage()
+  await client.goto(link)
+  await client.getByRole('button', { name: 'Accept quote' }).click()
+  await expect(client.getByText('You accepted this quote. Thank you.')).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByText(/· Accepted ·/)).toBeVisible()
+  await page.getByRole('button', { name: 'Convert to invoice' }).click()
+  await expect(page).toHaveURL(/\/invoices\/[0-9a-f-]{36}$/)
+})

@@ -17,7 +17,7 @@ A solo freelancer goes from tracked work to money in the bank without spreadshee
 2. **Private by default.** A user can never see or change another user's data.
 3. **Fast path to paid.** Create and send an invoice in under 2 minutes; client pays in 2 clicks from the email.
 4. **Zero-touch follow-up.** Overdue detection and reminders run without the user doing anything.
-5. **Cheap to run.** One small server: Django + Postgres + Redis + Celery behind nginx.
+5. **Cheap to run.** One small server: Django + Postgres + Redis + Celery behind Caddy.
 
 ## Non-goals
 
@@ -36,7 +36,7 @@ Say no to these unless this file is changed first:
 | Boundary | Decision | Record |
 |---|---|---|
 | UI | React SPA is the only UI; Django serves `/api/**`, `/admin/`, webhook | [ADR-0001](docs/adr/0001-api-only-backend.md) |
-| Auth | Email + password; moving to HttpOnly session cookies | [ADR-0002](docs/adr/0002-auth-session-cookies.md) |
+| Auth | Email + password; HttpOnly session cookies + CSRF header | [ADR-0002](docs/adr/0002-auth-session-cookies.md) |
 | Money | `Decimal(10,2)`, half-up rounding to cents, computed on the server only | [AGENTS.md](AGENTS.md#rules-that-protect-money-and-data) |
 | Currency | One currency per invoice (fixed at creation); no FX conversion | [DATA-7](docs/AUDIT.md#data-7) |
 | Payments | Stripe Checkout + webhooks; manual payments recorded by the user | [PAY-1](docs/AUDIT.md#pay-1), [PAY-2](docs/AUDIT.md#pay-2) |
