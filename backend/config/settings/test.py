@@ -25,5 +25,9 @@ STORAGES = {
 }
 MEDIA_ROOT = Path(tempfile.gettempdir()) / 'freelanceflow-test-media'
 
+# Tests must not depend on whether the developer's root .env defines these.
+STRIPE_SECRET_KEY = 'sk_test_unit'
+STRIPE_WEBHOOK_SECRET = 'whsec_unit'
+
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
