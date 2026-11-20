@@ -2373,6 +2373,11 @@
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
                     },
+                    "discount_percent": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
                     "tax_rate": {
                         "type": "string",
                         "format": "decimal",
@@ -2422,6 +2427,7 @@
             },
             "InvoiceDetail": {
                 "type": "object",
+                "description": "One tax row per rate, so an invoice mixing 20% and 5% can print both (FEAT-4).",
                 "properties": {
                     "id": {
                         "type": "string",
@@ -2655,6 +2661,18 @@
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
                         "readOnly": true
+                    },
+                    "tax_breakdown": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TaxRow"
+                        },
+                        "readOnly": true
+                    },
+                    "discount_percent": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
                     }
                 },
                 "required": [
@@ -2691,6 +2709,7 @@
                     "stripe_payment_url",
                     "subtotal",
                     "tax_amount",
+                    "tax_breakdown",
                     "tax_number",
                     "total",
                     "updated_at",
@@ -2767,6 +2786,13 @@
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
                         "readOnly": true
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$",
+                        "readOnly": true,
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -2774,6 +2800,7 @@
                     "id",
                     "line_total",
                     "rate",
+                    "tax_rate",
                     "unit_price"
                 ]
             },
@@ -2794,6 +2821,12 @@
                         "type": "string",
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$",
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -2820,6 +2853,12 @@
                         "type": "string",
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$",
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -2864,6 +2903,11 @@
                         "type": "string",
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "discount_percent": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
                     },
                     "tax_rate": {
                         "type": "string",
@@ -2917,6 +2961,11 @@
                         "type": "string",
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "discount_percent": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
                     },
                     "tax_rate": {
                         "type": "string",
@@ -3240,6 +3289,11 @@
                         "format": "decimal",
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
                     },
+                    "discount_percent": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
                     "tax_rate": {
                         "type": "string",
                         "format": "decimal",
@@ -3530,6 +3584,13 @@
                         "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
                         "readOnly": true
                     },
+                    "tax_breakdown": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TaxRow"
+                        },
+                        "readOnly": true
+                    },
                     "notes": {
                         "type": "string",
                         "description": "Payment terms or additional notes"
@@ -3554,7 +3615,8 @@
                     "business_name",
                     "client_name",
                     "invoice_number",
-                    "items"
+                    "items",
+                    "tax_breakdown"
                 ]
             },
             "Queued": {
@@ -3626,6 +3688,31 @@
                 ],
                 "type": "string",
                 "description": "* `draft` - Draft\n* `sent` - Sent\n* `overdue` - Overdue\n* `paid` - Paid\n* `cancelled` - Cancelled"
+            },
+            "TaxRow": {
+                "type": "object",
+                "properties": {
+                    "rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "taxable": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    },
+                    "tax": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
+                    }
+                },
+                "required": [
+                    "rate",
+                    "tax",
+                    "taxable"
+                ]
             },
             "TimeLog": {
                 "type": "object",

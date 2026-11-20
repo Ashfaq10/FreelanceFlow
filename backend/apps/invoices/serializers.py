@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.payments.serializers import PaymentSerializer
@@ -22,13 +23,29 @@ class InvoiceFilterSerializer(serializers.Serializer):
     page_size = serializers.IntegerField(min_value=1, required=False)
 
 
+class TaxRowSerializer(serializers.Serializer):
+    rate = serializers.DecimalField(max_digits=5, decimal_places=2)
+    taxable = serializers.DecimalField(max_digits=10, decimal_places=2)
+    tax = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
+class TaxBreakdownMixin(serializers.Serializer):
+    """One tax row per rate, so an invoice mixing 20% and 5% can print both (FEAT-4)."""
+
+    tax_breakdown = serializers.SerializerMethodField()
+
+    @extend_schema_field(TaxRowSerializer(many=True))
+    def get_tax_breakdown(self, obj):
+        return TaxRowSerializer(obj.tax_breakdown(), many=True).data
+
+
 class InvoiceItemSerializer(serializers.ModelSerializer):
     rate = serializers.DecimalField(source='unit_price', max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = InvoiceItem
-        fields = ['id', 'description', 'quantity', 'unit_price', 'rate', 'line_total']
-        read_only_fields = ['id', 'line_total', 'unit_price']
+        fields = ['id', 'description', 'quantity', 'unit_price', 'rate', 'line_total', 'tax_rate']
+        read_only_fields = ['id', 'line_total', 'unit_price', 'tax_rate']
 
 
 class InvoiceItemWriteSerializer(serializers.Serializer):
@@ -38,6 +55,9 @@ class InvoiceItemWriteSerializer(serializers.Serializer):
     # 0.01 and not 1: half-hour and fractional-unit lines are normal (DATA-5).
     quantity = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0.01'))
     rate = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
+    tax_rate = serializers.DecimalField(
+        max_digits=5, decimal_places=2, min_value=0, max_value=100, required=False, allow_null=True
+    )
 
     def to_internal_value(self, data):
         """Also accept legacy `unit_price` key from API clients."""
@@ -63,6 +83,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             'status',
             'subtotal',
             'discount_amount',
+            'discount_percent',
             'tax_rate',
             'tax_amount',
             'total',
@@ -85,6 +106,9 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
     tax_rate = serializers.DecimalField(
         max_digits=5, decimal_places=2, min_value=Decimal('0'), max_value=Decimal('100'), required=False
     )
+    discount_percent = serializers.DecimalField(
+        max_digits=5, decimal_places=2, min_value=Decimal('0'), max_value=Decimal('100'), required=False
+    )
     pdf_color = serializers.ChoiceField(choices=sorted(PDF_COLORS), required=False)
     pdf_template = serializers.ChoiceField(choices=PDF_TEMPLATES, required=False)
 
@@ -98,6 +122,7 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
             'due_date',
             'status',
             'discount_amount',
+            'discount_percent',
             'tax_rate',
             'notes',
             'pdf_color',
@@ -121,6 +146,10 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """A discount larger than the subtotal would otherwise silently become a zero total."""
+        if attrs.get('discount_amount') and attrs.get('discount_percent'):
+            raise serializers.ValidationError({'discount_percent': 'Use a fixed discount or a percentage, not both.'})
+        if attrs.get('discount_amount') and 'discount_percent' not in attrs:
+            attrs['discount_percent'] = Decimal('0')  # switching to a fixed amount must not leave the old percentage
         items = attrs.get('items')
         discount = attrs.get('discount_amount')
         if items and discount is not None:
@@ -168,13 +197,15 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
 
     def _replace_items(self, invoice, items_data):
         items = []
-        for item_data in items_data:
+        for position, item_data in enumerate(items_data):
             rate = item_data.pop('rate', item_data.pop('unit_price', 0))
             item = InvoiceItem(
                 invoice=invoice,
                 description=item_data['description'],
                 quantity=item_data['quantity'],
                 unit_price=rate,
+                tax_rate=item_data.get('tax_rate'),
+                position=position,
             )
             # bulk_create skips save(), so the line total is computed here.
             item.line_total = item.compute_line_total()
@@ -203,7 +234,7 @@ class CreditNoteCreateSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=255)
 
 
-class InvoiceDetailSerializer(serializers.ModelSerializer):
+class InvoiceDetailSerializer(TaxBreakdownMixin, serializers.ModelSerializer):
     credit_notes = CreditNoteSerializer(many=True, read_only=True)
     amount_credited = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     activity = InvoiceEventSerializer(source='events', many=True, read_only=True)
@@ -286,6 +317,8 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
             'activity',
             'credit_notes',
             'amount_credited',
+            'tax_breakdown',
+            'discount_percent',
         ]
         read_only_fields = [
             'id',
@@ -316,7 +349,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         return public_invoice_url(obj)
 
 
-class PublicInvoiceSerializer(serializers.ModelSerializer):
+class PublicInvoiceSerializer(TaxBreakdownMixin, serializers.ModelSerializer):
     """What a client holding the link may see — no account, no other invoices (FEAT-3)."""
 
     items = InvoiceItemSerializer(many=True, read_only=True)
@@ -342,6 +375,7 @@ class PublicInvoiceSerializer(serializers.ModelSerializer):
             'total',
             'amount_paid',
             'amount_due',
+            'tax_breakdown',
             'notes',
             'client_name',
             'business_name',

@@ -12,16 +12,17 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
       <Card.Content>
         <div className="space-y-4">
           <div className="hidden md:grid grid-cols-12 gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-            <div className="col-span-6">Description</div>
+            <div className="col-span-4">Description</div>
             <div className="col-span-2">Quantity</div>
             <div className="col-span-2">Rate</div>
+            <div className="col-span-2">Tax %</div>
             <div className="col-span-1">Amount</div>
             <div className="col-span-1"></div>
           </div>
 
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-12 gap-4 items-start">
-              <div className="col-span-12 md:col-span-6">
+              <div className="col-span-12 md:col-span-4">
                 <input
                   {...register(`items.${index}.description`, { required: 'Required' })}
                   placeholder="Description"
@@ -56,6 +57,18 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
                   className="input"
                 />
               </div>
+              <div className="col-span-4 md:col-span-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  {...register(`items.${index}.tax_rate`)}
+                  placeholder="Invoice rate"
+                  aria-label={`Line ${index + 1} tax rate`}
+                  className="input"
+                />
+              </div>
               <div className="col-span-3 md:col-span-1 flex items-center h-10">
                 <span className="text-sm font-medium">
                   {formatCents(lineTotalCents(items[index]?.quantity, items[index]?.rate))}
@@ -78,7 +91,7 @@ function LineItemsEditor({ register, fields, append, remove, items, formatCents 
 
           <button
             type="button"
-            onClick={() => append({ description: '', quantity: 1, rate: 0 })}
+            onClick={() => append({ description: '', quantity: 1, rate: 0, tax_rate: '' })}
             className="flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 text-sm font-medium"
           >
             <Plus className="w-4 h-4" />

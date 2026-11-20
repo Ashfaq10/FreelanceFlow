@@ -1,4 +1,4 @@
-import { fmt, itemLineTotal, formatAddress } from './format'
+import { fmt, itemLineTotal, formatAddress, taxRowsOf } from './format'
 
 export function FromDetails({ invoice, titleClass = '', nameClass = '', lineClass = '' }) {
   const fromEmail = invoice.business_email || invoice.user_email
@@ -133,8 +133,9 @@ export function Totals({ invoice, color, compact, sidebar }) {
           <span>{fmt(invoice.discount_amount, cur)}</span>
         </div>
       )}
-      {invoice.tax_rate > 0 && (
+      {taxRowsOf(invoice).map((row) => (
         <div
+          key={row.rate}
           style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -143,10 +144,10 @@ export function Totals({ invoice, color, compact, sidebar }) {
             fontSize: compact ? '12px' : '13px',
           }}
         >
-          <span>Tax ({invoice.tax_rate}%)</span>
-          <span>{fmt(invoice.tax_amount, cur)}</span>
+          <span>Tax ({Number(row.rate)}%)</span>
+          <span>{fmt(row.tax, cur)}</span>
         </div>
-      )}
+      ))}
       <div
         style={{
           display: 'flex',

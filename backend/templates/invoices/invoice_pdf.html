@@ -260,12 +260,14 @@
         <span class="value">{{ discount|currency:currency_symbol }}</span>
       </div>
       {% endif %}
-      {% if invoice.tax_rate > 0 %}
+      {% for row in tax_rows %}
+      {% if row.rate > 0 %}
       <div class="total-row">
-        <span class="label">VAT ({{ invoice.tax_rate }}%)</span>
-        <span class="value">{{ invoice.tax_amount|currency:currency_symbol }}</span>
+        <span class="label">VAT ({{ row.rate|floatformat:"-2" }}%)</span>
+        <span class="value">{{ row.tax|currency:currency_symbol }}</span>
       </div>
       {% endif %}
+      {% endfor %}
       <div class="total-divider"></div>
       <div class="total-due">
         <span>Total Due</span>

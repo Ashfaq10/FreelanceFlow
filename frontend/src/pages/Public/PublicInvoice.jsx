@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Card, Button, Badge, Skeleton, ErrorState, Wordmark } from '../../components/ui'
 import api from '../../api/client'
 import { formatCurrency as formatMoney } from '../../utils/formatters'
+import { taxRowsOf } from '../../components/invoice/format'
 
 /** The page a client opens from the invoice email: no account, token in the URL (FEAT-3). */
 function PublicInvoice() {
@@ -123,9 +124,9 @@ function PublicInvoice() {
                 {Number(invoice.discount_amount) > 0 && (
                   <div className="flex justify-between"><dt>Discount</dt><dd>-{money(invoice.discount_amount)}</dd></div>
                 )}
-                {Number(invoice.tax_amount) > 0 && (
-                  <div className="flex justify-between"><dt>Tax ({invoice.tax_rate}%)</dt><dd>{money(invoice.tax_amount)}</dd></div>
-                )}
+                {taxRowsOf(invoice).map((row) => (
+                  <div key={row.rate} className="flex justify-between"><dt>Tax ({Number(row.rate)}%)</dt><dd>{money(row.tax)}</dd></div>
+                ))}
                 <div className="flex justify-between font-semibold text-base pt-1 border-t border-gray-200 dark:border-white/10">
                   <dt>Total</dt><dd>{money(invoice.total)}</dd>
                 </div>

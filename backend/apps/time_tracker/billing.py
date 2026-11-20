@@ -36,9 +36,11 @@ def bill_time_logs(user, time_logs, invoice=None):
         raise ValidationError('Those time logs belong to a different client than the invoice.')
 
     items = []
-    for log in time_logs:
+    first_position = invoice.items.count()  # new lines go after the ones already on a draft
+    for position, log in enumerate(time_logs, start=first_position):
         item = InvoiceItem(
             invoice=invoice,
+            position=position,
             description=f'{log.description} ({log.work_date:%d %b %Y})',
             quantity=log.hours,
             unit_price=log.hourly_rate,

@@ -39,10 +39,11 @@ function InvoiceCreate() {
       reference_number: '',
       issue_date: toDateTimeLocal(now),
       due_date: toDateTimeLocal(new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)),
-      discount_amount: 0,
+      discount_value: 0,
+      discount_mode: 'amount',
       tax_rate: 0,
       notes: '',
-      items: [{ description: '', quantity: 1, rate: 0 }],
+      items: [{ description: '', quantity: 1, rate: 0, tax_rate: '' }],
     },
   })
 
@@ -67,7 +68,8 @@ function InvoiceCreate() {
   })
 
   const items = watch('items')
-  const discountAmount = parseFloat(watch('discount_amount')) || 0
+  const discountValue = parseFloat(watch('discount_value')) || 0
+  const discountMode = watch('discount_mode')
   const taxRate = parseFloat(watch('tax_rate')) || 0
 
   useEffect(() => {
@@ -94,7 +96,9 @@ function InvoiceCreate() {
           reference_number: invoice.reference_number || '',
           issue_date: toDateTimeLocal(new Date(invoice.issue_date)),
           due_date: toDateTimeLocal(new Date(invoice.due_date)),
-          discount_amount: invoice.discount_amount ?? 0,
+          discount_mode: Number(invoice.discount_percent) > 0 ? 'percent' : 'amount',
+          discount_value:
+            Number(invoice.discount_percent) > 0 ? invoice.discount_percent : (invoice.discount_amount ?? 0),
           tax_rate: invoice.tax_rate ?? 0,
           notes: invoice.notes || '',
           items:
@@ -103,8 +107,9 @@ function InvoiceCreate() {
                   description: item.description,
                   quantity: Number(item.quantity),
                   rate: item.rate ?? item.unit_price ?? 0,
+                  tax_rate: item.tax_rate ?? '',
                 }))
-              : [{ description: '', quantity: 1, rate: 0 }],
+              : [{ description: '', quantity: 1, rate: 0, tax_rate: '' }],
         })
       } catch {
         toast.error('Failed to load invoice')
@@ -121,7 +126,12 @@ function InvoiceCreate() {
   }, [id, isEditing, reset, navigate, searchParams, setValue])
 
   // Draft preview only: the server recomputes and returns the authoritative amounts (DATA-3).
-  const previewTotals = previewTotalsCents(items, discountAmount, taxRate)
+  const previewTotals = previewTotalsCents(
+    items,
+    discountMode === 'amount' ? discountValue : 0,
+    taxRate,
+    discountMode === 'percent' ? discountValue : 0
+  )
 
   const formatCurrency = (amount) => formatMoney(amount, user?.default_currency || 'USD')
 
@@ -163,13 +173,15 @@ function InvoiceCreate() {
         issue_date: toApiDateTime(data.issue_date),
         due_date: toApiDateTime(data.due_date),
         // Decimal strings, not floats: the server stores Decimals and 0.1 + 0.2 must not creep in (DATA-3).
-        discount_amount: String(data.discount_amount || 0),
+        discount_amount: data.discount_mode === 'amount' ? String(data.discount_value || 0) : '0',
+        discount_percent: data.discount_mode === 'percent' ? String(data.discount_value || 0) : '0',
         tax_rate: String(data.tax_rate || 0),
         notes: data.notes || '',
         items: validItems.map((item) => ({
           description: item.description.trim(),
           quantity: String(item.quantity),
           rate: String(item.rate || 0),
+          tax_rate: item.tax_rate === '' || item.tax_rate == null ? null : String(item.tax_rate),
         })),
       }
 
@@ -260,7 +272,26 @@ function InvoiceCreate() {
                     error={errors.due_date?.message}
                     {...register('due_date', { required: 'Due date is required' })}
                   />
-                  <Input label="Discount" type="number" step="0.01" min="0" {...register('discount_amount')} />
+                  <div>
+                    <label htmlFor="discount-value" className="label">
+                      Discount
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        id="discount-value"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max={discountMode === 'percent' ? 100 : undefined}
+                        className="input min-w-0"
+                        {...register('discount_value')}
+                      />
+                      <select aria-label="Discount type" className="input w-auto" {...register('discount_mode')}>
+                        <option value="amount">Fixed</option>
+                        <option value="percent">%</option>
+                      </select>
+                    </div>
+                  </div>
                   <Input label="VAT / Tax (%)" type="number" step="0.01" min="0" max="100" {...register('tax_rate')} />
                 </div>
               </Card.Content>
@@ -296,8 +327,7 @@ function InvoiceCreate() {
           <div className="space-y-6">
             <InvoiceSummary
               totals={previewTotals}
-              discountAmount={discountAmount}
-              taxRate={taxRate}
+              discountPercent={discountMode === 'percent' ? discountValue : 0}
               saving={saving}
               formatCents={formatCents}
               onSaveAndSend={handleSubmit((data) => onSubmit(data, true))}

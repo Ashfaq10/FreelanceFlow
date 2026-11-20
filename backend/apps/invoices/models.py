@@ -47,6 +47,13 @@ class Invoice(models.Model):
     discount_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(Decimal('0'))]
     )
+    # Alternative to a fixed amount; when set, calculate_totals stores the computed money in discount_amount.
+    discount_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
+    )
     notes = models.TextField(blank=True, help_text='Payment terms or additional notes')
     pdf_file = models.FileField(upload_to='invoices/pdfs/', blank=True, null=True)
     # Frozen at creation from the user's setting: changing the account currency must not restate old invoices (DATA-7).
@@ -137,12 +144,40 @@ class Invoice(models.Model):
         return f'{prefix}{max_num + 1:03d}'
 
     def calculate_totals(self):
-        self.subtotal = to_cents(sum(item.line_total for item in self.items.all()))
-        discount = to_cents(self.discount_amount or 0)
-        tax_rate = Decimal(str(self.tax_rate or 0))
-        taxable_subtotal = max(self.subtotal - discount, Decimal('0'))
-        self.tax_amount = to_cents(taxable_subtotal * tax_rate / Decimal('100'))
-        self.total = taxable_subtotal + self.tax_amount
+        items = list(self.items.all())
+        self.subtotal = to_cents(sum(item.line_total for item in items))
+        if self.discount_percent:
+            self.discount_amount = to_cents(self.subtotal * self.discount_percent / Decimal('100'))
+        discount = min(to_cents(self.discount_amount or 0), self.subtotal)
+        breakdown = self._tax_breakdown(items, discount)
+        self.tax_amount = sum((row['tax'] for row in breakdown), Decimal('0'))
+        self.total = self.subtotal - discount + self.tax_amount
+
+    def _tax_breakdown(self, items, discount):
+        """Tax per effective rate, with the discount shared across rates by subtotal (FEAT-4)."""
+        default_rate = Decimal(str(self.tax_rate or 0))
+        groups = {}
+        for item in sorted(items, key=lambda item: -(default_rate if item.tax_rate is None else item.tax_rate)):
+            rate = default_rate if item.tax_rate is None else Decimal(str(item.tax_rate))
+            groups[rate] = groups.get(rate, Decimal('0')) + item.line_total
+
+        subtotal = sum(groups.values(), Decimal('0'))
+        rows, shared = [], Decimal('0')
+        for position, (rate, group_subtotal) in enumerate(groups.items()):
+            if position == len(groups) - 1:
+                share = discount - shared  # the last rate absorbs the rounding remainder
+            else:
+                share = to_cents(discount * group_subtotal / subtotal) if subtotal else Decimal('0')
+                shared += share
+            taxable = group_subtotal - share
+            rows.append({'rate': rate, 'taxable': taxable, 'tax': to_cents(taxable * rate / Decimal('100'))})
+        return rows
+
+    def tax_breakdown(self):
+        """One row per tax rate on the stored invoice, for display."""
+        items = list(self.items.all())
+        discount = min(to_cents(self.discount_amount or 0), to_cents(sum(i.line_total for i in items)))
+        return self._tax_breakdown(items, discount)
 
     @property
     def is_overdue(self):
@@ -274,9 +309,19 @@ class InvoiceItem(models.Model):
     )
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
     line_total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    # Order on the invoice: the UUID primary key sorts randomly, so lines used to come back shuffled (BUG-20).
+    position = models.PositiveIntegerField(default=0)
+    # Empty = use the invoice's tax_rate (FEAT-4).
+    tax_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
+    )
 
     class Meta:
-        ordering = ['id']
+        ordering = ['position', 'id']
 
     def __str__(self):
         return f'{self.description} ({self.quantity} × {self.unit_price})'

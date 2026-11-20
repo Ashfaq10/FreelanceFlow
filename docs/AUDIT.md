@@ -232,6 +232,9 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ### <a id="feat-3"></a>FEAT-3 — Public, tokenized invoice page for clients
 `Should` · Phase 3 · Clients currently have no way to view or pay an invoice except the PDF attachment · **Done 2026-11-15**: `Invoice.public_token` (migration `0011`, backfilled) powers `/pay/:token` in the SPA and `GET|POST /api/public/invoices/<token>/{,pdf/,checkout/}`. The page needs no account, shows one invoice (sent, overdue or paid only — never a draft or a cancelled one), and its Pay button creates the Stripe session. Rate-limited at 60/hour per IP against token guessing; Stripe misconfiguration is not quoted at the client. The three client emails link to it, and the owner's invoice menu has "Copy client link" (`tests/test_public_invoice.py`).
 
+### <a id="bug-20"></a>BUG-20 — Invoice lines sorted by random UUID
+`Should` · found 2026-11-20 while adding per-rate tax · `InvoiceItem.Meta.ordering = ['id']` on a UUID key · **Done 2026-11-20**: `InvoiceItem.position` (set on create, duplicate and time billing); invoices saved earlier keep whatever order they had, which was never meaningful.
+
 ### <a id="feat-4"></a>FEAT-4 — Growth features
 `Nice` · Phase 6 · recurring invoices, quotes/estimates, credit notes, CSV export, per-line and multiple taxes, percentage discounts, per-user invoice prefix, activity/audit log, notification settings, GDPR export/delete, email verification, i18n.
 ---

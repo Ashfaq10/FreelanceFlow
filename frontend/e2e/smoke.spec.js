@@ -22,6 +22,9 @@ test('sign up → client → invoice → send → mark paid → download PDF', a
   await page.getByLabel('Line 1 description').fill('Design work')
   await page.getByLabel('Line 1 quantity').fill('2')
   await page.getByLabel('Line 1 rate').fill('150')
+  await page.getByLabel('Line 1 tax rate').fill('20')
+  await expect(page.getByText('VAT (20%)')).toBeVisible() // live preview, per-line tax (FEAT-4)
+  await expect(page.getByText('$360.00')).toBeVisible()
   await page.getByRole('button', { name: 'Save & Send' }).click()
   await expect(page).toHaveURL(/\/invoices\/[0-9a-f-]{36}$/)
 

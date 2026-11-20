@@ -1,4 +1,4 @@
-import { fmt, itemLineTotal, fmtDateTime } from './format'
+import { fmt, itemLineTotal, fmtDateTime, taxRowsOf } from './format'
 import { FromDetails, BillToDetails } from './parts'
 
 // ─────────────────────────────────────────────────────────────────────
@@ -99,12 +99,12 @@ function ProfessionalTemplate({ invoice }) {
             <span className="text-emerald-500 font-semibold">{fmt(invoice.discount_amount, cur)}</span>
           </div>
         )}
-        {invoice.tax_rate > 0 && (
-          <div className="flex justify-between">
-            <span className="text-gray-600">VAT ({invoice.tax_rate}%)</span>
-            <span className="font-semibold">{fmt(invoice.tax_amount, cur)}</span>
+        {taxRowsOf(invoice).map((row) => (
+          <div key={row.rate} className="flex justify-between">
+            <span className="text-gray-600">VAT ({Number(row.rate)}%)</span>
+            <span className="font-semibold">{fmt(row.tax, cur)}</span>
           </div>
-        )}
+        ))}
         <div className="border-t-2 border-black pt-2 flex justify-between text-base font-extrabold">
           <span>Total Due</span>
           <span>{fmt(invoice.total, cur)}</span>

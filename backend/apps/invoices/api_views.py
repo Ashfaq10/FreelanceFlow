@@ -256,6 +256,7 @@ class InvoiceDuplicateView(APIView):
                 client=invoice.client,
                 reference_number=invoice.reference_number,
                 discount_amount=invoice.discount_amount,
+                discount_percent=invoice.discount_percent,
                 tax_rate=invoice.tax_rate,
                 notes=invoice.notes,
                 currency=invoice.currency,
@@ -270,6 +271,8 @@ class InvoiceDuplicateView(APIView):
                         quantity=item.quantity,
                         unit_price=item.unit_price,
                         line_total=item.line_total,
+                        tax_rate=item.tax_rate,
+                        position=item.position,
                     )
                     for item in invoice.items.all()
                 ]

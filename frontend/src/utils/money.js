@@ -20,13 +20,43 @@ export function lineTotalCents(quantity, rate) {
   return Number.isFinite(quantityNumber) ? Math.round(quantityNumber * toCents(rate)) : 0
 }
 
-/** Draft preview totals, in cents. */
-export function previewTotalsCents(items = [], discountAmount = 0, taxRate = 0) {
-  const subtotal = items.reduce((sum, item) => sum + lineTotalCents(item?.quantity, item?.rate), 0)
-  const discount = Math.min(Math.max(toCents(discountAmount), 0), subtotal)
-  const taxable = subtotal - discount
-  const rate = Number(taxRate)
-  const tax = Number.isFinite(rate) ? Math.round((taxable * rate) / 100) : 0
+// Percentages in hundredths (12.5% -> 1250) so cents * rate stays an integer: half-up like the server, no float drift.
+const hundredths = (value) => {
+  const number = Number(value)
+  return Number.isFinite(number) ? Math.round(number * 100) : 0
+}
+const percentOf = (cents, percent) => Math.floor((cents * hundredths(percent) + 5000) / 10000)
 
-  return { subtotal, discount, taxable, tax, total: taxable + tax }
+/**
+ * Draft preview totals, in cents; mirrors Invoice.calculate_totals on the server (FEAT-4).
+ * A line's `tax_rate` of '' / null means "use the invoice rate"; lines are grouped by effective rate and the
+ * discount is shared across groups by subtotal, the last (lowest) rate absorbing the rounding remainder.
+ */
+export function previewTotalsCents(items = [], discountAmount = 0, taxRate = 0, discountPercent = 0) {
+  const lineCents = items.map((item) => lineTotalCents(item?.quantity, item?.rate))
+  const subtotal = lineCents.reduce((sum, cents) => sum + cents, 0)
+  const requested = Number(discountPercent) > 0 ? percentOf(subtotal, discountPercent) : toCents(discountAmount)
+  const discount = Math.min(Math.max(requested, 0), subtotal)
+
+  const groups = new Map()
+  items.forEach((item, index) => {
+    const own = item?.tax_rate
+    const rate = own === '' || own === null || own === undefined ? Number(taxRate) || 0 : Number(own) || 0
+    groups.set(rate, (groups.get(rate) ?? 0) + lineCents[index])
+  })
+
+  const ordered = [...groups.entries()].sort((a, b) => b[0] - a[0])
+  let shared = 0
+  const breakdown = ordered.map(([rate, groupSubtotal], position) => {
+    const share =
+      position === ordered.length - 1
+        ? discount - shared
+        : Math.floor((2 * discount * groupSubtotal + subtotal) / (2 * subtotal))
+    shared += share
+    const taxable = groupSubtotal - share
+    return { rate, taxable, tax: percentOf(taxable, rate) }
+  })
+
+  const tax = breakdown.reduce((sum, row) => sum + row.tax, 0)
+  return { subtotal, discount, taxable: subtotal - discount, tax, total: subtotal - discount + tax, breakdown }
 }

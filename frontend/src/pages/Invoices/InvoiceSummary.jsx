@@ -2,7 +2,7 @@ import { Save, Send } from 'lucide-react'
 import { Card, Button } from '../../components/ui'
 
 /** Live totals beside the form. `totals` are cents from previewTotalsCents. */
-function InvoiceSummary({ totals, discountAmount, taxRate, saving, onSaveAndSend, formatCents }) {
+function InvoiceSummary({ totals, discountPercent = 0, saving, onSaveAndSend, formatCents }) {
   return (
     <Card className="sticky top-24">
       <Card.Header>
@@ -14,18 +14,22 @@ function InvoiceSummary({ totals, discountAmount, taxRate, saving, onSaveAndSend
             <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
             <span className="font-medium">{formatCents(totals.subtotal)}</span>
           </div>
-          {discountAmount > 0 && (
+          {totals.discount > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Discount</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                Discount{discountPercent > 0 ? ` (${discountPercent}%)` : ''}
+              </span>
               <span className="font-medium text-emerald-600">-{formatCents(totals.discount)}</span>
             </div>
           )}
-          {taxRate > 0 && (
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">VAT ({taxRate}%)</span>
-              <span className="font-medium">{formatCents(totals.tax)}</span>
-            </div>
-          )}
+          {totals.breakdown
+            .filter((row) => row.rate > 0)
+            .map((row) => (
+              <div key={row.rate} className="flex justify-between text-sm">
+                <span className="text-gray-500 dark:text-gray-400">VAT ({row.rate}%)</span>
+                <span className="font-medium">{formatCents(row.tax)}</span>
+              </div>
+            ))}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div className="flex justify-between text-lg">
               <span className="font-semibold">Total</span>

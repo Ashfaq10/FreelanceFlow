@@ -39,3 +39,55 @@ describe('previewTotalsCents', () => {
     expect(total).toBe(0)
   })
 })
+
+describe('previewTotalsCents with several rates and a percentage discount (FEAT-4)', () => {
+  it('taxes each rate separately and shares the discount by subtotal', () => {
+    const { breakdown, tax, total } = previewTotalsCents(
+      [
+        { quantity: 1, rate: 100, tax_rate: '20' },
+        { quantity: 1, rate: 300, tax_rate: '5' },
+      ],
+      40
+    )
+
+    expect(breakdown).toEqual([
+      { rate: 20, taxable: 9000, tax: 1800 },
+      { rate: 5, taxable: 27000, tax: 1350 },
+    ])
+    expect(fromCents(tax)).toBe(31.5)
+    expect(fromCents(total)).toBe(391.5)
+  })
+
+  it('lets blank lines inherit the invoice rate and an explicit 0 stay exempt', () => {
+    const { tax } = previewTotalsCents(
+      [
+        { quantity: 1, rate: 100, tax_rate: '' },
+        { quantity: 1, rate: 100, tax_rate: '0' },
+      ],
+      0,
+      10
+    )
+
+    expect(fromCents(tax)).toBe(10)
+  })
+
+  it('computes a percentage discount in cents, half up', () => {
+    const { discount, total } = previewTotalsCents([{ quantity: 1, rate: 200 }], 0, 10, 12.5)
+
+    expect(fromCents(discount)).toBe(25)
+    expect(fromCents(total)).toBe(192.5)
+  })
+
+  it('never loses a cent of discount to rounding', () => {
+    const { breakdown, discount } = previewTotalsCents(
+      [
+        { quantity: 1, rate: 10, tax_rate: '10' },
+        { quantity: 1, rate: 10, tax_rate: '5' },
+        { quantity: 1, rate: 10, tax_rate: '0' },
+      ],
+      0.01
+    )
+
+    expect(breakdown.reduce((sum, row) => sum + row.taxable, 0)).toBe(3000 - discount)
+  })
+})

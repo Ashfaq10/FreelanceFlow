@@ -11,6 +11,12 @@ export function itemLineTotal(item) {
   return fromCents(lineTotalCents(item.quantity, item.rate ?? item.unit_price))
 }
 
+/** Tax rows to print: one per rate on the saved invoice (FEAT-4); older payloads only carry a single rate. */
+export function taxRowsOf(invoice) {
+  const rows = invoice.tax_breakdown ?? [{ rate: invoice.tax_rate, tax: invoice.tax_amount }]
+  return rows.filter((row) => Number(row.rate) > 0)
+}
+
 export function fmtDate(d) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })

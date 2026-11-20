@@ -155,6 +155,7 @@ def build_pdf_context(invoice, timezone_str=None):
         'bank_lines': _bank_lines(user.bank_details),
         'terms_list': _terms_list(user),
         'discount': invoice.discount_amount or 0,
+        'tax_rows': invoice.tax_breakdown(),
         'accent': PDF_COLORS.get(invoice.pdf_color, PDF_COLORS['indigo']),
         'layout': invoice.pdf_template if invoice.pdf_template in PDF_TEMPLATES else 'professional',
         'notes_text': invoice.notes or _default_notes(invoice),
