@@ -50,6 +50,13 @@ export const dashboard = {
   getMonthlyRevenue: (months = 12) => api.get('/api/dashboard/monthly-revenue/', { params: { months } }),
 }
 
+export const recurring = {
+  list: (params) => api.get('/api/recurring/', { params }),
+  create: (data) => api.post('/api/recurring/', data),
+  update: (id, data) => api.patch(`/api/recurring/${id}/`, data),
+  delete: (id) => api.delete(`/api/recurring/${id}/`),
+}
+
 export const exports = {
   download: (kind) => api.get(`/api/exports/${kind}/`, { responseType: 'blob' }),
 }

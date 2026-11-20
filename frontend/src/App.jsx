@@ -15,6 +15,8 @@ const InvoiceDetail = lazy(() => import('./pages/Invoices/InvoiceDetail'))
 const ClientList = lazy(() => import('./pages/Clients/ClientList'))
 const ClientDetail = lazy(() => import('./pages/Clients/ClientDetail'))
 const ClientCreate = lazy(() => import('./pages/Clients/ClientCreate'))
+const RecurringList = lazy(() => import('./pages/Recurring/RecurringList'))
+const RecurringCreate = lazy(() => import('./pages/Recurring/RecurringCreate'))
 const TimeTracker = lazy(() => import('./pages/TimeTracker/TimeTracker'))
 const Reports = lazy(() => import('./pages/Reports/Reports'))
 const Settings = lazy(() => import('./pages/Settings/Settings'))
@@ -110,6 +112,8 @@ function App() {
           <Route path="clients/new" element={<ClientCreate />} />
           <Route path="clients/:id" element={<ClientDetail />} />
           <Route path="clients/:id/edit" element={<ClientCreate />} />
+          <Route path="recurring" element={<RecurringList />} />
+          <Route path="recurring/new" element={<RecurringCreate />} />
           <Route path="time-tracker" element={<TimeTracker />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />

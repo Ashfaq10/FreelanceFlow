@@ -1837,6 +1837,274 @@
                 }
             }
         },
+        "/api/recurring/": {
+            "get": {
+                "operationId": "recurring_list",
+                "description": "Schedules belong to their creator; deleting one keeps the invoices it already made.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "recurring"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedRecurringInvoiceList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "recurring_create",
+                "description": "Schedules belong to their creator; deleting one keeps the invoices it already made.",
+                "tags": [
+                    "recurring"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringInvoiceRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringInvoiceRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringInvoiceRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecurringInvoice"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/recurring/{id}/": {
+            "get": {
+                "operationId": "recurring_retrieve",
+                "description": "Schedules belong to their creator; deleting one keeps the invoices it already made.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this recurring invoice.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "recurring"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecurringInvoice"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "recurring_update",
+                "description": "Schedules belong to their creator; deleting one keeps the invoices it already made.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this recurring invoice.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "recurring"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringInvoiceRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringInvoiceRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecurringInvoiceRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecurringInvoice"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "recurring_partial_update",
+                "description": "Schedules belong to their creator; deleting one keeps the invoices it already made.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this recurring invoice.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "recurring"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedRecurringInvoiceRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedRecurringInvoiceRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedRecurringInvoiceRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecurringInvoice"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "recurring_destroy",
+                "description": "Schedules belong to their creator; deleting one keeps the invoices it already made.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "A UUID string identifying this recurring invoice.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "recurring"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
         "/api/time-logs/": {
             "get": {
                 "operationId": "time_logs_list",
@@ -2501,6 +2769,16 @@
                 "required": [
                     "error"
                 ]
+            },
+            "FrequencyEnum": {
+                "enum": [
+                    "weekly",
+                    "monthly",
+                    "quarterly",
+                    "yearly"
+                ],
+                "type": "string",
+                "description": "* `weekly` - Weekly\n* `monthly` - Monthly\n* `quarterly` - Quarterly\n* `yearly` - Yearly"
             },
             "Invoice": {
                 "type": "object",
@@ -3323,6 +3601,37 @@
                     }
                 }
             },
+            "PaginatedRecurringInvoiceList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecurringInvoice"
+                        }
+                    }
+                }
+            },
             "PaginatedTimeLogList": {
                 "type": "object",
                 "required": [
@@ -3492,6 +3801,60 @@
                         "items": {
                             "$ref": "#/components/schemas/InvoiceItemWriteRequest"
                         }
+                    }
+                }
+            },
+            "PatchedRecurringInvoiceRequest": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "frequency": {
+                        "$ref": "#/components/schemas/FrequencyEnum"
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "auto_send": {
+                        "type": "boolean",
+                        "description": "Email the invoice as soon as it is made"
+                    },
+                    "net_days": {
+                        "type": "integer",
+                        "maximum": 365,
+                        "minimum": 0
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "pdf_color": {
+                        "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "pdf_template": {
+                        "$ref": "#/components/schemas/PdfTemplateEnum"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItemWriteRequest"
+                        },
+                        "writeOnly": true
                     }
                 }
             },
@@ -3826,6 +4189,185 @@
                 "required": [
                     "message",
                     "status"
+                ]
+            },
+            "RecurringInvoice": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "client_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "frequency": {
+                        "$ref": "#/components/schemas/FrequencyEnum"
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "next_run": {
+                        "type": "string",
+                        "format": "date",
+                        "readOnly": true
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "auto_send": {
+                        "type": "boolean",
+                        "description": "Email the invoice as soon as it is made"
+                    },
+                    "net_days": {
+                        "type": "integer",
+                        "maximum": 365,
+                        "minimum": 0
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "pdf_color": {
+                        "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "pdf_template": {
+                        "$ref": "#/components/schemas/PdfTemplateEnum"
+                    },
+                    "last_run": {
+                        "type": "string",
+                        "format": "date",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecurringItem"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "client",
+                    "client_name",
+                    "id",
+                    "last_run",
+                    "lines",
+                    "next_run"
+                ]
+            },
+            "RecurringInvoiceRequest": {
+                "type": "object",
+                "properties": {
+                    "client": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "frequency": {
+                        "$ref": "#/components/schemas/FrequencyEnum"
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "auto_send": {
+                        "type": "boolean",
+                        "description": "Email the invoice as soon as it is made"
+                    },
+                    "net_days": {
+                        "type": "integer",
+                        "maximum": 365,
+                        "minimum": 0
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "pdf_color": {
+                        "$ref": "#/components/schemas/PdfColorEnum"
+                    },
+                    "pdf_template": {
+                        "$ref": "#/components/schemas/PdfTemplateEnum"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceItemWriteRequest"
+                        },
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "client"
+                ]
+            },
+            "RecurringItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "quantity": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
+                    },
+                    "tax_rate": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$",
+                        "readOnly": true,
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "description",
+                    "id",
+                    "quantity",
+                    "rate",
+                    "tax_rate"
                 ]
             },
             "SendInvoiceRequest": {

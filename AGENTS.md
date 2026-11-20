@@ -63,7 +63,8 @@ backend/
                       Celery tasks (send_invoice, reminders, retried with backoff), public_views.py (client page, no auth)
   apps/payments/      Payment (many per Invoice; refunds are negative), services.py (Checkout + record_payment), api_views.py, Stripe webhook
   apps/time_tracker/  TimeLog (DRF ViewSet), billing.py (hours → invoice lines)
-  apps/dashboard/     summary + monthly revenue aggregates (no models)
+  apps/dashboard/     summary + monthly revenue aggregates, CSV exports (no models)
+  apps/recurring/     RecurringInvoice schedules; services.run_schedule is the only thing that makes the invoice
   templates/invoices/ invoice_pdf.html + email/*.html — the only real templates
   tests/              pytest + factory_boy (conftest.py, factories.py)
 frontend/src/

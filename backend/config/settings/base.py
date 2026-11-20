@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.time_tracker',
     'apps.payments',
     'apps.dashboard',
+    'apps.recurring',
 ]
 
 MIDDLEWARE = [

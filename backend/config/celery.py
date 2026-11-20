@@ -20,6 +20,10 @@ app.conf.beat_schedule = {
         'task': 'apps.invoices.tasks.check_overdue_invoices',
         'schedule': crontab(hour=8, minute=0),
     },
+    'generate-recurring-invoices-daily': {
+        'task': 'apps.recurring.tasks.generate_recurring_invoices',
+        'schedule': crontab(hour=6, minute=0),
+    },
     'send-due-soon-reminders-daily': {
         'task': 'apps.invoices.tasks.send_due_soon_reminders',
         'schedule': crontab(hour=8, minute=30),

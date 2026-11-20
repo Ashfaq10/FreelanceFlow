@@ -64,6 +64,10 @@ class Invoice(models.Model):
     pdf_color = models.CharField(max_length=20, default='indigo')
     # Layout of the rendered PDF; ids come from PDF_TEMPLATES in utils.py (BUG-16).
     pdf_template = models.CharField(max_length=20, default='professional')
+    # The schedule that made this invoice, if any (FEAT-4); deleting the schedule keeps the invoice.
+    recurring_source = models.ForeignKey(
+        'recurring.RecurringInvoice', null=True, blank=True, on_delete=models.SET_NULL, related_name='invoices'
+    )
     stripe_payment_url = models.URLField(blank=True)
     stripe_session_id = models.CharField(max_length=255, blank=True)
 
