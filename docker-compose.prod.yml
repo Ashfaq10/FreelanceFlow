@@ -71,6 +71,7 @@ services:
       target: prod
       args:
         VITE_API_URL: ''
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
     restart: unless-stopped
     ports:
       - '80:80'

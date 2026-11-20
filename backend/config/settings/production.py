@@ -2,6 +2,7 @@
 Production settings for FreelanceFlow.
 """
 from .base import *
+from config.observability import init_sentry
 
 # No defaults: booting with the repo's published SECRET_KEY would let anyone forge sessions and reset tokens.
 SECRET_KEY = os.environ['SECRET_KEY']
@@ -42,15 +43,12 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
+        'json': {'()': 'config.observability.JsonFormatter'},
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'json',
         },
     },
     'root': {
@@ -65,3 +63,5 @@ LOGGING = {
         },
     },
 }
+
+init_sentry()  # settings load in gunicorn and in the Celery worker alike

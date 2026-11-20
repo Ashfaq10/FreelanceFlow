@@ -378,6 +378,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 ### <a id="ops-9"></a>OPS-9 — No observability or task resilience
 `Should` · Phase 5 · No Sentry/error tracking; Celery email tasks have no `autoretry_for`/backoff; no structured logging in tasks; no health check that touches DB/Redis (nginx `/health/` returns a static 200).
 **Done 2026-11-20 (Redis hang, `/healthz`):** `config.celery.broker_reachable()` probes with `ensure_connection(max_retries=0, timeout=1)` before `delay()`; transport options alone did not stop the hang. Sentry and structured logging remain.
+**Done 2026-11-20 (Sentry, logging):** `config/observability.py` (`init_sentry` from `SENTRY_DSN`, `send_default_pii=False`; one JSON line per log with `extra=` fields; Celery no longer hijacks the root logger) and `src/observability.js` + `ErrorBoundary` (Sentry loaded lazily from `VITE_SENTRY_DSN`; a render crash used to leave a blank page). Not yet seen arriving in a real Sentry project.
 **Also (found 2026-11-15):** with Redis down, `POST /api/invoices/{id}/send/` hangs instead of failing — kombu/redis-py keep retrying the connection, and `task_publish_retry=False`, `broker_connection_retry=False` and `socket_connect_timeout` did not change it (measured on Windows, no listener on 6379). The view already converts `kombu.exceptions.OperationalError` into 503; the missing piece is making the publish give up. Needs a connection check or a thread timeout around `delay()`.
 
 ### <a id="ops-10"></a>OPS-10 — README described a setup that did not work

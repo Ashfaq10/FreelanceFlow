@@ -160,6 +160,7 @@ def send_invoice(invoice_id, custom_message=''):
     email.content_subtype = 'html'
     email.attach(f'{invoice.invoice_number}.pdf', pdf_bytes, 'application/pdf')
     email.send()
+    logger.info('invoice sent', extra={'invoice_id': str(invoice.id), 'invoice_number': invoice.invoice_number})
 
     return f'Invoice {invoice.invoice_number} sent to {invoice.client.email}'
 

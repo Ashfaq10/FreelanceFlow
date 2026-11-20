@@ -10,13 +10,12 @@ Rules:
 
 ## Now
 
-1. [OPS-9](docs/AUDIT.md#ops-9) Sentry + structured logging
+1. [TEST-5](docs/AUDIT.md#test-5) Playwright smoke; `pip-audit` in CI
 
 ## Next
 
-2. [TEST-5](docs/AUDIT.md#test-5) Playwright smoke; `pip-audit` in CI
-3. Phase 6 features (one spec each in `docs/specs/`)
-4. Phase 7 containers & deploy — **last** (owner's decision 2026-11-20); the prod compose/Caddy files exist but have never been run
+2. Phase 6 features (one spec each in `docs/specs/`)
+3. Phase 7 containers & deploy — **last** (owner's decision 2026-11-20); the prod compose/Caddy files exist but have never been run
 
 ## Later
 

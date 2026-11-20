@@ -56,6 +56,7 @@ certifi==2026.10.23
     #   -c requirements.txt
     #   -c requirements.txt
     #   requests
+    #   sentry-sdk
 cffi==2.1.1
     # via
     #   -c requirements.txt
@@ -346,6 +347,11 @@ s3transfer==0.19.3
     #   -c requirements.txt
     #   -c requirements.txt
     #   boto3
+sentry-sdk==2.75.0
+    # via
+    #   -c requirements.txt
+    #   -c requirements.txt
+    #   -r requirements.in
 six==1.17.0
     # via
     #   -c requirements.txt
@@ -407,6 +413,7 @@ urllib3==2.8.0
     #   -c requirements.txt
     #   botocore
     #   requests
+    #   sentry-sdk
 vine==5.1.0
     # via
     #   -c requirements.txt
