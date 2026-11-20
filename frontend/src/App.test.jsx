@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
@@ -19,6 +19,10 @@ const at = (path) =>
   )
 
 describe('routing', () => {
+  beforeEach(() => {
+    server.use(http.get('*/api/auth/user/', () => new HttpResponse(null, { status: 401 })))
+  })
+
   it('shows a not-found page for an address that does not exist (UX-3)', async () => {
     at('/no/such/page')
 
@@ -27,7 +31,6 @@ describe('routing', () => {
   })
 
   it('still sends a signed-out visitor from a private page to sign in', async () => {
-    server.use(http.get('*/api/auth/user/', () => new HttpResponse(null, { status: 401 })))
     at('/invoices')
 
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()

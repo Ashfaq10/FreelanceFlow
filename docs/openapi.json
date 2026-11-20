@@ -666,6 +666,84 @@
                 }
             }
         },
+        "/api/exports/invoices/": {
+            "get": {
+                "operationId": "exports_invoices_retrieve",
+                "description": "Subclasses set `filename`, `header` and implement `rows(user)`; everything is scoped to `request.user`.",
+                "tags": [
+                    "exports"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/exports/payments/": {
+            "get": {
+                "operationId": "exports_payments_retrieve",
+                "description": "Subclasses set `filename`, `header` and implement `rows(user)`; everything is scoped to `request.user`.",
+                "tags": [
+                    "exports"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/exports/time-logs/": {
+            "get": {
+                "operationId": "exports_time_logs_retrieve",
+                "description": "Subclasses set `filename`, `header` and implement `rows(user)`; everything is scoped to `request.user`.",
+                "tags": [
+                    "exports"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/invoices/": {
             "get": {
                 "operationId": "invoices_list",

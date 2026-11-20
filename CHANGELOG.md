@@ -11,11 +11,13 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Production stack: `docker-compose.prod.yml` builds `./backend`, runs `migrate` as a release step, and puts Caddy in front (SPA from a multi-stage `frontend/Dockerfile`, `/api` `/admin` `/static` proxied, automatic TLS). `nginx.conf` is gone; `.env.prod.example` documents every variable and replaces the undocumented `.env.prod.db`. The backend image runs `collectstatic` with production settings, and both images get a `.dockerignore`; CI builds the proxy image too (OPS-3, OPS-4, OPS-5).
 
 ### Fixed
+- `npm test` no longer tries to run the Playwright spec (the `e2e` job's TEST-5 commit would have failed the frontend CI job).
 - PDF download and send no longer crash for users with a logo on S3 storage: the logo is inlined as a `data:` URI instead of read from a local path (BUG-18).
 - Production file URLs are signed and expire after an hour; the bucket can stay private (SEC-6).
 - `POST /invoices/{id}/send/` and `/remind/` returned nothing for minutes when Redis was down; they now probe the broker and answer 503 (`config.celery.broker_reachable`) (OPS-9, part).
 
 ### Added
+- CSV export of invoices, payments and time logs (`GET /api/exports/{invoices,payments,time-logs}/`, buttons on Reports); formula-looking text is defused, refunds stay numeric (FEAT-4, [spec](docs/specs/csv-export.md)).
 - Playwright smoke test (`npm run e2e` in `frontend/`): sign up → client → invoice → send → mark paid → PDF download, run in CI; `pip-audit` on the locked requirements runs next to `npm audit` (TEST-5).
 - Sentry for backend and SPA, switched on by `SENTRY_DSN` / `VITE_SENTRY_DSN` (no DSN, no Sentry); production logs are one JSON object per line; a React render crash shows a retry page instead of a blank screen (OPS-9).
 - `GET /healthz/` reports database and broker status (200 or 503); the prod compose `web` healthcheck uses it (OPS-9, part).

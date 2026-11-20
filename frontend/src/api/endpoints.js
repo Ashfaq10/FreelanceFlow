@@ -44,6 +44,10 @@ export const dashboard = {
   getMonthlyRevenue: (months = 12) => api.get('/api/dashboard/monthly-revenue/', { params: { months } }),
 }
 
+export const exports = {
+  download: (kind) => api.get(`/api/exports/${kind}/`, { responseType: 'blob' }),
+}
+
 export const settings = {
   uploadLogo: (file) => {
     const formData = new FormData()

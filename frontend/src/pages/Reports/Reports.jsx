@@ -19,6 +19,7 @@ import { Card, StatsCard, Skeleton, ErrorState } from '../../components/ui'
 import { dashboard as dashboardApi } from '../../api/endpoints'
 import { formatCurrency as formatMoney, formatCompactCurrency, toChartRows } from '../../utils/formatters'
 import { useCurrency } from '../../hooks/useCurrency'
+import ExportButtons from './ExportButtons'
 
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#06b6d4']
 
@@ -87,9 +88,12 @@ function Reports() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
-        <p className="text-gray-500 dark:text-gray-400">Analytics and insights for your business</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
+          <p className="text-gray-500 dark:text-gray-400">Analytics and insights for your business</p>
+        </div>
+        <ExportButtons />
       </div>
 
       {/* Stats Overview */}
