@@ -6,6 +6,87 @@
         "description": "Invoicing for freelancers. The SPA is the only client; docs/openapi.yaml is generated from this (OPS-7)."
     },
     "paths": {
+        "/api/auth/delete/": {
+            "post": {
+                "operationId": "auth_delete_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteAccountRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteAccountRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteAccountRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/export/": {
+            "get": {
+                "operationId": "auth_export_retrieve",
+                "tags": [
+                    "auth"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/auth/login/": {
             "post": {
                 "operationId": "auth_login_create",
@@ -335,6 +416,81 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/verify-email/": {
+            "post": {
+                "operationId": "auth_verify_email_create",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyEmailRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyEmailRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyEmailRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/verify-email/resend/": {
+            "post": {
+                "operationId": "auth_verify_email_resend_create",
+                "tags": [
+                    "auth"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
                                 }
                             }
                         },
@@ -2322,6 +2478,19 @@
                 "type": "string",
                 "description": "* `USD` - US Dollar\n* `EUR` - Euro\n* `GBP` - British Pound\n* `CAD` - Canadian Dollar\n* `AUD` - Australian Dollar\n* `INR` - Indian Rupee\n* `BDT` - Bangladeshi Taka"
             },
+            "DeleteAccountRequest": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Current password, as confirmation"
+                    }
+                },
+                "required": [
+                    "password"
+                ]
+            },
             "Error": {
                 "type": "object",
                 "properties": {
@@ -3939,6 +4108,10 @@
                         "pattern": "^[A-Za-z0-9]+$",
                         "maxLength": 10
                     },
+                    "email_verified": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "reminders_enabled": {
                         "type": "boolean"
                     },
@@ -3976,8 +4149,21 @@
                 "required": [
                     "created_at",
                     "email",
+                    "email_verified",
                     "id",
                     "logo"
+                ]
+            },
+            "VerifyEmailRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "token"
                 ]
             }
         },

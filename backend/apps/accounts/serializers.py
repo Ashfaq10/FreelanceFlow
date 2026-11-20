@@ -27,13 +27,14 @@ class UserSerializer(serializers.ModelSerializer):
             'bank_details',
             'invoice_terms',
             'invoice_prefix',
+            'email_verified',
             'reminders_enabled',
             'remind_before_days',
             'overdue_repeat_days',
             'website',
             'created_at',
         ]
-        read_only_fields = ['id', 'email', 'created_at']
+        read_only_fields = ['id', 'email', 'email_verified', 'created_at']
 
     def validate_invoice_prefix(self, value):
         return value.upper()

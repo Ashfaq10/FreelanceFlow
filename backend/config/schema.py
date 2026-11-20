@@ -37,6 +37,14 @@ class SessionSerializer(serializers.Serializer):
     user = UserSerializer()
 
 
+class VerifyEmailSerializer(serializers.Serializer):
+    token = serializers.CharField()
+
+
+class DeleteAccountSerializer(serializers.Serializer):
+    password = serializers.CharField(help_text='Current password, as confirmation')
+
+
 class LogoUploadSerializer(serializers.Serializer):
     logo = serializers.ImageField(help_text='PNG, JPEG or WebP')
 

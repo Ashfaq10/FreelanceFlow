@@ -5,7 +5,7 @@ test('sign up → client → invoice → send → mark paid → download PDF', a
   const email = `smoke-${Date.now()}@example.com`
 
   await page.goto('/signup')
-  await page.getByLabel('Email').fill(email)
+  await page.getByLabel('Email', { exact: true }).fill(email)
   await page.getByLabel('Password', { exact: true }).fill('tr0ubled-gardener')
   await page.getByLabel('Confirm password').fill('tr0ubled-gardener')
   await page.getByRole('button', { name: 'Create account' }).click()
@@ -13,7 +13,7 @@ test('sign up → client → invoice → send → mark paid → download PDF', a
 
   await page.goto('/clients/new')
   await page.getByLabel('Contact Name').fill('Ada Lovelace')
-  await page.getByLabel('Email').fill('ada@example.com')
+  await page.getByLabel('Email', { exact: true }).fill('ada@example.com')
   await page.getByRole('button', { name: 'Create Client' }).click()
   await expect(page).toHaveURL('/clients')
 

@@ -5,20 +5,23 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.mail import EmailMessage
 from django.db import IntegrityError, transaction
+from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 from PIL import Image
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 from config.schema import (
+    DeleteAccountSerializer,
     LoginSerializer,
     LogoUploadSerializer,
     MessageSerializer,
@@ -26,10 +29,14 @@ from config.schema import (
     PasswordResetSerializer,
     SessionSerializer,
     SignupSerializer,
+    VerifyEmailSerializer,
 )
 
+from .erasure import erase_account
+from .export import export_account
 from .models import User
 from .serializers import UserSerializer
+from .verification import send_verification_email, user_for_token
 
 ALLOWED_LOGO_FORMATS = {'PNG', 'JPEG', 'WEBP'}
 
@@ -40,6 +47,10 @@ class LoginRateThrottle(AnonRateThrottle):
 
 class SignupRateThrottle(AnonRateThrottle):
     scope = 'signup'
+
+
+class VerifyEmailThrottle(UserRateThrottle):
+    scope = 'verify_email'
 
 
 @extend_schema(
@@ -96,6 +107,7 @@ def signup_view(request):
         return Response({'message': 'A user with this email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    send_verification_email(user)
 
     return Response({'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
 
@@ -243,3 +255,46 @@ def password_reset_confirm_view(request):
     user.save(update_fields=['password'])  # also ends every other session: Django ties them to the password hash
 
     return Response({'message': 'Password updated. You can sign in now.'})
+
+
+@extend_schema(request=VerifyEmailSerializer, responses={200: MessageSerializer, 400: MessageSerializer}, auth=[])
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_email_view(request):
+    user = user_for_token(str(request.data.get('token') or ''))
+    if user is None:
+        return Response({'message': 'This link is invalid or has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not user.email_verified:
+        user.email_verified = True
+        user.save(update_fields=['email_verified'])
+    return Response({'message': 'Email confirmed.'})
+
+
+@extend_schema(request=None, responses=MessageSerializer)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@throttle_classes([VerifyEmailThrottle])
+def resend_verification_view(request):
+    if not request.user.email_verified:
+        send_verification_email(request.user)
+    return Response({'message': 'If your email is not confirmed yet, a new link is on its way.'})
+
+
+@extend_schema(responses={(200, 'application/json'): OpenApiTypes.OBJECT})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_view(request):
+    response = JsonResponse(export_account(request.user), json_dumps_params={'indent': 2})
+    response['Content-Disposition'] = 'attachment; filename="freelanceflow-export.json"'
+    return response
+
+
+@extend_schema(request=DeleteAccountSerializer, responses={200: MessageSerializer, 400: MessageSerializer})
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_account_view(request):
+    if not request.user.check_password(str(request.data.get('password') or '')):
+        return Response({'message': 'That password is not right.'}, status=status.HTTP_400_BAD_REQUEST)
+    erase_account(request.user)
+    logout(request)
+    return Response({'message': 'Your account has been deleted.'})

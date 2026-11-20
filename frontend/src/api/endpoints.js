@@ -4,6 +4,10 @@ export const auth = {
   updateProfile: (data) => api.patch('/api/auth/user/', data),
   resetPassword: (email) => api.post('/api/auth/password/reset/', { email }),
   confirmPasswordReset: (data) => api.post('/api/auth/password/reset/confirm/', data),
+  verifyEmail: (token) => api.post('/api/auth/verify-email/', { token }),
+  resendVerification: () => api.post('/api/auth/verify-email/resend/'),
+  exportData: () => api.get('/api/auth/export/', { responseType: 'blob' }),
+  deleteAccount: (password) => api.post('/api/auth/delete/', { password }),
 }
 
 export const invoices = {

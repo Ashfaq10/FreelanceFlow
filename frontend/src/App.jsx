@@ -7,6 +7,7 @@ const Login = lazy(() => import('./pages/Auth/Login'))
 const Signup = lazy(() => import('./pages/Auth/Signup'))
 const ForgotPassword = lazy(() => import('./pages/Auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'))
+const VerifyEmail = lazy(() => import('./pages/Auth/VerifyEmail'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const InvoiceList = lazy(() => import('./pages/Invoices/InvoiceList'))
 const InvoiceCreate = lazy(() => import('./pages/Invoices/InvoiceCreate'))
@@ -86,6 +87,8 @@ function App() {
             </PublicRoute>
           }
         />
+        {/* Works signed in or out: the link comes from an email */}
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         {/* The client's invoice page: no account, token is the credential (FEAT-3) */}
         <Route path="/pay/:token" element={<PublicInvoice />} />
 

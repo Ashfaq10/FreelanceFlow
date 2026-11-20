@@ -375,6 +375,7 @@ class Command(BaseCommand):
         user = User.objects.create_user(
             email=DEMO_EMAIL,
             password=DEMO_PASSWORD,
+            email_verified=True,
             full_name='Alex Rivera',
             business_name='Rivera Digital Studio',
             business_tagline='Web design & development',

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { User, Building, CreditCard, Palette } from 'lucide-react'
+import { User, Building, CreditCard, Palette, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card } from '../../components/ui'
 import { useAuth } from '../../context/AuthContext'
@@ -9,6 +9,7 @@ import ProfileTab from './ProfileTab'
 import BusinessTab from './BusinessTab'
 import InvoicingTab from './InvoicingTab'
 import AppearanceTab from './AppearanceTab'
+import DataTab from './DataTab'
 
 function Settings() {
   const { user, updateUser } = useAuth()
@@ -84,6 +85,7 @@ function Settings() {
     { id: 'business', label: 'Business', icon: Building },
     { id: 'invoicing', label: 'Invoicing', icon: CreditCard },
     { id: 'appearance', label: 'Appearance', icon: Palette },
+    { id: 'data', label: 'Your data', icon: ShieldCheck },
   ]
 
   return (
@@ -135,6 +137,7 @@ function Settings() {
 
             {activeTab === 'appearance' && <AppearanceTab />}
           </form>
+          {activeTab === 'data' && <DataTab />}
         </div>
       </div>
     </div>

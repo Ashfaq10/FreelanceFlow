@@ -19,6 +19,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('email_verified', True)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -73,6 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         validators=[RegexValidator(r'^[A-Za-z0-9]+$', 'Use letters and digits only.')],
         help_text='Start of every new invoice number, e.g. ACME gives ACME-2026-001',
     )
+    email_verified = models.BooleanField(default=False)
     # Automatic payment reminders (FEAT-4): master switch, due-soon lead time, and overdue repeat cadence.
     reminders_enabled = models.BooleanField(default=True)
     remind_before_days = models.PositiveSmallIntegerField(

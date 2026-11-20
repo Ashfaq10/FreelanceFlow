@@ -20,7 +20,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
 | 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
 | 5 | Finish the product (no containers) | ✅ Done | 8 / 8 |
-| 6 | Growth features (now in scope) | 🟡 In progress | 6 / 9 |
+| 6 | Growth features (now in scope) | 🟡 In progress | 7 / 9 |
 | 7 | Containers & deploy (last) | ⚪ Not started | 0 / 5 |
 
 ```mermaid
@@ -167,7 +167,7 @@ In scope since 2026-11-20 ("finish the project completely"). Each needs a short 
 - [x] Per-line tax, multiple tax rates, percentage discounts — **M**
 - [x] Per-user invoice number prefix (fixed `<prefix>-<year>-NNN` layout) — **S**
 - [x] Notification settings (reminder cadence, opt-out per client) — **M**
-- [ ] Account data export & deletion (GDPR), email verification — **M**
+- [x] Account data export & deletion (GDPR), email verification — **M**
 
 ## Phase 7 — Containers & deploy (last)
 

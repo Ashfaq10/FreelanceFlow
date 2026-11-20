@@ -8,3 +8,6 @@ DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DI
 
 # No network call to Stripe: a missing key makes pay-link creation fail fast and the send continues.
 STRIPE_SECRET_KEY = ''
+
+# The smoke test cannot read the verification mail; the gate itself is covered by backend tests.
+EMAIL_VERIFICATION_REQUIRED = False

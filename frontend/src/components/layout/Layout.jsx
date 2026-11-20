@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import VerifyEmailBanner from './VerifyEmailBanner'
 
 function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -25,6 +26,7 @@ function Layout() {
       {/* Main content */}
       <div className="lg:pl-64 min-h-screen flex flex-col">
         <Header onMenuClick={() => setSidebarOpen(true)} />
+        <VerifyEmailBanner />
 
         <main className="flex-1 py-6 px-4 sm:px-6 lg:px-8 animate-fade-in">
           <Outlet />

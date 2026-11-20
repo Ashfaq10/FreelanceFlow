@@ -18,6 +18,7 @@ class UserFactory(DjangoModelFactory):
     business_name = factory.Faker('company')
     currency = 'USD'
     is_active = True
+    email_verified = True
 
     @factory.post_generation
     def password(self, create, extracted, **kwargs):

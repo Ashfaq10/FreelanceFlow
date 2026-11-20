@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.http import FileResponse, HttpResponse
@@ -103,6 +104,12 @@ class InvoiceSendView(APIView):
             invoice = Invoice.objects.get(pk=pk, user=request.user)
         except Invoice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if settings.EMAIL_VERIFICATION_REQUIRED and not request.user.email_verified:
+            return Response(
+                {'error': 'Confirm your email address before sending invoices. We sent you a link.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         if invoice.status not in ['draft', 'sent', 'overdue']:
             return Response({'error': 'This invoice cannot be sent.'}, status=status.HTTP_400_BAD_REQUEST)

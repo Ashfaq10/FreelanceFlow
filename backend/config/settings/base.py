@@ -123,6 +123,7 @@ REST_FRAMEWORK = {
         'login': '10/min',
         'signup': '5/hour',
         'password_reset': '5/hour',
+        'verify_email': '10/hour',
         # Token guessing on the public invoice page (FEAT-3).
         'public_invoice': '60/hour',
     },
@@ -154,6 +155,8 @@ EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 # Where the SPA lives; password-reset links point here (BUG-6).
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+# Invoices are mailed to clients from the app, so the sender's address must be confirmed first (FEAT-4).
+EMAIL_VERIFICATION_REQUIRED = os.getenv('EMAIL_VERIFICATION_REQUIRED', 'True').lower() in ('true', '1', 'yes')
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'FreelanceFlow API',
