@@ -27,6 +27,9 @@ class UserSerializer(serializers.ModelSerializer):
             'bank_details',
             'invoice_terms',
             'invoice_prefix',
+            'reminders_enabled',
+            'remind_before_days',
+            'overdue_repeat_days',
             'website',
             'created_at',
         ]

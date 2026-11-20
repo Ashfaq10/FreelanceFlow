@@ -27,6 +27,7 @@ class ClientSerializer(serializers.ModelSerializer):
             'phone',
             'notes',
             'is_archived',
+            'reminders_enabled',
             'created_at',
             'updated_at',
             'invoice_count',

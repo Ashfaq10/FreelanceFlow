@@ -2083,6 +2083,9 @@
                     "is_archived": {
                         "type": "boolean"
                     },
+                    "reminders_enabled": {
+                        "type": "boolean"
+                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
@@ -2172,6 +2175,9 @@
                         "type": "string"
                     },
                     "is_archived": {
+                        "type": "boolean"
+                    },
+                    "reminders_enabled": {
                         "type": "boolean"
                     }
                 },
@@ -3262,6 +3268,9 @@
                     },
                     "is_archived": {
                         "type": "boolean"
+                    },
+                    "reminders_enabled": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -3416,6 +3425,21 @@
                         "description": "Start of every new invoice number, e.g. ACME gives ACME-2026-001",
                         "pattern": "^[A-Za-z0-9]+$",
                         "maxLength": 10
+                    },
+                    "reminders_enabled": {
+                        "type": "boolean"
+                    },
+                    "remind_before_days": {
+                        "type": "integer",
+                        "maximum": 30,
+                        "minimum": 0,
+                        "description": "Days before the due date; 0 turns it off"
+                    },
+                    "overdue_repeat_days": {
+                        "type": "integer",
+                        "maximum": 60,
+                        "minimum": 0,
+                        "description": "Repeat overdue notices every N days; 0 = once"
                     },
                     "website": {
                         "oneOf": [
@@ -3914,6 +3938,21 @@
                         "description": "Start of every new invoice number, e.g. ACME gives ACME-2026-001",
                         "pattern": "^[A-Za-z0-9]+$",
                         "maxLength": 10
+                    },
+                    "reminders_enabled": {
+                        "type": "boolean"
+                    },
+                    "remind_before_days": {
+                        "type": "integer",
+                        "maximum": 30,
+                        "minimum": 0,
+                        "description": "Days before the due date; 0 turns it off"
+                    },
+                    "overdue_repeat_days": {
+                        "type": "integer",
+                        "maximum": 60,
+                        "minimum": 0,
+                        "description": "Repeat overdue notices every N days; 0 = once"
                     },
                     "website": {
                         "oneOf": [

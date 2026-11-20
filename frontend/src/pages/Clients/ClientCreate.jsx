@@ -30,6 +30,7 @@ function ClientCreate() {
       zip_code: '',
       country: '',
       notes: '',
+      reminders_enabled: true,
     },
   })
 
@@ -169,6 +170,21 @@ function ClientCreate() {
                 placeholder="Any additional notes about this client..."
                 className="input"
               />
+            </Card.Content>
+          </Card>
+
+          {/* Reminders (FEAT-4) */}
+          <Card>
+            <Card.Content>
+              <label className="flex items-start gap-3 text-sm">
+                <input type="checkbox" className="mt-1" {...register('reminders_enabled')} />
+                <span>
+                  <span className="font-medium text-gray-900 dark:text-white">Send automatic payment reminders</span>
+                  <span className="block text-gray-600 dark:text-gray-400">
+                    Due-soon and overdue emails for this client&apos;s invoices. Turn off to chase them yourself.
+                  </span>
+                </span>
+              </label>
             </Card.Content>
           </Card>
 

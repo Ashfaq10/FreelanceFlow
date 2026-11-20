@@ -20,6 +20,8 @@ class Client(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     notes = models.TextField(blank=True)
     is_archived = models.BooleanField(default=False)
+    # False silences automatic reminders for this client's invoices (FEAT-4).
+    reminders_enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -35,6 +35,9 @@ function Settings() {
         invoice_terms: user.invoice_terms || '',
         default_currency: user.default_currency || 'USD',
         invoice_prefix: user.invoice_prefix || 'INV',
+        reminders_enabled: user.reminders_enabled ?? true,
+        remind_before_days: user.remind_before_days ?? 3,
+        overdue_repeat_days: user.overdue_repeat_days ?? 0,
       })
       if (user.logo) setLogoPreview(user.logo)
     }

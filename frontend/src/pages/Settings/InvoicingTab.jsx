@@ -27,6 +27,31 @@ function InvoicingTab({ register, loading }) {
           hint="Letters and digits. ACME gives ACME-2026-001. Existing invoices keep their numbers."
           {...register('invoice_prefix')}
         />
+        <fieldset className="space-y-4">
+          <legend className="label">Payment reminders</legend>
+          <label className="flex items-center gap-3 text-sm">
+            <input type="checkbox" {...register('reminders_enabled')} />
+            Send reminders to clients automatically
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Due-soon notice (days before)"
+              type="number"
+              min="0"
+              max="30"
+              hint="0 turns it off."
+              {...register('remind_before_days')}
+            />
+            <Input
+              label="Repeat overdue notice (every N days)"
+              type="number"
+              min="0"
+              max="60"
+              hint="0 sends the overdue notice once."
+              {...register('overdue_repeat_days')}
+            />
+          </div>
+        </fieldset>
         <div>
           <label htmlFor="bank-details" className="label">
             Bank Details (one per line)

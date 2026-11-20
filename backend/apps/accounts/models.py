@@ -1,7 +1,7 @@
 import uuid
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.core.validators import RegexValidator
+from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 
 
@@ -72,6 +72,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         default='INV',
         validators=[RegexValidator(r'^[A-Za-z0-9]+$', 'Use letters and digits only.')],
         help_text='Start of every new invoice number, e.g. ACME gives ACME-2026-001',
+    )
+    # Automatic payment reminders (FEAT-4): master switch, due-soon lead time, and overdue repeat cadence.
+    reminders_enabled = models.BooleanField(default=True)
+    remind_before_days = models.PositiveSmallIntegerField(
+        default=3, validators=[MaxValueValidator(30)], help_text='Days before the due date; 0 turns it off'
+    )
+    overdue_repeat_days = models.PositiveSmallIntegerField(
+        default=0, validators=[MaxValueValidator(60)], help_text='Repeat overdue notices every N days; 0 = once'
     )
     tax_number = models.CharField(max_length=50, blank=True, help_text='VAT/GST/Tax ID number')
     address = models.TextField(blank=True)

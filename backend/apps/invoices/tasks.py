@@ -24,18 +24,36 @@ EMAIL_RETRY = {
 }
 
 
+def _may_remind(invoice):
+    """Automatic reminders respect the owner's switch and the client's opt-out (FEAT-4)."""
+    return invoice.user.reminders_enabled and invoice.client.reminders_enabled
+
+
+def _reminded_since(invoice, since):
+    return invoice.events.filter(kind='reminder', created_at__gte=since).exists()
+
+
 @shared_task
 def check_overdue_invoices():
-    """Mark invoices past due date as overdue and trigger reminder emails."""
+    """Mark invoices past due date as overdue, send the first notice, and repeat it if the owner asked for that."""
     from .models import Invoice
 
     now = timezone.now()
-    overdue_invoices = Invoice.objects.filter(status='sent', due_date__lt=now)
+
+    # Repeats first, so an invoice that becomes overdue just below is not also treated as "already overdue".
+    still_overdue = Invoice.objects.filter(status='overdue', user__overdue_repeat_days__gt=0).select_related(
+        'client', 'user'
+    )
+    for invoice in still_overdue:
+        every = timezone.timedelta(days=invoice.user.overdue_repeat_days)
+        if _may_remind(invoice) and not _reminded_since(invoice, now - every):
+            send_overdue_reminder.delay(str(invoice.id))
 
     count = 0
-    for invoice in overdue_invoices:
+    for invoice in Invoice.objects.filter(status='sent', due_date__lt=now).select_related('client', 'user'):
         invoice.mark_as_overdue()
-        send_overdue_reminder.delay(str(invoice.id))
+        if _may_remind(invoice):
+            send_overdue_reminder.delay(str(invoice.id))
         count += 1
 
     return f'{count} invoices marked as overdue'
@@ -43,18 +61,21 @@ def check_overdue_invoices():
 
 @shared_task(**EMAIL_RETRY)
 def send_due_soon_reminders():
-    """Send reminder emails for invoices due in 3 days."""
+    """Remind clients whose invoice falls due in the owner's chosen number of days (default 3)."""
     from .models import Invoice
 
     now = timezone.now()
-    due_soon_date = now + timezone.timedelta(days=3)
-
-    due_soon_invoices = Invoice.objects.filter(status='sent', due_date__date=due_soon_date.date()).select_related(
-        'client', 'user'
-    )
+    candidates = Invoice.objects.filter(
+        status='sent', user__remind_before_days__gt=0, due_date__date__gte=now.date()
+    ).select_related('client', 'user')
 
     count = 0
-    for invoice in due_soon_invoices:
+    for invoice in candidates:
+        days_left = (invoice.due_date.date() - now.date()).days
+        if days_left != invoice.user.remind_before_days or not _may_remind(invoice):
+            continue
+        if _reminded_since(invoice, now - timezone.timedelta(hours=20)):
+            continue  # a re-run of the task must not mail twice
         send_due_soon_email(invoice)
         count += 1
 
