@@ -2,7 +2,6 @@
 import re
 
 import pytest
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
@@ -46,7 +45,8 @@ class TestRequestReset:
 class TestConfirmReset:
     def test_valid_link_sets_the_new_password(self, anon, mailoutbox):
         user = UserFactory(email='person@example.com')
-        Token.objects.create(user=user)
+        other_device = APIClient()
+        other_device.force_login(user)
         anon.post('/api/auth/password/reset/', {'email': 'person@example.com'}, format='json')
         uid, token = reset_link_parts(mailoutbox)
 
@@ -59,8 +59,8 @@ class TestConfirmReset:
         assert response.status_code == 200
         user.refresh_from_db()
         assert user.check_password(NEW_PASSWORD)
-        # Old API tokens must not survive a password reset.
-        assert not Token.objects.filter(user=user).exists()
+        # A stolen session must not survive a password reset.
+        assert other_device.get('/api/auth/user/').status_code == 401
 
     def test_the_link_cannot_be_used_twice(self, anon, mailoutbox):
         UserFactory(email='person@example.com')

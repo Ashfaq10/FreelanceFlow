@@ -14,24 +14,24 @@ describe('api client', () => {
     vi.mocked(toast.error).mockClear()
   })
 
-  it('sends the stored token', async () => {
-    localStorage.setItem('token', 'abc123')
+  it('echoes the CSRF cookie as a header on writes and never sends a token (SEC-5)', async () => {
+    document.cookie = 'csrftoken=abc123'
     server.use(
-      http.get('*/api/auth/user/', ({ request }) => HttpResponse.json({ auth: request.headers.get('Authorization') }))
+      http.post('*/api/invoices/', ({ request }) =>
+        HttpResponse.json({ csrf: request.headers.get('X-CSRFToken'), auth: request.headers.get('Authorization') })
+      )
     )
 
-    const response = await api.get('/api/auth/user/')
+    const response = await api.post('/api/invoices/', {})
 
-    expect(response.data.auth).toBe('Token abc123')
+    expect(response.data).toEqual({ csrf: 'abc123', auth: null })
   })
 
-  it('clears the token and redirects to /login when an authenticated request 401s', async () => {
-    localStorage.setItem('token', 'expired')
+  it('redirects to /login when a request outside /api/auth/ 401s (session ended)', async () => {
     server.use(http.get('*/api/invoices/', () => new HttpResponse(null, { status: 401 })))
 
     await expect(api.get('/api/invoices/')).rejects.toMatchObject({ response: { status: 401 } })
 
-    expect(localStorage.getItem('token')).toBeNull()
     expect(window.location.href).toBe('/login')
   })
 
@@ -47,13 +47,11 @@ describe('api client', () => {
     expect(window.location.href).toBe('http://localhost:3000/')
   })
 
-  it('keeps the session on a server error', async () => {
-    localStorage.setItem('token', 'abc123')
+  it('does not redirect on a server error', async () => {
     server.use(http.get('*/api/auth/user/', () => new HttpResponse(null, { status: 500 })))
 
     await expect(api.get('/api/auth/user/')).rejects.toMatchObject({ response: { status: 500 } })
 
-    expect(localStorage.getItem('token')).toBe('abc123')
     expect(window.location.href).toBe('http://localhost:3000/')
     expect(toast.error).toHaveBeenCalledWith('Server error. Please try again later.')
   })

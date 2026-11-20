@@ -4,6 +4,9 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+### Security
+- The SPA signs in with an HttpOnly session cookie plus a CSRF header instead of a never-expiring token in `localStorage`. Login/signup no longer return a token; `TokenAuthentication` and `rest_framework.authtoken` are gone; unauthenticated requests answer 401; a password reset now ends every other session (SEC-5).
+
 ### Changed
 - Production stack: `docker-compose.prod.yml` builds `./backend`, runs `migrate` as a release step, and puts Caddy in front (SPA from a multi-stage `frontend/Dockerfile`, `/api` `/admin` `/static` proxied, automatic TLS). `nginx.conf` is gone; `.env.prod.example` documents every variable and replaces the undocumented `.env.prod.db`. The backend image runs `collectstatic` with production settings, and both images get a `.dockerignore`; CI builds the proxy image too (OPS-3, OPS-4, OPS-5).
 

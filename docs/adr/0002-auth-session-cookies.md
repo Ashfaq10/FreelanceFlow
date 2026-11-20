@@ -1,6 +1,6 @@
 # 0002 — Authenticate the SPA with HttpOnly session cookies
 
-- Status: Accepted (2026-11-15); implementation scheduled for Phase 5 ([SEC-5](../AUDIT.md#sec-5))
+- Status: Implemented (2026-11-20, [SEC-5](../AUDIT.md#sec-5)). `TokenAuthentication` and `rest_framework.authtoken` were removed (there are no scripted clients); `config.authentication.SessionAuthentication401` answers 401 instead of DRF's default 403. The login page has no "Remember me" checkbox, so `set_expiry()` was not needed: sessions last `SESSION_COOKIE_AGE` (2 weeks). The same-site deployment this needs is the Vite proxy in dev and Caddy in production (Phase 7).
 - Date: 2026-11-15
 
 ## Context
@@ -17,7 +17,7 @@ Options considered:
 
 ## Decision
 
-Use Django sessions. The SPA and API are served from the same site (nginx in Phase 5), so cookies are first-party. The SPA reads `csrftoken` and sends `X-CSRFToken` on unsafe methods. `TokenAuthentication` stays enabled only for scripted/API clients, if any.
+Use Django sessions. The SPA and API are served from the same site (Vite proxy in dev, Caddy in production), so cookies are first-party. The SPA reads `csrftoken` and sends `X-CSRFToken` on unsafe methods. `TokenAuthentication` stays enabled only for scripted/API clients, if any.
 
 ## Consequences
 

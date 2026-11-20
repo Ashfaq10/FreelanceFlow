@@ -10,17 +10,20 @@ Rules:
 
 ## Now
 
-Phase 5 container work: tick OPS-3 after a real `docker compose -f docker-compose.prod.yml up` (OPS-5 once CI builds the proxy image), then Sentry + structured logging ([OPS-9](docs/AUDIT.md#ops-9)).
+1. [BUG-18](docs/AUDIT.md#bug-18) + [SEC-6](docs/AUDIT.md#sec-6) S3 logos in PDFs, signed URLs
 
 ## Next
 
-Phase 5 is only worth doing in part, for a live demo: a deploy, [OPS-3](docs/AUDIT.md#ops-3), [OPS-9](docs/AUDIT.md#ops-9), [TEST-5](docs/AUDIT.md#test-5). Needs the owner's decision on hosting.
+2. [OPS-9](docs/AUDIT.md#ops-9) Sentry + structured logging
+3. [TEST-5](docs/AUDIT.md#test-5) Playwright smoke; `pip-audit` in CI
+4. Phase 6 features (one spec each in `docs/specs/`)
+5. Phase 7 containers & deploy — **last** (owner's decision 2026-11-20); the prod compose/Caddy files exist but have never been run
 
 ## Later
 
-- Phase 6 (growth features) only on user demand
+- Nothing; Phase 7 is the end of the roadmap.
 
 ## Blocked / needs a decision
 
-- One real Stripe test-mode payment (everything payment-related is mocked so far)
+- One real Stripe test-mode payment (everything payment-related is mocked so far); moved to Phase 7
 - Upload the repo's social preview image in GitHub settings

@@ -1,10 +1,11 @@
 from django.conf import settings
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.mail import EmailMessage
 from django.db import IntegrityError, transaction
+from django.middleware.csrf import get_token
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -12,7 +13,6 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from drf_spectacular.utils import extend_schema
 from PIL import Image
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -24,8 +24,8 @@ from config.schema import (
     MessageSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetSerializer,
+    SessionSerializer,
     SignupSerializer,
-    TokenSerializer,
 )
 
 from .models import User
@@ -44,7 +44,7 @@ class SignupRateThrottle(AnonRateThrottle):
 
 @extend_schema(
     request=LoginSerializer,
-    responses={200: TokenSerializer, 400: MessageSerializer, 401: MessageSerializer},
+    responses={200: SessionSerializer, 400: MessageSerializer, 401: MessageSerializer},
     auth=[],
 )
 @api_view(['POST'])
@@ -62,12 +62,12 @@ def login_view(request):
     if user is None:
         return Response({'message': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    token, _ = Token.objects.get_or_create(user=user)
+    login(request, user)  # session cookie (SEC-5); also rotates the CSRF token
 
-    return Response({'token': token.key, 'user': UserSerializer(user, context={'request': request}).data})
+    return Response({'user': UserSerializer(user, context={'request': request}).data})
 
 
-@extend_schema(request=SignupSerializer, responses={201: TokenSerializer, 400: MessageSerializer}, auth=[])
+@extend_schema(request=SignupSerializer, responses={201: SessionSerializer, 400: MessageSerializer}, auth=[])
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([SignupRateThrottle])
@@ -95,19 +95,16 @@ def signup_view(request):
         # Two signups for the same address can race past an exists() check.
         return Response({'message': 'A user with this email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-    token, _ = Token.objects.get_or_create(user=user)
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-    return Response({'token': token.key, 'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
+    return Response({'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
 
 
 @extend_schema(request=None, responses=MessageSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    try:
-        request.user.auth_token.delete()
-    except Token.DoesNotExist:
-        pass
+    logout(request)
     return Response({'message': 'Logged out successfully'})
 
 
@@ -117,6 +114,8 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def user_view(request):
     if request.method == 'GET':
+        # The SPA calls this on every load; make sure it holds a CSRF cookie to echo back on writes.
+        get_token(request)
         return Response(UserSerializer(request.user, context={'request': request}).data)
 
     serializer = UserSerializer(
@@ -241,8 +240,6 @@ def password_reset_confirm_view(request):
         return Response({'message': ' '.join(exc.messages)}, status=status.HTTP_400_BAD_REQUEST)
 
     user.set_password(new_password)
-    user.save(update_fields=['password'])
-    # The old token is now stale: the hash it was built from changed.
-    Token.objects.filter(user=user).delete()
+    user.save(update_fields=['password'])  # also ends every other session: Django ties them to the password hash
 
     return Response({'message': 'Password updated. You can sign in now.'})

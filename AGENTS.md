@@ -67,7 +67,7 @@ backend/
   templates/invoices/ invoice_pdf.html + email/*.html — the only real templates
   tests/              pytest + factory_boy (conftest.py, factories.py)
 frontend/src/
-  api/client.js       axios instance, token header, global 401 handler
+  api/client.js       axios instance (session cookie + CSRF header), global 401 handler
   api/endpoints.js    API helpers (several unused/dead — LEAN-4)
   context/AuthContext.jsx, ThemeContext.jsx (useTheme: light/dark/system — never toggle the `dark` class yourself)
   pages/<Area>/       one folder per screen

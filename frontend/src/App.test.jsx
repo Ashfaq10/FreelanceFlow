@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { server } from './test/server'
 
 const at = (path) =>
   render(
@@ -25,6 +27,7 @@ describe('routing', () => {
   })
 
   it('still sends a signed-out visitor from a private page to sign in', async () => {
+    server.use(http.get('*/api/auth/user/', () => new HttpResponse(null, { status: 401 })))
     at('/invoices')
 
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()

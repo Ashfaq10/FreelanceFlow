@@ -108,7 +108,7 @@ Caddy (the `proxy` service) serves the built SPA, proxies `/api`, `/admin` and `
 
 ```mermaid
 flowchart LR
-  SPA["React SPA<br/>Vite · Tailwind"] -->|"REST /api (Token)"| API["Django + DRF"]
+  SPA["React SPA<br/>Vite · Tailwind"] -->|"REST /api (session cookie)"| API["Django + DRF"]
   API --> DB[(PostgreSQL / SQLite)]
   API -->|queue| Redis[(Redis)]
   Redis --> Worker["Celery worker"]

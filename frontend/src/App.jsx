@@ -32,13 +32,13 @@ function PageLoader() {
 }
 
 function PrivateRoute({ children }) {
-  const { user, loading } = useAuth()
+  const { user, loading, sessionUnknown } = useAuth()
 
   if (loading) return <PageLoader />
 
-  // A failed profile load (500, offline) leaves `user` null while the token is still good:
+  // A failed profile load (500, offline) leaves `user` null while the session may still be good:
   // let the page render and show its own error instead of bouncing to the login screen (BUG-15).
-  return user || localStorage.getItem('token') ? children : <Navigate to="/login" />
+  return user || sessionUnknown ? children : <Navigate to="/login" />
 }
 
 function PublicRoute({ children }) {

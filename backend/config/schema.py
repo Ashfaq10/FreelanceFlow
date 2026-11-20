@@ -33,8 +33,7 @@ class SignupSerializer(serializers.Serializer):
     password2 = serializers.CharField()
 
 
-class TokenSerializer(serializers.Serializer):
-    token = serializers.CharField()
+class SessionSerializer(serializers.Serializer):
     user = UserSerializer()
 
 

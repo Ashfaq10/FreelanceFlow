@@ -6,42 +6,38 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  // The profile load failed for a reason other than "not signed in" (500, offline): the session may still be good.
+  const [sessionUnknown, setSessionUnknown] = useState(false)
 
   useEffect(() => {
     checkAuth()
   }, [])
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const response = await api.get('/api/auth/user/')
-        setUser(response.data)
-      } catch (error) {
-        // Only a 401 means the token is dead; a 500 or a dropped connection must not log the user out (BUG-8).
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token')
-          setUser(null)
-        }
-      }
+    // shortcut: drops the pre-SEC-5 token still sitting in browsers that used the old login; delete this line later.
+    localStorage.removeItem('token')
+    try {
+      const response = await api.get('/api/auth/user/')
+      setUser(response.data)
+      setSessionUnknown(false)
+    } catch (error) {
+      // Only a 401 means "signed out"; a 500 or a dropped connection must not log the user out (BUG-8).
+      if (error.response?.status === 401) setUser(null)
+      else setSessionUnknown(true)
     }
     setLoading(false)
   }
 
   const login = async (email, password) => {
     const response = await api.post('/api/auth/login/', { email, password })
-    const { token, user } = response.data
-    localStorage.setItem('token', token)
-    setUser(user)
-    return user
+    setUser(response.data.user)
+    return response.data.user
   }
 
   const signup = async (email, password1, password2) => {
     const response = await api.post('/api/auth/signup/', { email, password1, password2 })
-    const { token, user } = response.data
-    localStorage.setItem('token', token)
-    setUser(user)
-    return user
+    setUser(response.data.user)
+    return response.data.user
   }
 
   const logout = async () => {
@@ -50,8 +46,8 @@ export function AuthProvider({ children }) {
     } catch {
       // Ignore logout errors
     }
-    localStorage.removeItem('token')
     setUser(null)
+    setSessionUnknown(false)
   }
 
   const updateUser = (userData) => {
@@ -59,7 +55,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateUser, checkAuth }}>
+    <AuthContext.Provider value={{ user, loading, sessionUnknown, login, signup, logout, updateUser, checkAuth }}>
       {children}
     </AuthContext.Provider>
   )

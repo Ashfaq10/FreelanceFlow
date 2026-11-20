@@ -6,20 +6,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // The session lives in an HttpOnly cookie; scripts only echo Django's CSRF cookie back on writes (SEC-5).
+  xsrfCookieName: 'csrftoken',
+  xsrfHeaderName: 'X-CSRFToken',
 })
-
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Token ${token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
 
 api.interceptors.response.use(
   (response) => response,
@@ -27,16 +17,12 @@ api.interceptors.response.use(
     if (error.response) {
       const { status } = error.response
 
-      // A 401 from /api/auth/* means "those credentials are wrong", not "your session expired";
-      // redirecting there wiped the login page's own error message (BUG-1).
+      // A 401 from /api/auth/* means "those credentials are wrong" (or "not signed in yet" on page load),
+      // not "your session expired"; redirecting there wiped the login page's own error message (BUG-1).
       const isAuthRequest = (error.config?.url || '').includes('/api/auth/')
-      const hadToken = !!localStorage.getItem('token')
 
       if (status === 401) {
-        if (hadToken && !isAuthRequest) {
-          localStorage.removeItem('token')
-          window.location.href = '/login'
-        }
+        if (!isAuthRequest) window.location.href = '/login'
       } else if (status === 403) {
         toast.error('You do not have permission to perform this action')
       } else if (status === 404) {

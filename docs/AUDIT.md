@@ -49,7 +49,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** `ScopedRateThrottle` on auth views; `validate_password()`; lower-case email on signup and login; catch `IntegrityError` → 400.
 
 ### <a id="sec-5"></a>SEC-5 — Non-expiring tokens stored in `localStorage`
-`Should` · Phase 5 · `frontend/src/api/client.js`, `frontend/src/context/AuthContext.jsx`, DRF `TokenAuthentication`
+`Should` · Phase 5 · `frontend/src/api/client.js`, `frontend/src/context/AuthContext.jsx`, DRF `TokenAuthentication` · **Done 2026-11-20**: HttpOnly session cookie + CSRF header, no token in `localStorage`, `TokenAuthentication`/`authtoken` removed, other sessions end on password reset. Verified in a browser (login, reload, settings save) and by tests incl. a CSRF-enforced write. "Remember me" no longer exists in the UI.
 **Problem:** DRF tokens never expire. Any XSS or malicious dependency that reads `localStorage.token` gets permanent API access. "Remember me" on the login page is not wired to anything.
 **Fix:** See [ADR-0002](adr/0002-auth-session-cookies.md): HttpOnly `SameSite=Lax` session cookies + CSRF (already configured), or expiring tokens. Remove or implement "Remember me".
 

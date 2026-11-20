@@ -19,8 +19,9 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
 | 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
-| 5 | Production readiness | 🟡 In progress | 1 / 11 |
-| 6 | Growth features | ⚪ Not started | 0 / 9 |
+| 5 | Finish the product (no containers) | 🟡 In progress | 3 / 8 |
+| 6 | Growth features (now in scope) | ⚪ Not started | 0 / 9 |
+| 7 | Containers & deploy (last) | ⚪ Not started | 0 / 5 |
 
 ```mermaid
 flowchart LR
@@ -29,8 +30,9 @@ flowchart LR
   P1 --> P3[3 Core product]
   P2 --> P3
   P3 --> P4[4 Code health]
-  P4 --> P5[5 Production]
+  P4 --> P5[5 Finish product]
   P5 --> P6[6 Growth]
+  P6 --> P7[7 Deploy]
 ```
 
 ---
@@ -138,27 +140,24 @@ flowchart LR
 - [x] Generate an OpenAPI schema (`drf-spectacular`), commit it, fail CI on drift; SPA field names checked against it (prevents [BUG-2](docs/AUDIT.md#bug-2)-style mismatches) — **M**
 - [x] PDF layouts match the six designs in the SPA preview ([BUG-16](docs/AUDIT.md#bug-16); `Invoice.pdf_template`) — **L**
 
-## Phase 5 — Production readiness
+## Phase 5 — Finish the product (everything except containers)
 
-**Goal:** one command deploys a secure, observable stack that survives restarts and bad days.
+**Goal:** the application itself is complete and hardened, runnable with `runserver` + `npm run dev`. Containers and deploy are deliberately last (Phase 7, owner's decision 2026-11-20).
 
-**Exit criteria:** staging deploy from CI · TLS A grade · Sentry receives a test error from backend and SPA · Playwright smoke passes against staging · restore from backup rehearsed once.
+**Exit criteria:** no `Must`/`Should` finding left open except OPS-3/OPS-5 · session-cookie login with no token in `localStorage` · Sentry receives a test error from backend and SPA · Playwright smoke passes against the dev servers · `pip-audit` and `npm audit` clean in CI.
 
-- [ ] _(written 2026-11-20; tick after the first real `compose up`)_ Fix prod compose: build `./backend`, serve the SPA from nginx, proxy `/api` `/admin` `/static` `/media`, TLS, migrate on release ([OPS-3](docs/AUDIT.md#ops-3)) — **M**
-- [x] `collectstatic` with production settings in the image ([OPS-4](docs/AUDIT.md#ops-4)) — **S**
-- [ ] _(written 2026-11-20; tick once CI builds it)_ Multi-stage frontend image + `.dockerignore`; `VITE_API_URL` as build arg ([OPS-5](docs/AUDIT.md#ops-5)) — **S**
-- [ ] PDFs with logos work on S3 ([BUG-18](docs/AUDIT.md#bug-18)) — **S**
-- [ ] Signed, private S3 URLs ([SEC-6](docs/AUDIT.md#sec-6)) — **S**
-- [ ] Session-cookie auth (or expiring tokens) per [ADR-0002](docs/adr/0002-auth-session-cookies.md) ([SEC-5](docs/AUDIT.md#sec-5)) — **M**
-- [ ] _(`/healthz` and the Redis-down 503 done 2026-11-20; Sentry and structured logging remain)_ Sentry (backend + SPA), structured logging, `/healthz` that checks DB and Redis ([OPS-9](docs/AUDIT.md#ops-9)) — **M**
-- [ ] Playwright smoke test in CI ([TEST-5](docs/AUDIT.md#test-5)) — **M**
-- [ ] Automated Postgres backups + documented restore — **S**
-- [ ] Dependabot (pip, npm, actions, docker) + `pip-audit`/`npm audit` in CI — **S**
-- [ ] Deploy pipeline: build images on `main`, push to registry, deploy to staging, manual promote to prod — **M**
+- [x] Session-cookie auth per [ADR-0002](docs/adr/0002-auth-session-cookies.md); "Remember me" is gone from the UI ([SEC-5](docs/AUDIT.md#sec-5)) — **M**
+- [ ] PDFs with logos work on S3: embed the logo as a data URI ([BUG-18](docs/AUDIT.md#bug-18)) — **S**
+- [ ] Private bucket, signed short-lived S3 URLs ([SEC-6](docs/AUDIT.md#sec-6)) — **S**
+- [x] `collectstatic` with production settings ([OPS-4](docs/AUDIT.md#ops-4)) — **S**
+- [x] `/healthz` checks DB and broker; send/remind answer 503 when Redis is down ([OPS-9](docs/AUDIT.md#ops-9), part) — **S**
+- [ ] Sentry (backend + SPA) and structured logging ([OPS-9](docs/AUDIT.md#ops-9), rest) — **M**
+- [ ] Playwright smoke test: sign up → client → invoice → send → mark paid → PDF ([TEST-5](docs/AUDIT.md#test-5)) — **M**
+- [ ] `pip-audit` in CI next to the existing `npm audit` — **S**
 
 ## Phase 6 — Growth features
 
-Pick by user demand; each needs a short spec in `docs/specs/` before work starts ([FEAT-4](docs/AUDIT.md#feat-4)).
+In scope since 2026-11-20 ("finish the project completely"). Each needs a short spec in `docs/specs/` before work starts ([FEAT-4](docs/AUDIT.md#feat-4)).
 
 - [ ] Recurring invoices (Celery Beat) — **L**
 - [ ] Quotes/estimates → convert to invoice — **L**
@@ -169,3 +168,15 @@ Pick by user demand; each needs a short spec in `docs/specs/` before work starts
 - [ ] Per-user invoice number prefix/format — **S**
 - [ ] Notification settings (reminder cadence, opt-out per client) — **M**
 - [ ] Account data export & deletion (GDPR), email verification — **M**
+
+## Phase 7 — Containers & deploy (last)
+
+**Goal:** one command deploys a secure stack that survives restarts and bad days. Starts only when Phases 5 and 6 are done.
+
+**Exit criteria:** `docker compose -f docker-compose.prod.yml up` serves the SPA, API, admin static and `/healthz/` over TLS · restore from backup rehearsed once · one real Stripe test-mode payment through the webhook · staging deploy from CI.
+
+- [ ] _(written 2026-11-20, never run)_ Prod compose: Caddy proxy + SPA, `migrate` release step, `.env.prod.example` ([OPS-3](docs/AUDIT.md#ops-3)) — **M**
+- [ ] _(written 2026-11-20, never built)_ Multi-stage frontend image + `.dockerignore`; `VITE_API_URL` build arg ([OPS-5](docs/AUDIT.md#ops-5)) — **S**
+- [ ] Automated Postgres backups + documented restore — **S**
+- [ ] Deploy pipeline: build images on `main`, push to registry, deploy to staging, manual promote to prod — **M**
+- [ ] One real Stripe test-mode payment (`stripe listen`), webhook URL set to `/api/payments/webhook/` — **S**

@@ -4,7 +4,7 @@ The machine-readable version is [openapi.json](openapi.json), generated from the
 
 Base URL: `http://localhost:8000` in development (the Vite dev server on `:3000` proxies `/api`).
 
-**Auth:** `Authorization: Token <token>` (returned by login/signup) or a Django session cookie. Every endpoint except login, signup, password reset and the Stripe webhook requires authentication. Moving to session cookies is proposed in [ADR-0002](adr/0002-auth-session-cookies.md).
+**Auth:** Django session cookie (`sessionid`, HttpOnly, SameSite=Lax) set by login and signup ([ADR-0002](adr/0002-auth-session-cookies.md)). Unsafe methods must send the `csrftoken` cookie's value as `X-CSRFToken`, otherwise 403. An unauthenticated request gets 401. Every endpoint except login, signup, password reset, the public invoice page and the Stripe webhook requires authentication.
 
 **Pagination:** list endpoints return `{count, next, previous, results}` with 20 items per page (`?page=N`). The SPA currently ignores `next` ([BUG-7](AUDIT.md#bug-7)).
 
