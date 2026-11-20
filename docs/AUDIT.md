@@ -54,7 +54,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** See [ADR-0002](adr/0002-auth-session-cookies.md): HttpOnly `SameSite=Lax` session cookies + CSRF (already configured), or expiring tokens. Remove or implement "Remember me".
 
 ### <a id="sec-6"></a>SEC-6 — S3 file URLs are unsigned
-`Should` · Phase 5 · `config/settings/production.py:L24`
+`Should` · Phase 5 · `config/settings/production.py:L24` · **Done 2026-11-20**: `AWS_S3_CUSTOM_DOMAIN` removed, `AWS_QUERYSTRING_AUTH=True`, one-hour expiry; PDFs were already served through the authenticated API. Not tried against a real bucket.
 **Problem:** `AWS_S3_CUSTOM_DOMAIN` disables signed URLs. With a private bucket every PDF/logo link 403s; with a public bucket `invoices/pdfs/INV-2026-001.pdf` is guessable.
 **Fix:** Remove `AWS_S3_CUSTOM_DOMAIN`, keep the bucket private, use `querystring_auth` (default) with a short expiry.
 
@@ -215,7 +215,7 @@ Full-repo audit of FreelanceFlow (Django REST backend, React SPA, Docker/CI). Ev
 **Fix:** as above.
 
 ### <a id="bug-18"></a>BUG-18 — Production PDFs crash for users with a logo
-`Must` · Phase 5 · `apps/invoices/utils.py:L39-48`
+`Must` · Phase 5 · `apps/invoices/utils.py:L39-48` · **Done 2026-11-20**: `_logo_data_uri` reads through the storage API (test patches `.path` to raise like S3 and checks the inlined `data:` URI; a real WeasyPrint render with a logo also passed).
 **Problem:** `user.logo.path` raises `NotImplementedError` on S3 storage, which is not caught → every PDF download/send fails in production for users with a logo.
 **Fix:** Embed the logo as a data URI from `user.logo.open().read()`.
 

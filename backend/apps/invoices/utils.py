@@ -1,3 +1,5 @@
+import base64
+import mimetypes
 from pathlib import Path
 
 from django.conf import settings
@@ -58,16 +60,17 @@ def get_currency_symbol(currency_code):
     return symbols.get(currency_code, f'{currency_code} ')
 
 
-def _logo_file_uri(user):
+def _logo_data_uri(user):
+    """Inline the logo: `.path` does not exist on S3 and a signed URL would expire mid-render (BUG-18)."""
     if not user.logo:
         return None
     try:
-        logo_path = Path(user.logo.path)
-        if logo_path.is_file():
-            return logo_path.as_uri()
-    except (ValueError, AttributeError):
-        pass
-    return None
+        with user.logo.open('rb') as logo:
+            encoded = base64.b64encode(logo.read()).decode('ascii')
+    except FileNotFoundError:
+        return None
+    mime = mimetypes.guess_type(user.logo.name)[0] or 'image/png'
+    return f'data:{mime};base64,{encoded}'
 
 
 def _payment_context(invoice):
@@ -141,7 +144,7 @@ def build_pdf_context(invoice, timezone_str=None):
         'items': invoice.items.all(),
         'user': user,
         'client': client,
-        'logo_uri': _logo_file_uri(user),
+        'logo_uri': _logo_data_uri(user),
         'currency_code': currency,
         'currency_symbol': get_currency_symbol(currency),
         'business_name': business_name,

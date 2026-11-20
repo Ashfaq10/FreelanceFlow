@@ -10,14 +10,13 @@ Rules:
 
 ## Now
 
-1. [BUG-18](docs/AUDIT.md#bug-18) + [SEC-6](docs/AUDIT.md#sec-6) S3 logos in PDFs, signed URLs
+1. [OPS-9](docs/AUDIT.md#ops-9) Sentry + structured logging
 
 ## Next
 
-2. [OPS-9](docs/AUDIT.md#ops-9) Sentry + structured logging
-3. [TEST-5](docs/AUDIT.md#test-5) Playwright smoke; `pip-audit` in CI
-4. Phase 6 features (one spec each in `docs/specs/`)
-5. Phase 7 containers & deploy — **last** (owner's decision 2026-11-20); the prod compose/Caddy files exist but have never been run
+2. [TEST-5](docs/AUDIT.md#test-5) Playwright smoke; `pip-audit` in CI
+3. Phase 6 features (one spec each in `docs/specs/`)
+4. Phase 7 containers & deploy — **last** (owner's decision 2026-11-20); the prod compose/Caddy files exist but have never been run
 
 ## Later
 

@@ -1,13 +1,27 @@
 """What the rendered invoice HTML says (BUG-16). WeasyPrint is not involved: the template is the contract."""
 
+from io import BytesIO
+from unittest.mock import PropertyMock, patch
+
 from django.core.files.base import ContentFile
+from django.db.models.fields.files import FieldFile
 from django.template.loader import render_to_string
 
 import pytest
+from PIL import Image
 
 from apps.invoices.utils import PDF_COLORS, PDF_TEMPLATES, build_pdf_context
 
 from .factories import InvoiceFactory, InvoiceItemFactory
+
+
+def _png():
+    buffer = BytesIO()
+    Image.new('RGB', (4, 4), 'red').save(buffer, 'PNG')
+    return buffer.getvalue()
+
+
+PNG = _png()
 
 
 def render(invoice):
@@ -128,3 +142,18 @@ class TestPDFTemplateAPI:
 
         invoice.refresh_from_db()
         assert not invoice.pdf_file
+
+
+@pytest.mark.django_db
+class TestLogoInPDF:
+    def test_logo_is_inlined_even_when_the_storage_has_no_local_path(self, user, invoice):
+        """S3 storage raises NotImplementedError on `.path`; every PDF used to crash for users with a logo (BUG-18)."""
+        user.logo.save('logo.png', ContentFile(PNG), save=True)
+
+        with patch.object(FieldFile, 'path', new_callable=PropertyMock, side_effect=NotImplementedError):
+            html = render(invoice)
+
+        assert 'src="data:image/png;base64,' in html
+
+    def test_no_logo_means_no_image(self, invoice):
+        assert 'class="logo"' not in render(invoice)

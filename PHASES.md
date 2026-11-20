@@ -19,7 +19,7 @@ Single source of truth for **what to do next**. Findings (the *why*) live in [do
 | 2 | Fix broken user flows | ✅ Done | 17 / 17 |
 | 3 | Complete the core product (payments, currency, time billing) | ✅ Done | 8 / 8 |
 | 4 | Code health, performance, UX & a11y | ✅ Done | 17 / 17 |
-| 5 | Finish the product (no containers) | 🟡 In progress | 3 / 8 |
+| 5 | Finish the product (no containers) | 🟡 In progress | 5 / 8 |
 | 6 | Growth features (now in scope) | ⚪ Not started | 0 / 9 |
 | 7 | Containers & deploy (last) | ⚪ Not started | 0 / 5 |
 
@@ -147,8 +147,8 @@ flowchart LR
 **Exit criteria:** no `Must`/`Should` finding left open except OPS-3/OPS-5 · session-cookie login with no token in `localStorage` · Sentry receives a test error from backend and SPA · Playwright smoke passes against the dev servers · `pip-audit` and `npm audit` clean in CI.
 
 - [x] Session-cookie auth per [ADR-0002](docs/adr/0002-auth-session-cookies.md); "Remember me" is gone from the UI ([SEC-5](docs/AUDIT.md#sec-5)) — **M**
-- [ ] PDFs with logos work on S3: embed the logo as a data URI ([BUG-18](docs/AUDIT.md#bug-18)) — **S**
-- [ ] Private bucket, signed short-lived S3 URLs ([SEC-6](docs/AUDIT.md#sec-6)) — **S**
+- [x] PDFs with logos work on S3: embed the logo as a data URI ([BUG-18](docs/AUDIT.md#bug-18)) — **S**
+- [x] Private bucket, signed short-lived S3 URLs ([SEC-6](docs/AUDIT.md#sec-6)) — **S**
 - [x] `collectstatic` with production settings ([OPS-4](docs/AUDIT.md#ops-4)) — **S**
 - [x] `/healthz` checks DB and broker; send/remind answer 503 when Redis is down ([OPS-9](docs/AUDIT.md#ops-9), part) — **S**
 - [ ] Sentry (backend + SPA) and structured logging ([OPS-9](docs/AUDIT.md#ops-9), rest) — **M**
