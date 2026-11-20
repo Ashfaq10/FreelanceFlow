@@ -3096,6 +3096,13 @@
                         "type": "string",
                         "description": "Terms & conditions shown at the bottom of invoices"
                     },
+                    "invoice_prefix": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Start of every new invoice number, e.g. ACME gives ACME-2026-001",
+                        "pattern": "^[A-Za-z0-9]+$",
+                        "maxLength": 10
+                    },
                     "website": {
                         "oneOf": [
                             {
@@ -3554,6 +3561,12 @@
                     "invoice_terms": {
                         "type": "string",
                         "description": "Terms & conditions shown at the bottom of invoices"
+                    },
+                    "invoice_prefix": {
+                        "type": "string",
+                        "description": "Start of every new invoice number, e.g. ACME gives ACME-2026-001",
+                        "pattern": "^[A-Za-z0-9]+$",
+                        "maxLength": 10
                     },
                     "website": {
                         "oneOf": [

@@ -34,6 +34,7 @@ function Settings() {
         bank_details: user.bank_details || '',
         invoice_terms: user.invoice_terms || '',
         default_currency: user.default_currency || 'USD',
+        invoice_prefix: user.invoice_prefix || 'INV',
       })
       if (user.logo) setLogoPreview(user.logo)
     }
@@ -42,8 +43,8 @@ function Settings() {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      await authApi.updateProfile(data)
-      updateUser(data)
+      const { data: saved } = await authApi.updateProfile(data)
+      updateUser(saved) // the server normalises some values (e.g. the invoice prefix is upper-cased)
       toast.success('Settings saved successfully')
     } catch {
       toast.error('Failed to save settings')

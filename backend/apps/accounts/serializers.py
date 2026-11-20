@@ -26,10 +26,14 @@ class UserSerializer(serializers.ModelSerializer):
             'tax_number',
             'bank_details',
             'invoice_terms',
+            'invoice_prefix',
             'website',
             'created_at',
         ]
         read_only_fields = ['id', 'email', 'created_at']
+
+    def validate_invoice_prefix(self, value):
+        return value.upper()
 
     def get_logo(self, obj) -> str | None:
         if not obj.logo:

@@ -103,9 +103,9 @@ class Invoice(models.Model):
         super().save(*args, **kwargs)
 
     def generate_invoice_number(self):
-        """Next number for this user in the current year (e.g. INV-2026-004)."""
+        """Next number for this user, prefix and year (e.g. INV-2026-004)."""
         year = timezone.now().year
-        prefix = f'INV-{year}-'
+        prefix = f'{self.user.invoice_prefix}-{year}-'
 
         existing = Invoice.objects.filter(
             user=self.user,

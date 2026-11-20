@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -65,6 +66,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     invoice_terms = models.TextField(
         blank=True,
         help_text='Terms & conditions shown at the bottom of invoices',
+    )
+    invoice_prefix = models.CharField(
+        max_length=10,
+        default='INV',
+        validators=[RegexValidator(r'^[A-Za-z0-9]+$', 'Use letters and digits only.')],
+        help_text='Start of every new invoice number, e.g. ACME gives ACME-2026-001',
     )
     tax_number = models.CharField(max_length=50, blank=True, help_text='VAT/GST/Tax ID number')
     address = models.TextField(blank=True)

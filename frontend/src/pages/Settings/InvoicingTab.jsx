@@ -1,5 +1,5 @@
 import { Save } from 'lucide-react'
-import { Card, Button, Select } from '../../components/ui'
+import { Card, Button, Input, Select } from '../../components/ui'
 
 const CURRENCIES = [
   { value: 'USD', label: 'USD - US Dollar' },
@@ -20,6 +20,13 @@ function InvoicingTab({ register, loading }) {
       </Card.Header>
       <Card.Content className="space-y-6">
         <Select label="Default Currency" options={CURRENCIES} {...register('default_currency')} />
+        <Input
+          label="Invoice number prefix"
+          maxLength={10}
+          pattern="[A-Za-z0-9]+"
+          hint="Letters and digits. ACME gives ACME-2026-001. Existing invoices keep their numbers."
+          {...register('invoice_prefix')}
+        />
         <div>
           <label htmlFor="bank-details" className="label">
             Bank Details (one per line)
