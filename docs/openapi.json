@@ -3227,7 +3227,7 @@
                     "reason": {
                         "type": "string",
                         "minLength": 1,
-                        "maxLength": 255
+                        "maxLength": 200
                     }
                 },
                 "required": [
@@ -5365,7 +5365,8 @@
                 "properties": {
                     "message": {
                         "type": "string",
-                        "description": "Optional note above the invoice"
+                        "description": "Optional note above the invoice",
+                        "maxLength": 1000
                     }
                 }
             },

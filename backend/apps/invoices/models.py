@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 from .totals import calculate, tax_breakdown, to_cents
@@ -101,7 +101,8 @@ class Invoice(models.Model):
                 self.invoice_number = self.generate_invoice_number()
                 self.calculate_totals()
                 try:
-                    super().save(*args, **kwargs)
+                    with transaction.atomic():  # savepoint: callers wrap creation in their own transaction
+                        super().save(*args, **kwargs)
                     break
                 except IntegrityError:
                     self.invoice_number = ''
@@ -180,6 +181,9 @@ class Invoice(models.Model):
     def clear_pay_link(self):
         """The Stripe session was priced for an older balance; drop it so the next request mints a fresh one."""
         if self.stripe_session_id or self.stripe_payment_url:
+            from apps.payments.services import expire_session
+
+            expire_session(self.stripe_session_id)
             self.stripe_session_id = ''
             self.stripe_payment_url = ''
             self.save(update_fields=['stripe_session_id', 'stripe_payment_url'])
@@ -227,6 +231,7 @@ class Invoice(models.Model):
         self._discard_stored_pdf()
         self.save(update_fields=['status', 'pdf_file'])
         self.log('cancelled', reason)
+        self.clear_pay_link()  # a cancelled invoice must not stay payable
 
 
 class InvoiceEvent(models.Model):

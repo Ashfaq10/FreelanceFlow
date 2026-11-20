@@ -10,6 +10,16 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ['ALLOWED_HOSTS'].split(',')
 
 DEBUG = False
 
+# One proxy (Caddy) sits in front: trust exactly its X-Forwarded-For hop for throttling.
+REST_FRAMEWORK = {**REST_FRAMEWORK, 'NUM_PROXIES': 1}
+# Throttle counters must be shared by all gunicorn workers, or every limit is multiplied by the worker count.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+    }
+}
+
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
@@ -56,6 +66,9 @@ LOGGING = {
         'level': 'INFO',
     },
     'loggers': {
+        # WeasyPrint and fontTools narrate every PDF at INFO; that drowns the real log lines.
+        'weasyprint': {'level': 'WARNING'},
+        'fontTools': {'level': 'WARNING'},
         'django': {
             'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),

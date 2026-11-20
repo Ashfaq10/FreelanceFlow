@@ -14,10 +14,11 @@ export function fromCents(cents) {
   return cents / 100
 }
 
-/** Multiply by the rate in cents so 1.5 × 0.33 lands on 0.50, like the server. */
+/** Quantity in hundredths x rate in cents, rounded half up in integers: 0.29 x 0.50 is 0.15, as on the server. */
 export function lineTotalCents(quantity, rate) {
   const quantityNumber = Number(quantity)
-  return Number.isFinite(quantityNumber) ? Math.round(quantityNumber * toCents(rate)) : 0
+  if (!Number.isFinite(quantityNumber)) return 0
+  return Math.floor((Math.round(quantityNumber * 100) * toCents(rate) + 50) / 100)
 }
 
 // Percentages in hundredths (12.5% -> 1250) so cents * rate stays an integer: half-up like the server, no float drift.
@@ -51,7 +52,9 @@ export function previewTotalsCents(items = [], discountAmount = 0, taxRate = 0, 
     const share =
       position === ordered.length - 1
         ? discount - shared
-        : Math.floor((2 * discount * groupSubtotal + subtotal) / (2 * subtotal))
+        : subtotal === 0
+          ? 0
+          : Math.floor((2 * discount * groupSubtotal + subtotal) / (2 * subtotal))
     shared += share
     const taxable = groupSubtotal - share
     return { rate, taxable, tax: percentOf(taxable, rate) }

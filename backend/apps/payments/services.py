@@ -27,6 +27,9 @@ def record_payment(invoice, amount, method='manual', paid_on=None, notes='', **s
     """Record a (possibly partial) payment and settle the invoice once nothing is due (PAY-3)."""
     invoice = Invoice.objects.select_for_update().get(pk=invoice.pk)
 
+    if invoice.status not in PAYABLE_STATUSES:
+        raise ValidationError(f'A {invoice.status} invoice cannot take a payment.')
+
     amount = to_cents(amount)
     if amount <= Decimal('0'):
         raise ValidationError('A payment must be greater than zero.')
@@ -48,6 +51,18 @@ def record_payment(invoice, amount, method='manual', paid_on=None, notes='', **s
         invoice.mark_as_paid()
 
     return payment
+
+
+def expire_session(session_id):
+    """Stop a Checkout session that was priced for an old balance from being paid. Best effort: Stripe may be
+    down or unconfigured, and an already-expired session answers with an error we can ignore."""
+    if not session_id or not settings.STRIPE_SECRET_KEY:
+        return
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    try:
+        stripe.checkout.Session.expire(session_id)
+    except stripe.error.StripeError:
+        logger.warning('Could not expire Stripe session %s', session_id, exc_info=True)
 
 
 def payment_link(invoice):

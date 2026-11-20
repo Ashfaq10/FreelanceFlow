@@ -13,7 +13,7 @@ import stripe
 from apps.invoices.models import Invoice, to_cents
 
 from .models import Payment
-from .services import record_payment
+from .services import PAYABLE_STATUSES, record_payment
 
 logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -23,6 +23,11 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 @require_POST
 def stripe_webhook(request):
     """Handle Stripe webhook events."""
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        # An empty secret still computes valid-looking signatures, so anyone could forge a payment.
+        logger.error('Stripe webhook called but STRIPE_WEBHOOK_SECRET is not set')
+        return HttpResponse(status=503)
+
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
 
@@ -65,13 +70,18 @@ def handle_successful_payment(session):
         )
         return
 
+    if Payment.objects.filter(stripe_session_id=session.get('id', '')).exists():
+        # Replayed event: this session has already been recorded (PAY-1).
+        return
+
     amount_paid = to_cents(Decimal(session.get('amount_total') or 0) / 100)
-    if amount_paid != invoice.amount_due:
+    if invoice.status not in PAYABLE_STATUSES or amount_paid != invoice.amount_due:
         logger.error(
-            'Stripe session %s paid %s but invoice %s has %s due; not recording',
+            'Stripe session %s paid %s but invoice %s is %s with %s due; not recording, refund needed',
             session.get('id'),
             amount_paid,
             invoice.invoice_number,
+            invoice.status,
             invoice.amount_due,
         )
         return
@@ -113,6 +123,8 @@ def handle_refund(charge):
         return
 
     invoice = Invoice.objects.select_for_update().get(pk=payments[0].invoice_id)
+    # Read the ledger only after taking the lock: two deliveries of the same refund must not both see "none yet".
+    payments = list(Payment.objects.filter(stripe_payment_id=payment_intent))
     refunded_total = to_cents(Decimal(charge.get('amount_refunded') or 0) / 100)
     already_refunded = -sum((payment.amount_paid for payment in payments if payment.amount_paid < 0), Decimal('0'))
     outstanding_refund = refunded_total - already_refunded

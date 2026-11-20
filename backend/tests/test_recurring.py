@@ -175,3 +175,33 @@ class TestApi:
         assert api_client.post('/api/recurring/', self.payload(client_obj, items=[]), format='json').status_code == 400
         backwards = self.payload(client_obj, end_date='2026-01-01')
         assert api_client.post('/api/recurring/', backwards, format='json').status_code == 400
+
+
+@pytest.mark.django_db
+def test_a_deactivated_account_is_never_billed_and_one_failure_does_not_stop_the_rest(user, client_obj):
+    other_client = ClientFactory(user=UserFactory())
+    closed = schedule_for(other_client.user, other_client, start_date=timezone.localdate())
+    other_client.user.is_active = False
+    other_client.user.save()
+    broken = schedule_for(user, client_obj, start_date=timezone.localdate())
+    fine = schedule_for(user, client_obj, start_date=timezone.localdate())
+
+    real = run_schedule
+    with patch(
+        'apps.recurring.tasks.run_schedule',
+        side_effect=lambda pk: (_ for _ in ()).throw(RuntimeError()) if pk == broken.pk else real(pk),
+    ):
+        result = generate_recurring_invoices()
+
+    assert result == '1 recurring invoices made'
+    assert Invoice.objects.filter(recurring_source=fine).count() == 1
+    assert not Invoice.objects.filter(recurring_source=closed).exists()
+
+
+@pytest.mark.django_db
+def test_patching_only_the_end_date_cannot_put_it_before_the_start(api_client, user, client_obj):
+    schedule = schedule_for(user, client_obj, start_date=TODAY)
+
+    response = api_client.patch(f'/api/recurring/{schedule.pk}/', {'end_date': '2026-01-01'}, format='json')
+
+    assert response.status_code == 400

@@ -81,8 +81,9 @@ function PublicInvoice() {
   const statusVariant = { sent: 'info', overdue: 'danger', paid: 'success' }[invoice.status] || 'gray'
 
   return (
-    <div className="min-h-screen bg-surface-light dark:bg-surface-dark py-10 px-4">
+    <main className="min-h-screen bg-surface-light dark:bg-surface-dark py-10 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
+        <h1 className="sr-only">Invoice {invoice.invoice_number}</h1>
         <div className="flex items-center justify-between">
           <Wordmark />
           <Badge variant={statusVariant}>{invoice.status}</Badge>
@@ -156,11 +157,11 @@ function PublicInvoice() {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400">
+        <p className="text-center text-xs text-gray-600 dark:text-gray-400">
           Questions? Contact {invoice.business_email || invoice.business_name}.
         </p>
       </div>
-    </div>
+    </main>
   )
 }
 

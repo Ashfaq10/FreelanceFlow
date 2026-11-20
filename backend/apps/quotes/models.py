@@ -115,8 +115,11 @@ class Quote(models.Model):
         self.sent_at = timezone.now()
         self.save(update_fields=['status', 'sent_at'])
 
+    @transaction.atomic
     def respond(self, accepted):
         """The client's answer. Only an open (sent, unexpired) quote can be answered."""
+        # Under the lock, so an answer racing with the owner's conversion cannot overwrite `converted`.
+        self.status = Quote.objects.select_for_update().values_list('status', flat=True).get(pk=self.pk)
         if self.status != 'sent':
             raise ValidationError('This quote has already been answered.' if self.status != 'draft' else 'Not found.')
         if self.is_expired:

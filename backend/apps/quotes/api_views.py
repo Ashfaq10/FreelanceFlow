@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.invoices.api_views import SendEmailThrottle
 from apps.invoices.serializers import InvoiceDetailSerializer
 from config.celery import broker_reachable
 from config.schema import ErrorSerializer, QueuedSerializer
@@ -50,6 +51,8 @@ class OwnedQuoteMixin:
 
 
 class QuoteSendView(OwnedQuoteMixin, APIView):
+    throttle_classes = [SendEmailThrottle]
+
     @extend_schema(
         request=None,
         responses={200: QueuedSerializer, 400: ErrorSerializer, 403: ErrorSerializer, 503: ErrorSerializer},

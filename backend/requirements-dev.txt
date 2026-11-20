@@ -228,7 +228,10 @@ nodeenv==1.12.0
     # via pre-commit
 packaging==26.3
     # via
+    #   -c requirements.txt
+    #   -c requirements.txt
     #   black
+    #   kombu
     #   pytest
     #   virtualenv
 pathspec==1.1.1
@@ -325,6 +328,7 @@ redis==8.1.0
     #   -c requirements.txt
     #   -c requirements.txt
     #   -r requirements.in
+    #   kombu
 referencing==0.37.0
     # via
     #   -c requirements.txt

@@ -26,7 +26,7 @@ def run_schedule(schedule_id, today=None):
     today = today or timezone.localdate()
     schedule = RecurringInvoice.objects.select_for_update().select_related('client', 'user').get(pk=schedule_id)
 
-    if not schedule.is_active or schedule.next_run > today:
+    if not schedule.is_active or not schedule.user.is_active or schedule.next_run > today:
         return None
     if schedule.end_date and schedule.next_run > schedule.end_date or schedule.client.is_archived:
         schedule.is_active = False

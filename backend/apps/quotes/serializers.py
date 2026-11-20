@@ -59,8 +59,10 @@ class QuoteSerializer(TaxBreakdownMixin, serializers.ModelSerializer):
             raise serializers.ValidationError({'items': 'At least one line item is required.'})
         if attrs.get('discount_amount') and attrs.get('discount_percent'):
             raise serializers.ValidationError({'discount_percent': 'Use a fixed discount or a percentage, not both.'})
-        if attrs.get('discount_amount') and 'discount_percent' not in attrs:
-            attrs['discount_percent'] = Decimal('0')
+        if 'discount_amount' in attrs and 'discount_percent' not in attrs:
+            attrs['discount_percent'] = Decimal('0')  # switching to a fixed amount (or none) drops the percentage
+        elif 'discount_percent' in attrs and 'discount_amount' not in attrs:
+            attrs['discount_amount'] = Decimal('0')  # the model recomputes it from the percentage, or clears it
         issued, until = attrs.get('issue_date'), attrs.get('valid_until')
         if issued and until and until < issued:
             raise serializers.ValidationError({'valid_until': 'A quote cannot expire before it is issued.'})

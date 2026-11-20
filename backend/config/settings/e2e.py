@@ -11,3 +11,11 @@ STRIPE_SECRET_KEY = ''
 
 # The smoke test cannot read the verification mail; the gate itself is covered by backend tests.
 EMAIL_VERIFICATION_REQUIRED = False
+
+# Tracebacks for 500s show up in the CI log instead of a bare "500 145".
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'loggers': {'django.request': {'handlers': ['console'], 'level': 'ERROR'}},
+}

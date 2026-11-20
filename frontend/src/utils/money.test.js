@@ -91,3 +91,25 @@ describe('previewTotalsCents with several rates and a percentage discount (FEAT-
     expect(breakdown.reduce((sum, row) => sum + row.taxable, 0)).toBe(3000 - discount)
   })
 })
+
+describe('regressions found in review', () => {
+  it('rounds a line the way the server does for quantities that are not exact in binary floats', () => {
+    // 0.29 x 0.50 = 0.145 -> 0.15; float math gave 0.14
+    expect(fromCents(lineTotalCents(0.29, 0.5))).toBe(0.15)
+    expect(fromCents(lineTotalCents(0.29, 7.5))).toBe(2.18)
+    expect(fromCents(lineTotalCents(0.29, 14.5))).toBe(4.21)
+  })
+
+  it('does not produce NaN when free lines carry different rates', () => {
+    const totals = previewTotalsCents(
+      [
+        { quantity: 1, rate: 0, tax_rate: '20' },
+        { quantity: 1, rate: 0, tax_rate: '5' },
+      ],
+      0
+    )
+
+    expect(totals.total).toBe(0)
+    expect(Number.isNaN(totals.tax)).toBe(false)
+  })
+})

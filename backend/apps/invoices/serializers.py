@@ -148,8 +148,10 @@ class InvoiceWriteSerializer(serializers.ModelSerializer):
         """A discount larger than the subtotal would otherwise silently become a zero total."""
         if attrs.get('discount_amount') and attrs.get('discount_percent'):
             raise serializers.ValidationError({'discount_percent': 'Use a fixed discount or a percentage, not both.'})
-        if attrs.get('discount_amount') and 'discount_percent' not in attrs:
-            attrs['discount_percent'] = Decimal('0')  # switching to a fixed amount must not leave the old percentage
+        if 'discount_amount' in attrs and 'discount_percent' not in attrs:
+            attrs['discount_percent'] = Decimal('0')  # switching to a fixed amount (or none) drops the percentage
+        elif 'discount_percent' in attrs and 'discount_amount' not in attrs:
+            attrs['discount_amount'] = Decimal('0')  # the model recomputes it from the percentage, or clears it
         items = attrs.get('items')
         discount = attrs.get('discount_amount')
         if items and discount is not None:
@@ -231,7 +233,7 @@ class CreditNoteSerializer(serializers.ModelSerializer):
 
 class CreditNoteCreateSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal('0.01'))
-    reason = serializers.CharField(max_length=255)
+    reason = serializers.CharField(max_length=200)
 
 
 class InvoiceDetailSerializer(TaxBreakdownMixin, serializers.ModelSerializer):

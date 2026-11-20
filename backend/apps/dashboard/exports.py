@@ -1,7 +1,7 @@
 import csv
 from decimal import Decimal
 
-from django.db.models import DecimalField, Sum, Value
+from django.db.models import DecimalField, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 
@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
 from rest_framework.views import APIView
 
-from apps.invoices.models import Invoice, to_cents
+from apps.invoices.models import CreditNote, Invoice, to_cents
 from apps.payments.models import Payment
 from apps.time_tracker.models import TimeLog
 
@@ -26,6 +26,12 @@ def _cell(value):
         return value.date().isoformat() if hasattr(value, 'date') else value.isoformat()
     text = str(value)
     return f"'{text}" if text.startswith(FORMULA_STARTS) else text
+
+
+def _total(rows, field):
+    """Sum per invoice as a subquery: joining two child tables would multiply every row."""
+    summed = rows.filter(invoice=OuterRef('pk')).values('invoice').annotate(total=Sum(field)).values('total')
+    return Coalesce(Subquery(summed, output_field=DecimalField()), Value(Decimal('0')), output_field=DecimalField())
 
 
 class CSVExportView(APIView):
@@ -53,20 +59,21 @@ class InvoicesExportView(CSVExportView):
     filename = 'freelanceflow-invoices.csv'
     header = (
         'Invoice number', 'Client', 'Status', 'Issue date', 'Due date', 'Currency',
-        'Subtotal', 'Discount', 'Tax rate %', 'Tax', 'Total', 'Paid', 'Balance due',
+        'Subtotal', 'Discount', 'Tax rate %', 'Tax', 'Total', 'Paid', 'Credited', 'Balance due',
     )  # fmt: skip
 
     def rows(self, user):
         invoices = (
             Invoice.objects.filter(user=user)
             .select_related('client')
-            .annotate(paid=Coalesce(Sum('payments__amount_paid'), Value(Decimal('0')), output_field=DecimalField()))
+            .annotate(paid=_total(Payment.objects.values('invoice'), 'amount_paid'))
+            .annotate(credited=_total(CreditNote.objects.values('invoice'), 'amount'))
         )
         for i in invoices:
             yield (
                 i.invoice_number, i.client.name, i.status, i.issue_date, i.due_date, i.currency,
-                i.subtotal, i.discount_amount, i.tax_rate, i.tax_amount, i.total, i.paid,
-                to_cents(i.total - i.paid),
+                i.subtotal, i.discount_amount, i.tax_rate, i.tax_amount, i.total, i.paid, i.credited,
+                to_cents(i.total - i.paid - i.credited),
             )  # fmt: skip
 
 

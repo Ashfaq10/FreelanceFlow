@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from apps.invoices.totals import to_cents
+
 
 class TimeLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -30,7 +32,7 @@ class TimeLog(models.Model):
 
     @property
     def total_amount(self):
-        return self.hours * self.hourly_rate if self.hourly_rate is not None else None
+        return to_cents(self.hours * self.hourly_rate) if self.hourly_rate is not None else None
 
     def link_to_invoice(self, invoice):
         """Link this time log to an invoice and mark as billed."""

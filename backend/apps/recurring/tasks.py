@@ -16,10 +16,16 @@ logger = logging.getLogger(__name__)
 @shared_task
 def generate_recurring_invoices():
     """Daily: make every due invoice, and queue the ones their owner wants sent automatically."""
-    due = RecurringInvoice.objects.filter(is_active=True, next_run__lte=timezone.localdate()).select_related('user')
+    due = RecurringInvoice.objects.filter(
+        is_active=True, user__is_active=True, next_run__lte=timezone.localdate()
+    ).select_related('user')
     made = 0
     for schedule in due:
-        invoice = run_schedule(schedule.pk)
+        try:
+            invoice = run_schedule(schedule.pk)
+        except Exception:  # one broken schedule must not stop every later one today
+            logger.exception('recurring schedule failed', extra={'schedule_id': str(schedule.pk)})
+            continue
         if invoice is None:
             continue
         made += 1

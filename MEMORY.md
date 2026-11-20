@@ -19,6 +19,8 @@ Hard-won knowledge that isn't obvious from the code. Append entries; don't rewri
 
 ## Lessons
 
+- **2026-11-20 — Eager Celery still builds a producer, so `delay()` imports the Redis transport even in tests.** `kombu[redis]` needs `packaging`; our lock only had it through the dev file. Use `celery[redis]` in `requirements.in`, and check production requirements in a clean 3.12 venv before blaming CI.
+- **2026-11-20 — CI logs are readable with `gh run view <run> --repo Ashfaq10/FreelanceFlow --job <job> --log`** (the web page needs a login). The e2e settings print 500 tracebacks so they show up there.
 - **2026-11-20 — `InvoiceItem` ordered by a UUID primary key, so lines came back shuffled.** Order is now `position`; set it when you create items in bulk (serializer, duplicate, billing, recurring, quotes all do). [BUG-20](docs/AUDIT.md#bug-20).
 - **2026-11-20 — A Stripe session is priced for the balance at the time it was made.** Charge `invoice.amount_due`, and call `invoice.clear_pay_link()` whenever the balance changes (payment, credit note), or a client can pay a stale amount and the webhook will refuse to record it.
 - **2026-11-20 — Money maths lives in `apps/invoices/totals.py` only**, and `frontend/src/utils/money.js` mirrors it. After touching either, compare them on random invoices (the FEAT-4 parity run found 0 mismatches in 400); a one-cent drift between preview and server is a real bug.

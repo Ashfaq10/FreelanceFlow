@@ -7,6 +7,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 
 from config.celery import broker_reachable
@@ -92,8 +93,13 @@ class InvoiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().destroy(request, *args, **kwargs)
 
 
+class SendEmailThrottle(UserRateThrottle):
+    scope = 'send_email'
+
+
 class InvoiceSendView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [SendEmailThrottle]
 
     @extend_schema(
         request=SendInvoiceSerializer,
@@ -294,6 +300,7 @@ class InvoiceRemindView(APIView):
     """Chase a sent or overdue invoice by hand (FEAT-2)."""
 
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [SendEmailThrottle]
 
     @extend_schema(request=None, responses={200: QueuedSerializer, 400: ErrorSerializer, 503: ErrorSerializer})
     def post(self, request, pk):

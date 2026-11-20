@@ -42,7 +42,7 @@ def issue_credit_note(invoice, amount, reason):
     else:
         raise IntegrityError('Could not generate a unique credit note number.')
 
-    invoice.log('credit', f'{note.number}: {invoice.currency} {amount} \u2014 {reason}')
+    invoice.log('credit', f'{note.number}: {invoice.currency} {amount} \u2014 {reason}'[:255])
     invoice.clear_pay_link()
     if invoice.amount_due <= Decimal('0'):
         if invoice.amount_paid > 0:

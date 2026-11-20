@@ -125,3 +125,43 @@ class TestStripeAfterBalanceChanges:
         record_payment(sent, 10)
         sent.refresh_from_db()
         assert sent.stripe_session_id == ''
+
+
+@pytest.mark.django_db
+class TestStripeLoose:
+    def test_the_old_session_is_expired_at_stripe_when_the_balance_changes(self, api_client, sent, settings):
+        settings.STRIPE_SECRET_KEY = 'sk_test_x'
+        sent.stripe_session_id, sent.stripe_payment_url = 'cs_old', 'https://pay.example/old'
+        sent.save(update_fields=['stripe_session_id', 'stripe_payment_url'])
+
+        with patch('apps.payments.services.stripe.checkout.Session.expire') as expire:
+            credit(api_client, sent, '10')
+
+        expire.assert_called_once_with('cs_old')
+
+    def test_cancelling_expires_the_session_too(self, sent, settings):
+        settings.STRIPE_SECRET_KEY = 'sk_test_x'
+        sent.stripe_session_id, sent.stripe_payment_url = 'cs_old', 'https://pay.example/old'
+        sent.save(update_fields=['stripe_session_id', 'stripe_payment_url'])
+
+        with patch('apps.payments.services.stripe.checkout.Session.expire') as expire:
+            sent.cancel()
+
+        expire.assert_called_once_with('cs_old')
+
+    def test_a_draft_or_cancelled_invoice_takes_no_payment(self, user, client_obj, sent):
+        from django.core.exceptions import ValidationError
+
+        draft = InvoiceFactory(user=user, client=client_obj)
+        InvoiceItemFactory(invoice=draft, quantity=1, unit_price=100)
+        draft.save()
+        sent.cancel()
+
+        for invoice in (draft, sent):
+            with pytest.raises(ValidationError):
+                record_payment(invoice, 10)
+
+    def test_the_webhook_refuses_to_run_without_a_secret(self, client, settings):
+        settings.STRIPE_WEBHOOK_SECRET = ''
+
+        assert client.post('/api/payments/webhook/', data=b'{}', content_type='application/json').status_code == 503

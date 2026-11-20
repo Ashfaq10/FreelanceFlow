@@ -11,6 +11,17 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Production stack: `docker-compose.prod.yml` builds `./backend`, runs `migrate` as a release step, and puts Caddy in front (SPA from a multi-stage `frontend/Dockerfile`, `/api` `/admin` `/static` proxied, automatic TLS). `nginx.conf` is gone; `.env.prod.example` documents every variable and replaces the undocumented `.env.prod.db`. The backend image runs `collectstatic` with production settings, and both images get a `.dockerignore`; CI builds the proxy image too (OPS-3, OPS-4, OPS-5).
 
 ### Fixed
+- Production image would have crashed on the first task publish: the lockfile lacked `packaging`, which kombu's Redis transport imports. `celery[redis]` now pulls it in. Found by the CI `e2e` job (Save & Send answered 500), reproduced on Python 3.12 with production requirements only.
+- Stripe: a Checkout session priced for an old balance is now expired at Stripe when a payment, credit note or cancellation changes the balance, a draft or cancelled invoice refuses payments, the refund handler reads the ledger after taking the invoice lock, and the webhook refuses to run without `STRIPE_WEBHOOK_SECRET` (an empty secret accepts forged events).
+- The SPA preview rounded some lines one cent differently from the server (0.29 x 0.50) and could show NaN for free lines at several tax rates.
+- Account erasure crashed (500) for users with quotes or recurring schedules and left open quotes public and schedules billing; the export now includes quotes and schedules.
+- Recurring: one failing schedule no longer stops the others, deactivated accounts are never billed, and PATCHing only `end_date` cannot put it before the start.
+- A discount PATCH that sent only one of amount / percent could leave the other in force; a quote answer racing a conversion could overwrite `converted`.
+- Invoice numbering retry now uses a savepoint, so a collision inside a caller's transaction retries instead of failing; CSV "Balance due" subtracts credit notes; time-log amounts round half-up; password-reset mail failures no longer 500.
+- Public invoice and quote pages: one `main` landmark, an `h1`, and readable footer contrast (axe-clean in both themes).
+
+### Security
+- Sending invoices, reminders and quotes is throttled (60/hour per user), the send message is capped at 1000 characters, account deletion is throttled; production shares throttle counters through Redis, trusts one proxy hop, scrubs password fields from Sentry events, and Caddy sends `X-Frame-Options` and a `frame-ancestors` CSP.
 - Invoice lines came back in random order (the UUID primary key sorted them); they now keep the order they were written in. Invoices saved before this keep an arbitrary order (BUG-20).
 - Stripe checkout charged the invoice total even after a deposit or credit, and the webhook then refused the payment while the client had already paid. Sessions now charge `amount_due`, the webhook checks it, and any balance change drops the stored pay link.
 - `npm test` no longer tries to run the Playwright spec (the `e2e` job's TEST-5 commit would have failed the frontend CI job).

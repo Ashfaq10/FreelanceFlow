@@ -3,6 +3,7 @@ import logging
 import os
 
 import sentry_sdk
+from sentry_sdk.scrubber import DEFAULT_DENYLIST, EventScrubber
 
 # Attributes every LogRecord has; anything else arrived through `extra=` and belongs in the JSON line.
 _STANDARD = set(vars(logging.makeLogRecord({}))) | {'message', 'asctime'}
@@ -34,4 +35,6 @@ def init_sentry():
             release=os.getenv('SENTRY_RELEASE'),
             traces_sample_rate=float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', '0')),
             send_default_pii=False,  # invoices hold client names and amounts; keep them out of events
+            # The default denylist knows `password`, not our field names, or the public tokens in request bodies.
+            event_scrubber=EventScrubber(denylist=DEFAULT_DENYLIST + ['password1', 'password2', 'new_password', 'token']),
         )

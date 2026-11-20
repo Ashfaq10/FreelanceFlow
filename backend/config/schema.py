@@ -60,7 +60,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 
 class SendInvoiceSerializer(serializers.Serializer):
-    message = serializers.CharField(required=False, allow_blank=True, help_text='Optional note above the invoice')
+    message = serializers.CharField(
+        required=False, allow_blank=True, max_length=1000, help_text='Optional note above the invoice'
+    )
 
 
 class CancelInvoiceSerializer(serializers.Serializer):

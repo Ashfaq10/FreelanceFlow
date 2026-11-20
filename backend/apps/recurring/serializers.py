@@ -48,7 +48,8 @@ class RecurringInvoiceSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.instance is None and not attrs.get('items'):
             raise serializers.ValidationError({'items': 'At least one line item is required.'})
-        start, end = attrs.get('start_date'), attrs.get('end_date')
+        start = attrs.get('start_date', self.instance.start_date if self.instance else None)
+        end = attrs.get('end_date', self.instance.end_date if self.instance else None)
         if start and end and end < start:
             raise serializers.ValidationError({'end_date': 'The end date is before the start date.'})
         return attrs

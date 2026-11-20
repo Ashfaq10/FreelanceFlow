@@ -126,6 +126,9 @@ REST_FRAMEWORK = {
         'signup': '5/hour',
         'password_reset': '5/hour',
         'verify_email': '10/hour',
+        'delete_account': '5/hour',
+        # Mail the app sends on the owner's behalf: one account must not be able to spam with it.
+        'send_email': '60/hour',
         # Token guessing on the public invoice page (FEAT-3).
         'public_invoice': '60/hour',
     },

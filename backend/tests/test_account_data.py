@@ -194,3 +194,34 @@ class TestVerification:
             )
 
         assert response.status_code == 201
+
+
+@pytest.mark.django_db
+class TestErasureWithQuotesAndSchedules:
+    def test_quotes_and_schedules_do_not_block_or_survive_erasure(self, me, owner):
+        from apps.quotes.models import Quote, QuoteItem
+        from apps.recurring.models import RecurringInvoice
+
+        client = ClientFactory(user=owner)
+        quote = Quote.objects.create(user=owner, client=client, status='sent')
+        QuoteItem.objects.create(quote=quote, description='x', unit_price=1)
+        RecurringInvoice.objects.create(user=owner, client=client, next_run='2026-12-01')
+
+        response = me.post('/api/auth/delete/', {'password': PASSWORD}, format='json')
+
+        assert response.status_code == 200
+        assert not Quote.objects.filter(user=owner).exists()
+        assert not RecurringInvoice.objects.filter(user=owner).exists()
+        assert APIClient().get(f'/api/public/quotes/{quote.public_token}/').status_code == 404
+
+    def test_the_export_includes_quotes_and_schedules(self, me, owner):
+        from apps.quotes.models import Quote
+        from apps.recurring.models import RecurringInvoice
+
+        client = ClientFactory(user=owner)
+        Quote.objects.create(user=owner, client=client)
+        RecurringInvoice.objects.create(user=owner, client=client, next_run='2026-12-01')
+
+        data = json.loads(me.get('/api/auth/export/').content)
+
+        assert len(data['quotes']) == 1 and len(data['recurring_invoices']) == 1

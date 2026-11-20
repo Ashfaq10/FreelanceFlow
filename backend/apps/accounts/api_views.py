@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
@@ -38,6 +40,8 @@ from .models import User
 from .serializers import UserSerializer
 from .verification import send_verification_email, user_for_token
 
+logger = logging.getLogger(__name__)
+
 ALLOWED_LOGO_FORMATS = {'PNG', 'JPEG', 'WEBP'}
 
 
@@ -51,6 +55,10 @@ class SignupRateThrottle(AnonRateThrottle):
 
 class VerifyEmailThrottle(UserRateThrottle):
     scope = 'verify_email'
+
+
+class DeleteAccountThrottle(UserRateThrottle):
+    scope = 'delete_account'
 
 
 @extend_schema(
@@ -218,7 +226,10 @@ def password_reset_view(request):
             to=[user.email],
         )
         email_message.content_subtype = 'html'
-        email_message.send()
+        try:
+            email_message.send()
+        except Exception:  # an SMTP failure must look the same as an unknown address
+            logger.exception('Could not send the password reset email')
 
     # Same answer either way: the response must not reveal whether an account exists.
     return Response({'message': 'If that email has an account, a reset link is on its way.'})
@@ -292,6 +303,7 @@ def export_view(request):
 @extend_schema(request=DeleteAccountSerializer, responses={200: MessageSerializer, 400: MessageSerializer})
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([DeleteAccountThrottle])
 def delete_account_view(request):
     if not request.user.check_password(str(request.data.get('password') or '')):
         return Response({'message': 'That password is not right.'}, status=status.HTTP_400_BAD_REQUEST)

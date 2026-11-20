@@ -91,8 +91,9 @@ function PublicQuote() {
   const open = quote.status === 'sent' && !quote.is_expired
 
   return (
-    <div className="min-h-screen bg-surface-light dark:bg-surface-dark py-10 px-4">
+    <main className="min-h-screen bg-surface-light dark:bg-surface-dark py-10 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
+        <h1 className="sr-only">Quote {quote.number}</h1>
         <Wordmark />
         <Card>
           <Card.Header>
@@ -170,9 +171,9 @@ function PublicQuote() {
             </>
           )}
         </div>
-        <p className="text-center text-xs text-gray-400">Questions? Contact {quote.business_email || quote.business_name}.</p>
+        <p className="text-center text-xs text-gray-600 dark:text-gray-400">Questions? Contact {quote.business_email || quote.business_name}.</p>
       </div>
-    </div>
+    </main>
   )
 }
 
